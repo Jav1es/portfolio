@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 工具体系 6 个月落地路线图</title>
+<style>
+  :root{
+    --bg:#070b14; --bg2:#0c1322; --card:#101a2e; --line:#1e2c47;
+    --txt:#e6edf7; --dim:#8ea0bd; --blue:#3b82f6; --cyan:#22d3ee; --green:#34d399;
+    --amber:#fbbf24; --red:#f87171; --violet:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:radial-gradient(1200px 600px at 80% -10%, rgba(59,130,246,.18), transparent 60%), radial-gradient(900px 500px at -10% 20%, rgba(34,211,238,.10), transparent 55%), var(--bg); color:var(--txt);
+    font-family:"Microsoft YaHei","PingFang SC","Helvetica Neue",Arial,sans-serif; line-height:1.65; padding-bottom:80px;}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px;}
+  header{padding:56px 0 26px;text-align:center;}
+  .tag{display:inline-block;font-size:13px;letter-spacing:2px;color:var(--cyan);border:1px solid rgba(34,211,238,.35);border-radius:999px;padding:4px 16px;margin-bottom:18px;}
+  h1{font-size:36px;font-weight:800;letter-spacing:1px;background:linear-gradient(90deg,#7dd3fc,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .sub{color:var(--dim);font-size:15px;margin-top:12px;}
+  .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:18px;}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 16px;font-size:13px;color:var(--dim);}
+  .chip b{color:var(--txt);}
+  /* 统计条 */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:34px 0 10px;}
+  .stat{background:linear-gradient(180deg,rgba(255,255,255,.03),transparent),var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 14px;text-align:center;}
+  .stat .num{font-size:30px;font-weight:800;color:var(--cyan);}
+  .stat .lbl{font-size:13px;color:var(--dim);margin-top:6px;}
+  /* 原则条 */
+  .principles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0 8px;}
+  .principle{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:12px;padding:14px 16px;}
+  .principle .t{font-weight:700;font-size:14px;color:#cfe0f7;margin-bottom:4px;}
+  .principle .d{font-size:13px;color:var(--dim);}
+  /* 象限 */
+  .quad{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;margin:26px 0 8px;}
+  .quad h2{font-size:17px;margin-bottom:14px;color:#cfe0f7;display:flex;align-items:center;gap:8px;}
+  .quad h2::before{content:"";width:4px;height:18px;background:var(--cyan);border-radius:2px;}
+  .matrix{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .cell{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:rgba(255,255,255,.02);}
+  .cell.hot{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.07);}
+  .cell.hard{border-color:rgba(59,130,246,.5);background:rgba(59,130,246,.07);}
+  .cell.q3{border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.05);}
+  .cell.q4{border-color:rgba(248,113,113,.35);background:rgba(248,113,113,.04);}
+  .cell .qt{font-weight:800;font-size:14px;margin-bottom:4px;}
+  .cell .qs{font-size:12.5px;color:var(--dim);margin-bottom:6px;}
+  .cell .qe{font-size:13px;color:var(--txt);}
+  /* 时间线 */
+  .timeline-title{font-size:22px;font-weight:800;margin:44px 0 6px;text-align:center;color:#e6edf7;}
+  .timeline-sub{text-align:center;color:var(--dim);font-size:14px;margin-bottom:28px;}
+  .tl{position:relative;padding-left:34px;}
+  .tl::before{content:"";position:absolute;left:12px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--blue),var(--cyan));}
+  .phase{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:18px;transition:transform .15s, border-color .15s;}
+  .phase:hover{transform:translateX(4px);border-color:rgba(59,130,246,.6);}
+  .dot{position:absolute;left:-32px;top:24px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:3px solid var(--blue);}
+  .phase.m1 .dot{border-color:var(--cyan);} .phase.m2 .dot{border-color:var(--blue);} .phase.m3 .dot{border-color:var(--green);}
+  .phase.m4 .dot{border-color:var(--amber);} .phase.m5 .dot{border-color:var(--violet);} .phase.m6 .dot{border-color:var(--red);}
+  .phase .head{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:8px;}
+  .phase .month{font-weight:800;font-size:16px;}
+  .phase .theme{font-size:13.5px;color:var(--cyan);}
+  .phase .goal{font-size:13.5px;color:var(--dim);margin-bottom:10px;}
+  .phase ul{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-bottom:10px;}
+  .phase li{font-size:13px;color:var(--txt);padding-left:16px;position:relative;}
+  .phase li::before{content:"▸";position:absolute;left:0;color:var(--blue);}
+  .phase .dels{display:flex;flex-wrap:wrap;gap:8px;}
+  .del{font-size:12px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 12px;background:rgba(255,255,255,.03);}
+  .ms{font-size:12px;font-weight:700;color:#081020;background:var(--green);border-radius:999px;padding:2px 10px;margin-left:auto;}
+  .ms.amber{background:var(--amber);} .ms.blue{background:var(--blue);} .ms.red{background:var(--red);}
+  /* 里程碑 */
+  .milestones{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:30px;}
+  .mile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
+  .mile .when{font-size:12px;color:var(--cyan);letter-spacing:1px;margin-bottom:4px;}
+  .mile .what{font-size:14px;font-weight:700;}
+  .footnote{text-align:center;color:var(--dim);font-size:12.5px;margin-top:34px;border-top:1px solid var(--line);padding-top:20px;}
+  @media(max-width:760px){
+    .stats,.principles,.milestones{grid-template-columns:1fr 1fr;}
+    .matrix{grid-template-columns:1fr;}
+    .phase ul{grid-template-columns:1fr;}
+    h1{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="tag">AI 项目经理 · 规划交付</div>
+  <h1>AI 工具体系 6 个月落地路线图</h1>
+  <p class="sub">从"零散使用"到"统一体系"：场景盘点 → 优先级矩阵 → 工具选型 → 试点上线 → 全面推广 → 复盘固化</p>
+  <div class="meta">
+    <span class="chip">规划人：<b>黄家辉</b></span>
+    <span class="chip">周期：<b>6 个月</b></span>
+    <span class="chip">覆盖：<b>8 大业务域</b></span>
+    <span class="chip">策略：<b>试点先行 · ROI 可度量</b></span>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="stats">
+    <div class="stat"><div class="num">6</div><div class="lbl">个月分阶段推进</div></div>
+    <div class="stat"><div class="num">8</div><div class="lbl">大业务域场景盘点</div></div>
+    <div class="stat"><div class="num">2-3</div><div class="lbl">个高频痛点试点</div></div>
+    <div class="stat"><div class="num">12×</div><div class="lbl">示例 ROI（月度口径）</div></div>
+  </section>
+
+  <section class="principles">
+    <div class="principle"><div class="t">盘点先行</div><div class="d">先盘点 8 大业务域机会，再谈选型，避免"为工具而工具"。</div></div>
+    <div class="principle"><div class="t">试点打样</div><div class="d">先选 2-3 个高频痛点场景跑通，用可见成效建立信任再全面推广。</div></div>
+    <div class="principle"><div class="t">ROI 度量</div><div class="d">工具成本与节省人天双口径测算，让投入可量化、可复盘。</div></div>
+  </section>
+
+  <section class="quad">
+    <h2>价值 × 难度优先级矩阵</h2>
+    <div class="matrix">
+      <div class="cell hot">
+        <div class="qt">① 高价值 × 低难度</div>
+        <div class="qs">见效最快 · 优先试点</div>
+        <div class="qe">客服问答、电商文案、推广素材 → M3 试点上线</div>
+      </div>
+      <div class="cell hard">
+        <div class="qt">② 高价值 × 高难度</div>
+        <div class="qs">收益大 · 重点攻坚</div>
+        <div class="qe">财务报销、外贸跟单、BI 问数 → M5 深化阶段</div>
+      </div>
+      <div class="cell q3">
+        <div class="qt">③ 低价值 × 低难度</div>
+        <div class="qs">顺带落地</div>
+        <div class="qe">行政纪要、通知起草 → 随推广阶段启用</div>
+      </div>
+      <div class="cell q4">
+        <div class="qt">④ 低价值 × 高难度</div>
+        <div class="qs">暂缓评估</div>
+        <div class="qe">低频个性化场景 → 等基础设施成熟后再看</div>
+      </div>
+    </div>
+  </section>
+
+  <h2 class="timeline-title">6 个月分阶段路线图</h2>
+  <p class="timeline-sub">每阶段含目标、关键动作、交付物与里程碑</p>
+
+  <section class="tl">
+    <div class="phase m1">
+      <span class="dot"></span>
+      <div class="head"><span class="month">第 1 个月</span><span class="theme">诊断与盘点</span><span class="ms blue">里程碑 M1</span></div>
+      <div class="goal">目标：摸清现状与需求，明确 AI 机会地图。</div>
+      <ul>
+        <li>盘点 8 大业务域 AI 应用机会</li>
+        <li>访谈业务骨干，收集痛点与基线数据</li>
+        <li>梳理现有工具使用情况与重复采购</li>
+        <li>输出场景盘点表与优先级矩阵初版</li>
+      </ul>
+      <div class="dels"><span class="del">业务场景盘点表</span><span class="del">需求访谈纪要</span><span class="del">优先级矩阵</span></div>
+    </div>
+
+    <div class="phase m2">
+      <span class="dot"></span>
+      <div class="head"><span class="month">第 2 个月</span><span class="theme">选型与试点准备</span><span class="ms blue">里程碑 M2</span></div>
+      <div class="goal">目标：完成工具选型，敲定试点场景与验收指标。</div>
+      <ul>
+        <li>工具对比选型：能力 / 成本 / 合规 / 上手难度</li>
+        <li>合规评估与账号/采购方案确认</li>
+        <li>确定 2-3 个优先试点（客服问答、电商文案等）</li>
+        <li>定义试点验收指标与数据埋点方案</li>
+      </ul>
+      <div class="dels"><span class="del">工具选型对比表</span><span class="del">试点立项书</span><span class="del">验收指标</span></div>
+    </div>
+
+    <div class="phase m3">
+      <span class="dot"></span>
+      <div class="head"><span class="month">第 3 个月</span><span class="theme">试点上线</span><span class="ms">里程碑 M3</span></div>
+      <div class="goal">目标：试点场景正式上线，产出首份 ROI 数据。</div>
+      <ul>
+        <li>客服问答、电商文案等试点场景上线</li>
+        <li>"AI 先做一遍 + 人工审核兜底"运行</li>
+        <li>Prompt 迭代与输出校验规则沉淀</li>
+        <li>向管理层汇报试点效果与 ROI 初测</li>
+      </ul>
+      <div class="dels"><span class="del">试点效果报告</span><span class="del">Prompt 模板库</span><span class="del">ROI 初测</span></div>
+    </div>
+
+    <div class="phase m4">
+      <span class="dot"></span>
+      <div class="head"><span class="month">第 4 个月</span><span class="theme">推广与流程固化</span><span class="ms amber">里程碑 M4</span></div>
+      <div class="goal">目标：把成功经验复制到更多部门，建立长期运营机制。</div>
+      <ul>
+        <li>沉淀 SOP 与操作手册，开展全员培训</li>
+        <li>推广至营销、推广、行政等场景</li>
+        <li>建立周报机制与"AI 不好用"反馈闭环</li>
+        <li>设立部门种子用户，标杆部门复制</li>
+      </ul>
+      <div class="dels"><span class="del">SOP 手册</span><span class="del">培训材料</span><span class="del">周报模板</span></div>
+    </div>
+
+    <div class="phase m5">
+      <span class="dot"></span>
+      <div class="head"><span class="month">第 5 个月</span><span class="theme">深化与自动化</span><span class="ms amber">里程碑 M5</span></div>
+      <div class="goal">目标：攻坚高价值高难度场景，打通跨系统自动化。</div>
+      <ul>
+        <li>财务报销、外贸跟单、BI 问数场景攻坚</li>
+        <li>n8n / Coze / 影刀打通跨系统流程</li>
+        <li>数据回流与使用量埋点闭环</li>
+        <li>敏感数据私有化部署评估</li>
+      </ul>
+      <div class="dels"><span class="del">自动化工作流</span><span class="del">数据埋点看板</span><span class="del">私有化方案</span></div>
+    </div>
+
+    <div class="phase m6">
+      <span class="dot"></span>
+      <div class="head"><span class="month">第 6 个月</span><span class="theme">复盘与体系化</span><span class="ms red">里程碑 M6</span></div>
+      <div class="goal">目标：输出体系化复盘与年度规划，形成公司级 AI 资产。</div>
+      <ul>
+        <li>输出 ROI 复盘报告与年度 AI 规划</li>
+        <li>固化工具管理制度与选型标准</li>
+        <li>沉淀 Prompt 库、SOP 库、评测集</li>
+        <li>规划下一年度规模化与新增场景</li>
+      </ul>
+      <div class="dels"><span class="del">ROI 复盘报告</span><span class="del">年度规划</span><span class="del">AI 资产库</span></div>
+    </div>
+  </section>
+
+  <section class="milestones">
+    <div class="mile"><div class="when">M2 末</div><div class="what">选型定稿 · 试点立项</div></div>
+    <div class="mile"><div class="when">M3 末</div><div class="what">试点上线 · ROI 首测</div></div>
+    <div class="mile"><div class="when">M6 末</div><div class="what">体系化复盘 · 年度规划</div></div>
+  </section>
+
+  <section class="quad">
+    <h2>里程碑验收标准（M1-M6）</h2>
+    <div class="matrix">
+      <div class="cell hot">
+        <div class="qt">M1 诊断验收</div>
+        <div class="qs">判断标准</div>
+        <div class="qe">8 大业务域盘点表完成且业务负责人签字确认；优先级矩阵经管理层评审通过，2-3 个试点场景入选有明确理由。</div>
+      </div>
+      <div class="cell hard">
+        <div class="qt">M2 选型验收</div>
+        <div class="qs">判断标准</div>
+        <div class="qe">工具选型对比表含能力/成本/合规/上手难度四维评分；试点立项书含验收指标与数据埋点方案，ROI 基线数据已采集。</div>
+      </div>
+      <div class="cell q3">
+        <div class="qt">M3 试点验收</div>
+        <div class="qs">判断标准</div>
+        <div class="qe">试点场景上线且稳定运行 ≥ 2 周；ROI 初测报告提交管理层；试点期间输出 Prompt 模板库与输出校验规则初版。</div>
+      </div>
+      <div class="cell q4">
+        <div class="qt">M4-M6 推广与复盘验收</div>
+        <div class="qs">判断标准</div>
+        <div class="qe">SOP/培训覆盖率 ≥ 80%；采纳率 ≥ 70%（目标）；ROI 复盘报告与年度规划完成评审；AI 资产库（Prompt/SOP/评测集）归档。</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="quad">
+    <h2>风险清单与应对</h2>
+    <div class="matrix">
+      <div class="cell q3">
+        <div class="qt">业务抵触新工具</div>
+        <div class="qs">应对</div>
+        <div class="qe">先切入"帮业务省事"的高频场景给甜头；培养部门种子用户做身边榜样；把反馈闭环可见化。</div>
+      </div>
+      <div class="cell q4">
+        <div class="qt">ROI 无法量化</div>
+        <div class="qs">应对</div>
+        <div class="qe">试点立项即埋点采集基线；统一人天折算口径；月度输出节省人天与成本报表，避免事后估算。</div>
+      </div>
+      <div class="cell hot">
+        <div class="qt">工具合规与数据安全</div>
+        <div class="qs">应对</div>
+        <div class="qe">选型阶段完成合规评估；敏感数据走私有化/脱敏；建立账号权限与数据使用规范，重要数据禁止上传公网工具。</div>
+      </div>
+      <div class="cell hard">
+        <div class="qt">效果不达预期</div>
+        <div class="qs">应对</div>
+        <div class="qe">试点期设置 2 周快速验证窗口；用 A/B 对比数据说话；不达标的场景及时止损并复盘原因，避免死磕。</div>
+      </div>
+    </div>
+  </section>
+
+  <p class="footnote">AI 工具体系 0-1 搭建规划包 · 配套交付（<a href="./AI工具体系0-1搭建规划包.pdf" style="color:#7dd3fc">规划包 PDF</a>，内含工具选型对比表 / ROI 测算表 / RACI 推进机制模板）<br>量化数据为示例口径，实际以落地数据为准 · 黄家辉 · 2026 · <a href="../黄家辉_AI作品集.html" style="color:#7dd3fc">← 返回作品集</a></p>
+</main>
+</body>
+</html>

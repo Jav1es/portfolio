@@ -1,0 +1,9 @@
+.venv/
+*.bak
+*.zip
+__pycache__/
+.DS_Store
+.mypy_cache/
+.pytest_cache/
+*.pyc
+04-backup/

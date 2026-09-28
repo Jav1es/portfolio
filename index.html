@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>黄家辉 · AI 数字化落地作品集</title>
+<style>
+  :root{
+    --bg:#070b14; --bg2:#0b1120; --card:#111a2e; --card2:#0e1626;
+    --line:#1e2c47; --line2:#27375a;
+    --txt:#e6edf7; --txt2:#9fb0c9; --txt3:#6b7c99;
+    --blue:#3b82f6; --cyan:#22d3ee; --deep:#1d4ed8;
+    --grad:linear-gradient(135deg,#3b82f6,#22d3ee);
+    --green:#34d399; --amber:#fbbf24; --purple:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Segoe UI",sans-serif;
+    background:var(--bg); color:var(--txt); line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;
+    background:
+      radial-gradient(900px 500px at 12% -5%,rgba(59,130,246,.16),transparent 60%),
+      radial-gradient(800px 500px at 92% 8%,rgba(34,211,238,.12),transparent 60%),
+      radial-gradient(700px 600px at 50% 110%,rgba(29,78,216,.12),transparent 60%),
+      var(--bg);
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+
+  /* NAV */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    background:rgba(7,11,20,.82);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-in{max-width:1180px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:26px}
+  .logo{font-weight:800;font-size:17px;letter-spacing:.5px;white-space:nowrap}
+  .logo span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-links{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .nav-links a{font-size:13.5px;color:var(--txt2);padding:7px 12px;border-radius:8px;transition:.2s;white-space:nowrap}
+  .nav-links a:hover{color:var(--txt);background:rgba(59,130,246,.12)}
+  .nav-links a.active{color:#fff;background:rgba(59,130,246,.2)}
+
+  /* HERO */
+  header{padding:130px 0 70px;position:relative}
+  .badge{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--cyan);
+    border:1px solid var(--line2);background:rgba(34,211,238,.07);padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
+  h1{font-size:46px;line-height:1.2;font-weight:800;letter-spacing:-.5px;margin-bottom:16px}
+  h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{font-size:17px;color:var(--txt2);max-width:760px;margin-bottom:14px}
+  .role{font-size:14px;color:var(--txt3);margin-bottom:34px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;max-width:820px}
+  .stat{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);
+    border-radius:14px;padding:20px 18px;position:relative;overflow:hidden}
+  .stat::after{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:.7}
+  .stat b{display:block;font-size:30px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .stat i{font-style:normal;font-size:12.5px;color:var(--txt2)}
+
+  /* SECTION */
+  section{padding:60px 0;border-top:1px solid rgba(30,44,71,.5)}
+  .sec-h{margin-bottom:34px}
+  .sec-tag{font-size:12.5px;color:var(--cyan);letter-spacing:2px;font-weight:700;text-transform:uppercase}
+  h2{font-size:29px;font-weight:800;margin:8px 0 10px;letter-spacing:-.3px}
+  .sec-d{color:var(--txt2);font-size:15px;max-width:820px}
+
+  /* JD CARDS */
+  .jd-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+  .jd{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);
+    border-radius:16px;padding:24px;transition:.25s;position:relative}
+  .jd:hover{transform:translateY(-3px);border-color:var(--line2);box-shadow:0 14px 40px rgba(0,0,0,.4)}
+  .jd h3{font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .jd .ic{width:34px;height:34px;border-radius:9px;background:rgba(59,130,246,.15);
+    display:grid;place-items:center;font-size:17px;flex-shrink:0}
+  .jd p{font-size:13.5px;color:var(--txt2);margin-bottom:14px}
+  .jd .combo{font-size:12.5px;color:var(--txt3);border-top:1px dashed var(--line2);padding-top:12px}
+  .jd .combo b{color:var(--cyan);font-weight:600}
+
+  /* PIPELINE */
+  .pipe{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+  .step{flex:1;min-width:118px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 12px;text-align:center;position:relative;transition:.2s}
+  .step:hover{border-color:var(--blue);background:rgba(59,130,246,.08)}
+  .step .n{font-size:11px;color:var(--cyan);font-weight:700}
+  .step .t{font-size:13px;font-weight:600;margin-top:4px}
+  .step .a{position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:var(--line2);font-size:15px;z-index:2}
+
+  /* PORTFOLIO ITEMS */
+  .item{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);
+    border-radius:18px;margin-bottom:20px;overflow:hidden;transition:.25s}
+  .item:hover{border-color:var(--line2)}
+  .item-head{padding:22px 26px;cursor:pointer;display:flex;align-items:flex-start;gap:16px;user-select:none}
+  .item-no{font-size:13px;font-weight:800;color:#fff;background:var(--grad);width:40px;height:40px;
+    border-radius:11px;display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 14px rgba(59,130,246,.35)}
+  .item-tt{flex:1}
+  .item-tt h3{font-size:18.5px;margin-bottom:5px}
+  .item-tt .meta{font-size:12.5px;color:var(--txt3);display:flex;gap:14px;flex-wrap:wrap}
+  .item-tt .meta b{color:var(--cyan);font-weight:600}
+  .chev{color:var(--txt3);font-size:20px;transition:.3s;flex-shrink:0;margin-top:6px}
+  .item.open .chev{transform:rotate(180deg);color:var(--cyan)}
+  .item-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+  .item.open .item-body{max-height:2600px}
+  .body-in{padding:0 26px 26px;border-top:1px solid var(--line)}
+  .frow{display:grid;grid-template-columns:120px 1fr;gap:14px;padding:13px 0;border-bottom:1px dashed rgba(30,44,71,.7)}
+  .frow:last-child{border-bottom:none}
+  .fkey{font-size:13px;font-weight:700;color:var(--blue)}
+  .fval{font-size:13.5px;color:var(--txt2)}
+  .fval ul{margin:0;padding-left:18px}
+  .fval li{margin-bottom:5px}
+  .fval b{color:var(--txt);font-weight:600}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chip{font-size:11.5px;color:var(--txt2);background:rgba(59,130,246,.1);border:1px solid var(--line2);
+    padding:3px 10px;border-radius:7px}
+  .metric{display:inline-block;font-size:12px;color:var(--green);background:rgba(52,211,153,.09);
+    border:1px solid rgba(52,211,153,.25);padding:3px 10px;border-radius:7px;margin:0 6px 6px 0}
+  .ph{font-size:12px;color:var(--amber);background:rgba(251,191,36,.08);border:1px dashed rgba(251,191,36,.35);
+    padding:3px 10px;border-radius:7px;display:inline-block;margin:0 6px 6px 0}
+  .ph-link{font-size:12px;color:#7dd3fc;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.4);
+    padding:3px 10px;border-radius:7px;display:inline-block;margin:0 6px 6px 0;text-decoration:none;transition:.2s}
+  .ph-link:hover{background:rgba(59,130,246,.22);color:#fff}
+  .st{margin-left:8px;font-size:11px;padding:2px 9px;border-radius:99px;font-weight:600}
+  .st-ok{color:#34d399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.32)}
+  .st-demo{color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.32)}
+  .st-plan{color:#7dd3fc;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.32)}
+  .expand-all{font-size:13px;color:var(--cyan);cursor:pointer;border:1px solid var(--line2);
+    padding:7px 16px;border-radius:9px;background:rgba(34,211,238,.06);display:inline-block;margin-bottom:22px;transition:.2s}
+  .expand-all:hover{background:rgba(34,211,238,.14)}
+
+  /* TEMPLATE */
+  .tpl{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:24px 26px;
+    font-size:13.5px;color:var(--txt2)}
+  .tpl .tl{color:var(--cyan);font-weight:700}
+  .tpl div{padding:5px 0;border-bottom:1px dashed rgba(30,44,71,.6)}
+  .tpl div:last-child{border:none}
+
+  /* CHECKLIST */
+  .ck-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .ck{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);
+    border-radius:11px;padding:13px 16px;cursor:pointer;transition:.2s;font-size:13.5px}
+  .ck:hover{border-color:var(--line2)}
+  .ck .box{width:20px;height:20px;border-radius:6px;border:2px solid var(--line2);flex-shrink:0;
+    display:grid;place-items:center;font-size:12px;color:transparent;transition:.2s}
+  .ck.done .box{background:var(--grad);border-color:transparent;color:#fff}
+  .ck.done span:last-child{color:var(--txt3);text-decoration:line-through}
+  .ck-prog{margin-top:16px;font-size:13px;color:var(--txt2)}
+  .bar{height:7px;background:var(--card);border-radius:99px;overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+  .bar i{display:block;height:100%;background:var(--grad);width:0;transition:.4s}
+
+  /* BAIYUN */
+  .by{background:linear-gradient(160deg,rgba(59,130,246,.1),var(--card2));border:1px solid var(--line2);
+    border-radius:18px;padding:30px}
+  .by h3{font-size:20px;margin-bottom:8px}
+  .by .real{font-size:11.5px;color:var(--green);border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);
+    padding:3px 11px;border-radius:99px;display:inline-block;margin-bottom:16px}
+  .by p{font-size:14px;color:var(--txt2);margin-bottom:14px}
+  .by .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+  .by .col{background:rgba(7,11,20,.5);border:1px solid var(--line);border-radius:11px;padding:14px}
+  .by .col b{display:block;font-size:13px;color:var(--cyan);margin-bottom:5px}
+  .by .col i{font-style:normal;font-size:12px;color:var(--txt3)}
+
+  /* FDE */
+  .fde-hero{background:linear-gradient(160deg,rgba(52,211,153,.1),var(--card2));border:1px solid var(--line2);border-radius:16px;padding:22px 24px;margin-bottom:22px}
+  .fde-hero p{font-size:14px;color:var(--txt2);margin-bottom:6px}
+  .map{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
+  .map th,.map td{border:1px solid var(--line);padding:11px 13px;text-align:left;vertical-align:top;line-height:1.6}
+  .map th{background:rgba(59,130,246,.14);color:var(--txt);font-weight:700}
+  .map td{color:var(--txt2)}
+  .map td:first-child{color:var(--cyan);font-weight:600;white-space:nowrap}
+  .map .ev{color:#7dd3fc}
+  .fde-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+  .fde-story{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line2);border-radius:16px;padding:22px 24px}
+  .fde-story .tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px;margin-bottom:10px}
+  .fde-story.biz .tag{color:#34d399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.32)}
+  .fde-story.eng .tag{color:#22d3ee;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.32)}
+  .fde-story h4{font-size:16.5px;margin-bottom:12px;color:var(--txt)}
+  .fde-story .kv{font-size:13px;color:var(--txt2);margin:9px 0;line-height:1.75}
+  .fde-story .kv b{color:var(--txt);font-weight:600}
+  .fde-story .res{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line2);font-size:12.5px;color:#34d399;font-weight:600;line-height:1.7}
+  .fde-story .res span{color:var(--txt3);font-weight:400}
+
+  footer{padding:44px 0 60px;border-top:1px solid var(--line);text-align:center}
+  footer .note{font-size:12.5px;color:var(--txt3);max-width:820px;margin:0 auto 16px;line-height:1.8}
+  footer .cr{font-size:12px;color:var(--txt3)}
+
+  @media(max-width:860px){
+    h1{font-size:33px}.stats{grid-template-columns:repeat(2,1fr)}
+    .jd-grid,.ck-grid,.fde-grid{grid-template-columns:1fr}.by .cols{grid-template-columns:1fr}
+    .nav-links{display:none}.frow{grid-template-columns:1fr;gap:5px}
+    .step .a{display:none}
+  }
+
+  @media print{
+    body{background:#fff!important;color:#111!important}
+    body::before{display:none!important}
+    nav{display:none!important}
+    .item-body{max-height:none!important;overflow:visible!important}
+    .expand-all{display:none}
+    *{background:transparent!important;color:#111!important;box-shadow:none!important;text-shadow:none!important}
+    .item,.jd,.stat,.fde-story,.by,.step,.fde-hero,.tpl,.ck{border:1px solid #bbb!important}
+    .fkey{color:#1d4ed8!important}.map td:first-child,.combo b,.jd .ic,.fde-story .tag{color:#1d4ed8!important}
+    .map th{color:#1d4ed8!important}
+    a{color:#1d4ed8!important;text-decoration:none}
+    header{padding:12px 0 8px!important}h1{font-size:26px!important}
+    section{border-top:1px solid #ddd!important;padding:22px 0!important}
+    .stat b,.logo span,h1 .g{color:#1d4ed8!important}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-in">
+    <div class="logo">黄家辉 · <span>AI 作品集</span></div>
+    <div class="nav-links">
+      <a href="#jd">JD 匹配</a>
+      <a href="#fde">FDE 前线部署</a>
+      <a href="#demo">现场演示</a>
+      <a href="#chain">证据链</a>
+      <a href="#works">作品集模块</a>
+      <a href="#tpl">卡片模板</a>
+      <a href="#check">交付检查表</a>
+      <a href="#baiyun">行业定制样本</a>
+    </div>
+  </div>
+</nav>
+
+<header>
+  <div class="wrap">
+    <div class="badge"><span class="dot"></span>AI 项目经理 / 工作流落地 / 智能体开发 / FDE 前线部署工程师</div>
+    <h1>从"会规划"到<span class="g">"能落地、可演示、可量化、可复用"</span></h1>
+    <p class="sub">这是一套面向 AI 岗位的完整作品集证据链：规划书 → 流程图 → 平台配置 → Demo → 代码/看板 → SOP/手册 → 培训记录 → 数据复盘 → ROI 报告。每一项都对应面试官想看到的真实佐证。</p>
+    <p class="role">黄家辉 · 6 年企业科技服务与项目全流程经验 · 广州 · 计算机应用技术 · 信息系统项目管理师（软考高级）</p>
+    <p class="role" style="margin-top:-24px;margin-bottom:30px;font-size:13.5px">联系方式：面试时提供 · 期望地：广州 · <span style="color:var(--green)">可现场演示 / 材料可脱敏提供</span></p>
+    <div class="stats">
+      <div class="stat"><b>6年</b><i>企业科技服务与交付经验</i></div>
+      <div class="stat"><b>300+</b><i>政府/企业项目交付</i></div>
+      <div class="stat"><b>100+</b><i>服务企业客户</i></div>
+      <div class="stat"><b id="itemCount">10项</b><i>作品集证据模块 + FDE</i></div>
+    </div>
+  </div>
+</header>
+
+<!-- JD 匹配 -->
+<section id="jd">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Job Matching</div>
+      <h2>面向目标岗位的作品集组合（含 FDE）</h2>
+      <p class="sec-d">本人针对各目标岗位的不同侧重，分别组织了对应的工作证据组合，点击相应模块可查看深度内容。</p>
+    </div>
+    <div class="jd-grid">
+      <div class="jd">
+        <h3><span class="ic">🎯</span>AI 项目经理</h3>
+        <p>本人能从公司层面搭建 AI 工具体系、跨部门推进落地，并以 ROI 量化价值，而非停留在单个工具的使用。</p>
+        <div class="combo">本人对应作品：<b>AI 工具体系 0-1 规划包</b> + 跨部门推进证据（RACI/周报/验收）+ ROI 报告 + 培训推广包</div>
+      </div>
+      <div class="jd">
+        <h3><span class="ic">⚙️</span>AI 工作流程落地工程师</h3>
+        <p>本人能将 AI 工作流真正跑通、推动业务人员用起来，并基于反馈持续迭代优化。</p>
+        <div class="combo">本人对应作品：<b>2-3 个"AI 先做一遍、人只审核"流程</b> + 操作手册 + 培训反馈 + Prompt 评测体系</div>
+      </div>
+      <div class="jd">
+        <h3><span class="ic">🛒</span>AI 项目负责人（电商 / 增长）</h3>
+        <p>本人具备数据看板、流程自动化与团队带教的通用能力，可迁移至电商多平台数据打通与经营看板场景（下含自建 demo 与示例口径，非电商客户实绩，慎用于强电商背景要求）。</p>
+        <div class="combo">本人对应作品：<b>数据监测报告 + BI 看板能力</b> + Open Claw/Python 自动化 + 多维表"AI 先做人审核" + 带教 SOP</div>
+      </div>
+      <div class="jd">
+        <h3><span class="ic">🤖</span>AI 智能体开发工程师</h3>
+        <p>本人具备工程化能力：架构、RAG、工具调用、记忆、容错、部署，既能搭建也能保障稳定运行。</p>
+        <div class="combo">本人对应作品：<b>企业级智能体系统 enterprise-agent（本地工程）</b> + 六层架构 + LangGraph 编排/RAG/双视野记忆/工具调用 + Docker/K8s 部署 + 容错重试熔断</div>
+      </div>
+      <div class="jd" style="grid-column:1/-1;border-color:rgba(52,211,153,.4);background:linear-gradient(160deg,rgba(52,211,153,.08),var(--card2))">
+        <h3><span class="ic" style="background:rgba(52,211,153,.16)">🚀</span>FDE 全栈前线部署工程师（Forward Deployed Engineer）</h3>
+        <p>本人的职业内核就是 FDE 画像：6 年深入客户企业一线，从需求诊断 → 方案设计 → 端到端交付 → 现场实施指导 → 把客户团队教会，全程"把方案真正落到客户手里"，并用高企通过率、1 周交付、300+ 企业服务等量化 ROI。详见下方「FDE 能力映射」与两则实战故事。</p>
+        <div class="combo">本人对应作品：<b>高企认定现场交付（业务型 FDE）</b> ＋ <b>enterprise-agent 本地部署（工程型 FDE）</b> ＋ 培训/SOP 打通最后一公里 ＋ 数据监测报告</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FDE 前线部署工程师 -->
+<section id="fde">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Forward Deployed Engineer</div>
+      <h2>FDE 能力映射：深入一线、端到端交付</h2>
+      <p class="sec-d">FDE 的核心不是"会做技术"，而是深入客户现场、把方案端到端落地、并教会客户团队用起来。下表把 FDE 的五项核心要求逐条映射到本人真实经历与作品集证据。</p>
+    </div>
+    <div class="fde-hero">
+      <p><b style="color:var(--txt)">一句话定位：</b>本人 6 年做的是"科技服务/项目申报的现场交付"——本质就是 FDE 工作法：进客户门、诊断业务、端到端交付、现场培训、用通过率与周期量化结果。AI 与工程能力（enterprise-agent、Coze、RAG、部署）是把这套方法论从"人力密集"升级为"AI 提效"的新引擎。</p>
+    </div>
+    <table class="map">
+      <tr><th>FDE 核心要求</th><th>本人真实经历对应</th><th>作品集证据</th></tr>
+      <tr><td>深入一线 · 需求诊断</td><td>面向客户企业做需求调研、痛点诊断与可行性分析，累计覆盖 100+ 家企业</td><td class="ev">模块 1 规划包 · 模块 10 复盘</td></tr>
+      <tr><td>端到端交付</td><td>从方案编制、材料合规到申报交付一条龙，最快 1 周完成签单到申报交付</td><td class="ev">高企认定实战故事（下）</td></tr>
+      <tr><td>业务沟通 · 跨部门</td><td>协同营销做客户诊断与谈判支持，联动财务/技术完成研发费用归集与合规自查</td><td class="ev">模块 8 培训/带教 · 模块 3 财务合规</td></tr>
+      <tr><td>快速搭原型 · 现场部署</td><td>在本地/资源受限环境用 Docker Compose 快速起 enterprise-agent、现场调试降级容错</td><td class="ev">模块 4 · 模块 9 现场部署</td></tr>
+      <tr><td>ROI 量化 · 数据说话</td><td>自建项目信息数据库，输出《项目监测报告》，减少团队 40%+ 重复工作</td><td class="ev">模块 5 数据监测 · 模块 10 复盘</td></tr>
+    </table>
+    <div class="fde-grid">
+      <div class="fde-story biz">
+        <span class="tag">业务型 FDE · 真实项目</span>
+        <h4>高新技术企业认定 · 端到端现场交付</h4>
+        <div class="kv"><b>客户痛点：</b>科技型企业想拿高企资质享税收优惠，但不懂研发费用归集、知识产权与材料合规，自己报大概率被否。</div>
+        <div class="kv"><b>深入现场诊断：</b>进企业盘研发项目、知识产权、财务口径与科技人员占比，定位申报缺口。</div>
+        <div class="kv"><b>端到端方案：</b>制定申报路线 → 指导研发费用辅助账归集 → 编制技术方案与申报材料 → 组织合规性自查 → 跟进审批。</div>
+        <div class="kv"><b>打通最后一公里：</b>给企业财务/技术团队做政策与系统操作培训，让客户具备后续自主申报能力。</div>
+        <div class="res">结果：单年最高通过 24 家、单年通过项目 60+，最快 1 周完成从签单到申报交付。<br><span>（真实业务经验；具体企业名与年度数据面试时可脱敏提供）</span></div>
+      </div>
+      <div class="fde-story eng">
+        <span class="tag">工程型 FDE · 真实工程</span>
+        <h4>enterprise-agent · 资源受限环境现场部署</h4>
+        <div class="kv"><b>业务痛点：</b>要在一台普通机器上跑通一套企业智能体（编排/RAG/记忆/工具调用），不能依赖云端与专职运维。</div>
+        <div class="kv"><b>快速搭原型：</b>用 Docker Compose 一键拉起 agent-api + Redis + pgvector，本地即可演示，绕开复杂环境依赖。</div>
+        <div class="kv"><b>现场调试与救火：</b>用 OpenAI 兼容接口切本地 Ollama 模型、配置降级备用模型，解决启动依赖、模型不可用与超时问题。</div>
+        <div class="kv"><b>稳定交付：</b>内置重试/熔断/调用次数限制与 FastAPI 健康检查，保证现场长时间演示不掉线。</div>
+        <div class="res">结果：本地完整跑通并支持现场演示，工程文档齐全，已开源：<a href="https://github.com/Jav1es/enterprise-agents" target="_blank" style="color:#7dd3fc">github.com/Jav1es/enterprise-agents</a>。<br><span>（本地真实代码工程，可现场演示）</span></div>
+      </div>
+    </div>
+    <div class="fde-hero" style="margin-top:22px">
+      <p><b style="color:var(--txt)">FDE 交付物模板：</b>把 FDE 工作法沉淀为可直接复用的交付物——从"客户发现"到"工程评测"的两份标准模板，均为真实内容落地，点击卡片查看全文。</p>
+    </div>
+    <div class="fde-grid">
+      <div class="fde-story biz">
+        <span class="tag">FDE 交付物 · 客户发现简报</span>
+        <h4>Discovery Brief · 高企认定客户发现简报</h4>
+        <div class="kv"><b>一句话说明：</b>以高企认定申报服务为背景，用 FDE 工作法（进客户企业→诊断研发费用归集缺口→知产与评分诊断→形成可验证交付范围）产出的客户发现简报，数据取自真实客户台账并已脱敏。</div>
+        <div class="res">查看全文：<a href="11-fde-templates/DiscoveryBrief_高企认定客户发现简报.md" target="_blank" style="color:#7dd3fc">DiscoveryBrief_高企认定客户发现简报.md</a></div>
+      </div>
+      <div class="fde-story eng">
+        <span class="tag">FDE 交付物 · 评测计划</span>
+        <h4>Eval Plan · enterprise-agent 评测计划</h4>
+        <div class="kv"><b>一句话说明：</b>针对本地企业级智能体工程 enterprise-agent 的评测计划，定义评测数据集（对接 07 模块评测集与标注样本）、指标合同、RAG 五层与工具调用专项、发布门槛与生产监控闭环。</div>
+        <div class="res">查看全文：<a href="11-fde-templates/EvalPlan_enterprise-agent评测计划.md" target="_blank" style="color:#7dd3fc">EvalPlan_enterprise-agent评测计划.md</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 证据链 -->
+<section id="chain">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Evidence Chain</div>
+      <h2>作品集证据链全景</h2>
+      <p class="sec-d">本人的作品集不是单点文档，而是一条从规划到复盘的完整证据链。每个环节都用于回应"是否真正落地过"的考察，形成可追溯、可验证的能力证明。</p>
+    </div>
+    <div class="pipe">
+      <div class="step"><div class="n">01</div><div class="t">规划书</div><span class="a">→</span></div>
+      <div class="step"><div class="n">02</div><div class="t">流程图</div><span class="a">→</span></div>
+      <div class="step"><div class="n">03</div><div class="t">平台配置</div><span class="a">→</span></div>
+      <div class="step"><div class="n">04</div><div class="t">Demo 视频</div><span class="a">→</span></div>
+      <div class="step"><div class="n">05</div><div class="t">代码/看板</div><span class="a">→</span></div>
+      <div class="step"><div class="n">06</div><div class="t">SOP/手册</div><span class="a">→</span></div>
+      <div class="step"><div class="n">07</div><div class="t">培训记录</div><span class="a">→</span></div>
+      <div class="step"><div class="n">08</div><div class="t">数据复盘</div><span class="a">→</span></div>
+      <div class="step"><div class="n">09</div><div class="t">ROI 报告</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 作品集模块 -->
+<section id="works">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Portfolio</div>
+      <h2>作品集模块（深度展开）</h2>
+      <p class="sec-d">点击每个模块展开：业务痛点、我的角色、方案架构、工具栈、实施步骤、关键难点、量化测算、可复用资产、证明链接与复盘。证明链接已尽量指向本人制作的真实附件材料（点击即开）；量化数据凡涉成效均标注为测算模型 / 示例口径，实际以真实落地数据为准。</p>
+    </div>
+    <div class="expand-all" id="expandAll">⊕ 全部展开 / 收起</div>
+    <div id="items"></div>
+  </div>
+</section>
+
+<!-- 现场演示清单 -->
+<section id="demo">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Live Demo</div>
+      <h2>现场可演示清单</h2>
+      <p class="sec-d">可当场演示、或按需提供录屏 / 脱敏源文件的内容，证明"能落地、跑得起来"，而非纸上方案。</p>
+    </div>
+    <div class="jd-grid">
+      <div class="jd"><h3><span class="ic">🖥️</span>enterprise-agent 智能体</h3><p>本地 Docker Compose 一键起服务，现场演示工作流编排 / RAG 问答 / 工具调用 / 容错降级。</p><div class="combo">状态：<b>可现场演示</b> ｜ <a href="https://github.com/Jav1es/enterprise-agents" target="_blank" style="color:#7dd3fc;text-decoration:none">GitHub：Jav1es/enterprise-agents</a></div></div>
+      <div class="jd"><h3><span class="ic">💬</span>企业问答 / 文档 AIGC Demo</h3><p>Coze + 多维表"AI 先做、人只审"双层工作流，现场演示问答与文档生成。</p><div class="combo">状态：<b>自建 demo 可演示</b></div></div>
+      <div class="jd"><h3><span class="ic">📊</span>项目监测报告</h3><p>自建业务数据库 + SQL 报表，现场打开《项目监测报告》看数据如何驱动决策。</p><div class="combo">状态：<b>真实产出可展示</b></div></div>
+      <div class="jd"><h3><span class="ic">📐</span>白云科技规划书</h3><p>完整信息化与 AI 规划：成熟度模型、蓝图、业财一体化、8 个 AI 场景。</p><div class="combo">状态：<b>已完成 · 可发送脱敏版</b></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 卡片模板 -->
+<section id="tpl">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Template</div>
+      <h2>每个项目的作品集卡片模板</h2>
+      <p class="sec-d">所有项目统一用这套卡片结构沉淀，保证每个作品都能回答"痛点—角色—方案—难点—数据—资产—证明—复盘"的完整闭环。</p>
+    </div>
+    <div class="tpl">
+      <div><span class="tl">项目名称：</span>一句话点明做了什么</div>
+      <div><span class="tl">对应 JD：</span>AI 项目经理 / 工作流落地 / 电商 AI / 智能体开发</div>
+      <div><span class="tl">业务痛点：</span>原来的问题是什么、多痛、影响谁</div>
+      <div><span class="tl">我的角色：</span>我主导/搭建/配置/培训/迭代了什么（用"我"开头）</div>
+      <div><span class="tl">方案架构图：</span>数据流 + 模块 + 集成关系</div>
+      <div><span class="tl">工具栈：</span>Coze/Dify/n8n/影刀/Python/大模型/BI 等</div>
+      <div><span class="tl">实施步骤：</span>从需求到上线的分步动作</div>
+      <div><span class="tl">关键难点与解决：</span>踩了什么坑、怎么解决</div>
+      <div><span class="tl">量化结果：</span>处理量、节省人天、准确率、转化率、成本下降、周期缩短</div>
+      <div><span class="tl">可复用资产：</span>Prompt、SOP、代码、模板、看板</div>
+      <div><span class="tl">证明链接：</span>GitHub、视频、看板、截图</div>
+      <div><span class="tl">复盘：</span>如果重做，我会怎么优化</div>
+    </div>
+  </div>
+</section>
+
+<!-- 检查表 -->
+<section id="check">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Checklist</div>
+      <h2>最终交付物检查表</h2>
+      <p class="sec-d">本人作品集涵盖以下交付物模块，构成从规划到复盘的完整证据体系，点击可逐项勾选查看。</p>
+    </div>
+    <div class="ck-grid" id="ckGrid"></div>
+    <div class="ck-prog">完成进度：<b id="ckNum">0</b> / <span id="ckTotal">0</span>
+      <div class="bar"><i id="ckBar"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- 白云科技样本 -->
+<section id="baiyun">
+  <div class="wrap">
+    <div class="sec-h">
+      <div class="sec-tag">Real Work Sample</div>
+      <h2>行业定制规划能力 · 已落地样本</h2>
+      <p class="sec-d">除通用作品集外，我针对具体企业做过深度行业定制规划，证明"体系化思维 + 行业理解 + 信息化蓝图"能力。</p>
+    </div>
+    <div class="by">
+      <span class="real">✓ 真实完成的作品样本</span>
+      <h3>《白云科技信息化总体规划与数字化转型方案（含 AI 赋能）》</h3>
+      <p>面向广州白云科技股份有限公司（建筑密封胶 / 高分子新材料研发制造领军企业、国标起草单位、国家知识产权示范企业）编制的公司级信息化总体规划。以"入职后规划"视角，覆盖 ERP / SRM / PLM / MES / HR / LIMS 五大业务系统 + 数据中台 + AI 能力平台 + 基础设施安全，并深度融入 AIGC 与 AI Agent 落地场景。</p>
+      <div class="cols">
+        <div class="col"><b>体系化规划</b><i>L1-L5 成熟度模型 + 总体蓝图 + 按系统完善程度推进的优先级矩阵</i></div>
+        <div class="col"><b>行业深度适配</b><i>配方研发 Copilot、多标准合规核查、批次质量追溯等 8 个专属 AI 场景</i></div>
+        <div class="col"><b>财务方向强项</b><i>业财一体化、研发费用归集与加计扣除，契合高新技术企业真实需求</i></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="note">诚信说明：本网站为求职作品集。<b style="color:var(--txt2)">真实项</b>——「企业级智能体系统 enterprise-agent」为本人本地开发工程（含完整开发文档，可现场演示，已开源至 GitHub：github.com/Jav1es/enterprise-agents）；《白云科技规划方案》、高企认定 / 项目申报交付、自建项目信息数据库与《项目监测报告》为本人客户服务真实经历；各模块"证明链接"多为本人制作的实物材料（点击即开）。<b style="color:var(--txt2)">口径说明</b>——凡成效类数字均标注为"测算模型 / 示例口径"，实际以落地数据为准；电商相关场景为自建 demo / 方法储备，非电商客户实绩。FDE 板块两则实战故事基于真实项目，企业名与年度数据面试时可脱敏提供。</p>
+    <p class="cr">黄家辉 · AI 数字化落地作品集 · 2026 ｜ 本材料含联系方式，仅供目标企业 / 猎头面试使用，请勿外传</p>
+  </div>
+</footer>
+
+<script>
+// ===== 作品集模块数据 =====
+const ITEMS = [
+  {
+    t:"AI 工具体系 0-1 搭建规划包", status:"📐 方案规划", jd:"AI 项目经理 / AI 项目负责人",
+    pitch:"企业AI用得乱、没规划。我像做《白云科技规划》那样，先盘场景、用价值×难度排优先级、算ROI给老板看——300+项目可研立项练出来的规划，不是PPT。",
+    pain:"公司各部门零散使用 AI 工具，无统一规划、无选型标准、无 ROI 衡量，重复采购、效果不可控。",
+    role:"本人具备体系化规划能力：已独立完成《白云科技信息化总体规划与数字化转型方案》，并累计编制 300+ 政府/企业项目的可行性研究与立项方案；本模块是一套企业级 AI 工具体系 0-1 规划的方法与规划包（业务盘点、选型标准、ROI、路线图与跨部门推进机制）。",
+    arch:"业务场景盘点（营销/推广/内容/客服/财务/行政/外贸/电商）→ 价值×难度优先级矩阵 → 工具选型对比 → 6 个月路线图 → 成本预算与 ROI 测算 → 跨部门推进机制（RACI/周报/验收标准）。",
+    tools:["ChatGPT","豆包","Gemini","Midjourney","剪映","即梦","Coze","Dify","n8n","影刀","钉钉千问"],
+    steps:["盘点 8 大业务场景的 AI 应用机会","用价值×难度矩阵排优先级","对比主流工具（能力/成本/合规/上手难度）","编制 6 个月分阶段路线图","测算工具费+人力+预计节省人天，输出 ROI","设计 RACI 职责矩阵、周报模板与验收标准"],
+    hard:"难点：业务部门需求分散、对 AI 期望不切实际。解决：先选 2-3 个高频痛点场景做试点，用可见成效建立信任，再全面推广；用 ROI 测算争取管理层预算支持。",
+    metrics:["真实样本：《白云科技信息化总体规划》+ 300+ 项目可研/立项","规划包覆盖 8 大业务域 + 工具选型对比 + ROI 测算","价值×难度矩阵定优先级"],
+    assets:["《白云科技信息化总体规划》（真实）","工具选型对比表","规划路线图","ROI 测算表","RACI 推进机制模板"],
+    links:["规划包 PDF|./01-ai-toolkit/AI工具体系0-1搭建规划包.pdf","路线图网页|./01-ai-toolkit/路线图.html"],
+    retro:"如果重做，本人会更早引入业务骨干共创场景清单，避免规划与一线脱节；并建立工具使用数据埋点，让 ROI 从'测算'走向'实测'。"
+  },
+  {
+    t:"AI 工作流落地标杆 A：企业智能问答与申报文档 AIGC", status:"🔧 自建 Demo", jd:"AI 工作流落地工程师 / FDE / AI 项目负责人",
+    pitch:"政策问答、材料预审、文档编写重复又易错。我用Coze+多维表搭出AI先做、人只审的双层流，demo已跑通方法，效率翻倍、可迁到任意业务。",
+    pain:"企业科技服务中，政策咨询、申报材料合规预审、文档与内容编写重复度高、依赖人工，政策更新快、易出错。",
+    role:"本人基于 Coze / 本地大模型搭建'AI 先做一遍、人只审核'的工作流（自建 demo 验证方法论，可迁移至项目申报、企业客服与内容场景），配合多维表做人工审核台。",
+    arch:"输入（政策/材料/需求）→ AI 分类与信息抽取 → 大模型生成草稿/回复 → 多维表人工审核台 → 采纳发布/归档；批量文档处理与数据清理由 Python 承担。",
+    tools:["Coze","Dify","n8n","飞书/钉钉多维表","大模型 API","Python"],
+    steps:["梳理企业问答与文档场景全流程与痛点","设计 AI 预处理 + 人工审核的双层流程","在 Coze/Dify 编排分类、生成、审核节点","用多维表搭建'AI 先做、人审核'工作台","小范围试点 → 收集反馈 → 迭代 Prompt 与流程","输出操作手册并培训业务人员"],
+    hard:"难点：AI 生成内容质量不稳、合规要求高。解决：Prompt 模板 + 输出校验规则 + 人工审核兜底，把'抽卡'变为'可控生产线'；关键结论人工确认。",
+    metrics:["自建 demo 验证：AI 预处理后人工审核量大幅下降（示例：千条级 → 数百条审核）","审核通过率目标 ≥ 85%（示例口径）","内容/文档生成效率提升测算 ≥ 50%"],
+    assets:["问答/文档工作流配置","Prompt 模板库","人工审核台模板","操作手册"],
+    links:["工作流运行截图|./02-ecommerce-ai/流程截图.png","数据对比表|./02-ecommerce-ai/数据对比表.xlsx","操作手册|./02-ecommerce-ai/操作手册.docx","Prompt模板库|./02-ecommerce-ai/Prompt模板库.docx","人工审核台模板|./02-ecommerce-ai/人工审核台模板.xlsx"],
+    retro:"如果重做，本人会把'真实业务数据回流闭环'做得更早，让生成质量由采纳率与错误率数据驱动迭代，而非仅靠经验调 Prompt。"
+  },
+  {
+    t:"AI 工作流落地标杆 B：财务 / 行政 / 外贸跟单", status:"✅ 已交付", jd:"AI 工作流落地工程师 / AI 项目负责人",
+    pitch:"高企和加计扣除卡在研发费用与财务口径。我做过研发费用归集、技术鉴定、单年24家高企通过，能把财务和技术口径拉齐、合规自查到点。",
+    pain:"发票报销人工逐条审核慢、易错；外贸询盘分类、报价、跟单、报关资料检查靠人工；行政重复报表汇总耗时。",
+    role:"我设计 RPA + AI 审核的财务/行政/外贸工作流，把'人工逐条处理'改为'AI 先做一遍、人工只审异常'，并输出 SOP 与异常清单。",
+    arch:"发票/报销：OCR 识别 → 规则校验 → 大模型合规判断 → 异常表 → 人工复核；外贸：询盘分类 → 报价生成 → 跟单提醒 → 报关资料检查。",
+    tools:["影刀","实在智能","UiBot","钉钉 RPA","Coze","Dify","n8n","OCR"],
+    steps:["盘点财务/行政/外贸高频重复流程","设计 OCR+规则+大模型的三层校验流程","用 RPA 打通系统间数据搬运","建立异常清单与人工复核机制","试点 → 统计准确率与人工审核量下降 → 迭代","输出 SOP 与培训材料"],
+    hard:"难点：财务合规要求高、AI 误判风险大。解决：关键节点（金额、税率、合规）保留人工把关，AI 只做预筛与提示；用规则引擎兜底大模型的不确定性。",
+    metrics:["示例测算：人工审核量下降约 70%","准确率目标 ≥ 92%（示例口径）","节省工时测算 ≥ 2 人天/周"],
+    assets:["RPA+AI 审核流程配置","异常清单模板","SOP 文档","校验规则库"],
+    links:["RPA+AI审核流程配置|./03-finance-admin-trade-ai/RPA+AI审核流程配置.docx","异常清单模板|./03-finance-admin-trade-ai/异常清单模板.xlsx","SOP文档|./03-finance-admin-trade-ai/SOP文档.docx","校验规则库|./03-finance-admin-trade-ai/校验规则库.docx"],
+    retro:"如果重做，我会先做更细的错误分类统计，针对高频错误类型专门优化 Prompt 和规则，而不是泛泛调优。"
+  },
+  {
+    t:"企业级智能体系统（本地开发工程 enterprise-agent）", status:"✅ 已交付", jd:"AI 智能体开发工程师",
+    pitch:"通用聊天机器人接不了企业系统。我自建enterprise-agent：LangGraph编排+RAG+双视野记忆+工具调用，Docker一键本地起服务，能现场演示。",
+    shot:"./04-enterprise-agent/enterprise-agents/assets/rag_run_terminal.png",
+    archImg:"./04-enterprise-agent/enterprise-agents/assets/architecture.svg",
+    pain:"通用聊天机器人无法对接企业系统、无持久记忆、无工具调用、输出不可控、故障无兜底，难以支撑真实企业场景。",
+    role:"本人独立设计并开发了一套面向企业场景的本地智能体系统，具备工作流编排、工具调用、记忆管理、RAG 知识库四大核心能力，通过标准化接入层对接 ERP/CRM/OA/钉钉/企微，内置容错重试与降级机制，支持 Docker Compose 本地部署与 K8s 集群部署。",
+    arch:"六层架构：接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph：Router→Planner→Skill→Tool→Reviewer）→ 工具层（Native Tool Calling / MCP 协议 / HTTP Connector）→ 记忆层（短期 Redis + 长期 PostgreSQL 事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层（DeepSeek/Qwen/Ollama 本地模型，OpenAI 兼容接口）。",
+    tools:["Python 3.11+","FastAPI","LangGraph","LangChain","Pydantic v2","ChromaDB/Milvus","Redis","PostgreSQL","SQLAlchemy","MCP SDK","Docker","Helm/K8s","Pytest","GitHub Actions CI"],
+    steps:["编排层：用 LangGraph StateGraph 构建 Router→Planner→Skill→Tool→Reviewer 五阶段链路，Pydantic 结构化输出衔接各阶段，支持多步工具调用循环","记忆层：双视野记忆——短期 Redis（会话状态 TTL 30 分钟、滚动摘要、上下文预算控制）+ 长期 PostgreSQL（事实三元组持久化、按访问频率自动提升、按时间修剪、去重与冲突检测）","知识层 RAG：语义边界智能切分（段落→换行→句子，chunk 500/overlap 50）→ Dense+BM25 混合检索 → RRF 融合 → Cross-Encoder（bge-reranker-base）重排 → 生成附引用来源","工具层与接入：Pydantic 严格 Schema 定义工具输入输出，UnifiedMessage 统一多平台消息模型，企微经 wecom-aibot-python-sdk WebSocket 长连接，MCP 系统经 MultiServerMCPClient 标准化工具发现","容错与稳定性：错误分类处理（瞬态→指数退避重试、LLM 可恢复→ToolMessage 反馈、Provider 宕机→降级备用模型、过度调用→调用次数限制）+ 熔断器（连续失败 5 次 Open→恢复超时 Half-Open 试探）","部署与服务：Docker Compose 编排 agent-api/redis/pgvector，K8s Helm 部署（HPA CPU 70% 自动扩缩容、Liveness/Readiness 探针）；FastAPI 提供同步 /v1/chat 与 SSE 流式 /v1/chat/stream 接口、Swagger UI 文档；Locust 压测 TTFT/P95/P99/QPS/错误率","质量与工程化保障：为核心模块编写 pytest 单元测试（test_api 接口契约 / test_graph 编排状态流转 / test_memory 双视野读写），GitHub Actions CI 在每次推送自动跑 lint + 测试作为合并门禁；提交前用 check_sensitive.sh 扫描硬编码密钥/Token，配合 .gitignore 排除 .env 与证书，保证源码可公开而不泄露凭证"],
+    hard:"难点：多阶段智能体协作的稳定性、幻觉控制与故障兜底。解决：用 Pydantic 结构化输出约束各阶段格式、RAG 混合检索+重排降低幻觉并附引用来源、中间件层做重试/降级/熔断/调用次数限制防死循环，关键输出经 Reviewer 节点校验。",
+    metrics:["短期记忆 TTL 30 分钟，长期记忆事实三元组持久化","熔断阈值：连续失败 5 次触发 Open→Half-Open","HPA 自动扩缩容 CPU 阈值 70%","RAG：chunk 500 / overlap 50，Dense+BM25→RRF→重排","压测度量维度：TTFT / P95-P99 延迟 / QPS / 错误率"],
+    assets:["六层架构设计文档","LangGraph 工作流编排代码","双视野记忆模块（Redis+PostgreSQL）","RAG 混合检索+重排模块","容错/降级/熔断中间件","Docker Compose + Helm Chart","FastAPI 服务与 Swagger 文档","Locust 压测脚本","pytest 单元测试（api/graph/memory）","GitHub Actions CI 工作流","敏感信息扫描脚本 check_sensitive.sh"],
+    links:["《企业级智能体系统开发文档》|./04-enterprise-agent/企业级智能体系统开发文档.md","本地代码工程 enterprise-agent（可现场演示）","GitHub 仓库：enterprise-agents|https://github.com/Jav1es/enterprise-agents","RAG 检索演示·真实运行截图|./04-enterprise-agent/enterprise-agents/assets/rag_run_terminal.png","RAG 检索演示·逐帧回放 GIF|./04-enterprise-agent/enterprise-agents/assets/rag_run_demo.gif","RAG 评测报告|./04-enterprise-agent/enterprise-agents/examples/rag_demo/RAG_Eval_Report.md"],
+    retro:"这一版已把当初复盘里说的两件事落地：接入了 OpenTelemetry 全链路可观测性（日志/追踪/指标），并把 RAG 评测集纳入 CI 做回归。下一步我会扩大评测样本量、把检索准确率从当前 83.3%（Top-3，检索降级模式）进一步用 Cross-Encoder 重排与查询改写拉高，并补上端到端多轮对话的自动化评测。"
+  },
+  {
+    t:"业务数据库与数据监测报告（SQL 报表 + BI/ChatBI）", status:"✅ 已交付", jd:"AI 项目负责人（数据）/ FDE",
+    pitch:"项目数据散在Excel、决策没数。我自建业务库、用SQL固化报表、定期出《项目监测报告》，帮团队砍掉40%以上重复活。",
+    pain:"项目与业务数据散落在 Excel 与纸质材料，报表靠人工汇总，管理者看不到实时进度与成效，决策缺数据支撑。",
+    role:"本人自建项目信息数据库（业务知识库雏形），用 MySQL 存储、SQL/存储过程开发报表，采集执行数据并定期输出《项目监测报告》，以数据驱动方案迭代与管理决策；该数据方法论可迁移到电商经营看板与 ChatBI 自然语言问数。",
+    arch:"数据采集（项目立项/进度/材料/财务归集）→ MySQL 业务数据库 → SQL/存储过程查询与报表 → 《项目监测报告》→ 管理决策；延伸：ETL 入仓 → 指标体系 → BI 看板 → ChatBI 自然语言问数。",
+    tools:["MySQL","SQL / 存储过程","Python","数据分析/建模","FineBI/PowerBI（方法）","钉钉智能报表"],
+    steps:["盘点数据来源与统计口径","建库并统一字段与主数据口径","用 SQL/存储过程固化常用报表","定期采集数据并输出《项目监测报告》","延伸：ETL 入仓 + 指标体系 + BI 看板","延伸：接入 ChatBI 自然语言问数"],
+    hard:"难点：数据来源分散、口径不一。解决：先统一数据字段与口径建结构化库，用 SQL 固化报表，避免'同名不同义'与人工汇总出错。",
+    metrics:["自建业务数据库并定期输出《项目监测报告》","减少团队 40%+ 重复工作","报表自动化率 / 数据入仓率为核心度量（示例口径）"],
+    assets:["项目信息数据库结构","SQL 报表 / 存储过程","《项目监测报告》模板","指标体系与指标字典"],
+    links:["指标体系|./05-bi-chatbi/指标体系.docx","BI看板模板|./05-bi-chatbi/BI看板模板.xlsx","ETL脚本|./05-bi-chatbi/ETL脚本.py","ChatBI问数配置|./05-bi-chatbi/ChatBI问数配置.docx","指标字典|./05-bi-chatbi/指标字典.xlsx"],
+    retro:"如果重做，本人会把数据质量监控做进看板，源数据异常自动预警，并把 ChatBI 问数尽早接入，让'看板好看且数据可信'。"
+  },
+  {
+    t:"RAG 知识库 Demo（enterprise-agent 真实带数据演示）", status:"🔧 自建 Demo", jd:"AI 智能体开发工程师",
+    pitch:"企业问答答非所问、没出处。我在 enterprise-agent 里加了一套真实带数据的 RAG demo：上传制度文档→提问→返回带条款引用的回答，离线可跑、指标可量化。",
+    pain:"大模型直接回答企业制度/知识类问题易幻觉、无引用来源，无法满足企业可信问答要求。",
+    role:"本人基于自建 enterprise-agent 的知识层（ChromaDB + Dense+BM25 混合检索 RRF + Cross-Encoder 重排），新增 examples/rag_demo 真实演示模块：示例企业制度文档 + 可运行脚本 + 评测报告，跑通'加载文档→建索引→提问→返回引用来源'全流程，无 LLM Key 自动降级为 Top-K 检索结果。",
+    arch:"sample_policy.md（脱敏企业制度）→ indexer.split_documents 语义切分（chunk 500/overlap 50）→ ChromaDB 建索引 → HybridRetriever（Dense+BM25→RRF）→ Cross-Encoder 重排（可选）→ 带章节引用的回答；无 Key 降级返回 Top-K 命中片段与来源。",
+    tools:["Python 3.11+","ChromaDB","rank-bm25","LangChain","RRF","Cross-Encoder（可选）","Ollama/OpenAI 兼容接口（可选）"],
+    steps:["编写脱敏公开企业制度示例文档 sample_policy.md（40 条制度）","复用 knowledge 层实现 rag_demo.py：加载→切分→建索引→混合检索→降级引用","配置 6 条人工标注黄金条款的评测集，内置 run_eval 量化指标","本地实际运行 3-5 个示例提问并记录真实输出","生成 RAG_Eval_Report.md：检索准确率/拒答率/引用来源准确率","编写 requirements.txt 与 README 说明运行方式"],
+    hard:"难点：中文制度条款检索命中率与无 Key 可演示性。解决：Dense+BM25 混合检索 + RRF 融合提升召回，Cross-Encoder 重排预留降级点；无 Key 时自动降级为 Top-K 片段+来源，保证离线可跑。",
+    metrics:["检索准确率 @3：83.3%（5/6，真实评测）","拒答率：16.7%（1/6，检索层判定资料不足应拒答）","引用来源准确率：83.3%（5/6，引用即 Top-K 命中片段）","6 条评测集人工标注黄金条款，指标可复现"],
+    assets:["示例企业制度文档（脱敏）","RAG 演示脚本（复用 knowledge 层）","RAG 评测报告（真实运行数据）","运行说明 README 与依赖说明"],
+    links:["RAG评测报告|./04-enterprise-agent/enterprise-agents/examples/rag_demo/RAG_Eval_Report.md","RAG演示脚本|./04-enterprise-agent/enterprise-agents/examples/rag_demo/rag_demo.py","示例企业制度文档|./04-enterprise-agent/enterprise-agents/examples/rag_demo/sample_policy.md","运行说明|./04-enterprise-agent/enterprise-agents/examples/rag_demo/README.md"],
+    retro:"如果重做，本人会先把 Cross-Encoder 重排跑通并纳入评测对比（本机未装 sentence-transformers 已自动降级），并扩展评测集到 20+ 问，让检索准确率更稳健。"
+  },
+  {
+    t:"AI 评测与可观测性（评测集纳入 CI 回归 + OTel/Jaeger 全链路追踪）", status:"🔧 自建 Demo", jd:"AI 智能体开发工程师",
+    pitch:"智能体上线怕退化、出问题难定位。我把评测集纳入 GitHub Actions 每次 push 自动回归，并用 OpenTelemetry+Jaeger 打通 Router→Planner→Tool→Reviewer 全链路 trace，一次请求一条链、每阶段耗时可见。",
+    pain:"智能体系统迭代缺少自动回归防线，评测依赖人工跑；生产环境一次会话跨多阶段（路由/规划/工具/评审），故障与慢节点无法按请求链路定位。",
+    role:"本人为 enterprise-agent 补齐生产化双能力：① 将 examples/rag_demo 内置评测集纳入 CI（新增 eval-rag job），每次 push 自动跑 6 条评测并断言阈值、上传指标报告产物；② 基于 OpenTelemetry 实现全链路观测（observability 模块），对 Router/Planner/Retrieve/Tool/Reviewer/Respond 各节点打点，docker-compose 内置 Jaeger，真实运行会话抓取 Jaeger trace 截图与方案文档。",
+    arch:"评测回归：GitHub Actions（push 触发）→ uv 装依赖 → rag_demo.py --eval（无 Key 降级）→ 断言检索准确率≥60%/引用准确率≥60%/拒答率≤40% → upload-artifact 保存报告。可观测性：Agent 会话根 span（agent.workflow.invoke，trace_id 贯穿）→ 各节点 span（agent.node.router/planner/retrieve/tool_call/reviewer/respond，记录 duration_ms）→ OTLP HTTP(4318) → Jaeger all-in-one（UI 16686）按 trace 聚合展示阶段耗时。",
+    tools:["Python 3.11+","OpenTelemetry SDK","OTLP HTTP/protobuf","Jaeger all-in-one","GitHub Actions CI","uv","FastAPI instrumentation"],
+    steps:["评测集纳入 CI：新增 eval-rag job，py3.11/3.12 双矩阵，uv sync + chromadb/rank-bm25/langchain-text-splitters，运行 rag_demo.py --eval --top-k 3 并断言阈值","评测输出与本地命令完全一致，本地实际运行验证指标（检索准确率 83.3% / 拒答率 16.7% / 引用准确率 83.3%）","实现 observability/telemetry.py：TracerProvider + OTLPSpanExporter + traced_node 节点打点装饰器，记录阶段耗时 duration_ms","编排层接入：nodes.py 全部节点 @traced_node 打点，graph.py ainvoke/invoke 创建根 span 使 trace_id 贯穿整条链路","docker-compose 新增 Jaeger 服务（16686/4317/4318），agent-api 配置 OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318","pyproject observability extra 补齐 opentelemetry-api/sdk/instrumentation-fastapi/exporter-otlp-proto-http","真实运行 run_trace_demo.py 会话（无 Key 降级）经 OTLP 上报 Jaeger，抓取 trace 详情页真实截图（8 span 含 tool 循环）","输出 docs/observability.md 方案文档（架构/span 定义/trace_id 机制/复现步骤/真实截图）"],
+    hard:"难点：评测 stdout 含 banner 非纯 JSON、OTLP 上报与 Jaeger 落地验证、trace_id 跨异步节点贯穿。解决：CI 断言脚本做 JSON 块提取；本地起 Jaeger all-in-one 实际接收 OTLP 并查询 trace 验证；根 span 包裹编排、子 span 经 Context 继承 trace_id（asyncio task 亦继承）。",
+    metrics:["CI：每次 push 自动跑 6 条评测，断言检索准确率≥60%/引用准确率≥60%/拒答率≤40%，报告作为 artifact 保存","评测基线（top_k=3）：检索准确率 83.3%、拒答率 16.7%、引用来源准确率 83.3%","Jaeger trace：一次会话 8 个 span（根 + Router/Planner×2(工具循环)/Retrieve/Tool/Reviewer/Respond），trace_id 贯穿","真实截图 docs/observability/jaeger_trace.png，非伪造"],
+    assets:["OTel 观测模块（telemetry.py + 节点打点）","Jaeger 服务编排（docker-compose）","可观测性方案文档（含复现步骤）","Jaeger trace 真实截图","CI 评测回归 job"],
+    links:["可观测性方案文档|./04-enterprise-agent/enterprise-agents/docs/observability.md","Jaeger trace 真实截图|./04-enterprise-agent/enterprise-agents/docs/observability/jaeger_trace.png","OTel 观测模块源码|./04-enterprise-agent/enterprise-agents/src/enterprise_agent/observability/telemetry.py","观测演示脚本|./04-enterprise-agent/enterprise-agents/examples/observability/run_trace_demo.py","CI 评测回归配置|https://github.com/Jav1es/enterprise-agents/blob/main/.github/workflows/ci.yml","RAG 评测报告|./04-enterprise-agent/enterprise-agents/examples/rag_demo/RAG_Eval_Report.md"],
+    retro:"如果重做，本人会为评测集补充检索延迟/LLM 回答质量维度并扩展 20+ 条，同时把 Jaeger 接入 FastAPI 请求中间件实现线上请求级追踪，形成评测-监控闭环。"
+  },
+  {
+    t:"办公流程自动化（Open Claw + Python 脚本）", status:"🔧 自建 Demo", jd:"AI 工作流落地工程师 / FDE / AI 项目负责人",
+    pitch:"采集、清洗、汇总这些重复活太吃人。我用Open Claw+Python脚本自动跑起来，异常再交人复核，稳且可维护。",
+    pain:"信息采集、文档处理、数据清洗、报表与对账汇总等跨系统重复操作靠人工，慢且易错。",
+    role:"本人部署调试 Open Claw 自动化工作流框架，并用 Python 编写自动化脚本批量完成文档处理与数据清洗，配合 Coze 编排，把重复流程改为自动执行 + 异常人工复核（影刀/钉钉 RPA 为方法储备）。",
+    arch:"触发（定时/事件）→ Open Claw / Python 自动化脚本（信息采集 / 文档处理 / 数据清洗 / 汇总）→ 大模型增强 → 结果汇总 → 异常告警 → 人工复核。",
+    tools:["Open Claw","Python","大模型 API","Coze","定时任务/脚本","影刀/钉钉 RPA（方法了解）"],
+    steps:["盘点高频重复的跨系统操作","设计自动化流程（触发→执行→汇总→告警）","用 Open Claw 编排 + Python 脚本实现","加异常处理、失败重试与人工复核兜底","试点 → 统计替代人工时长与错误率 → 推广","输出 SOP 与运维文档"],
+    hard:"难点：脚本在环境/界面变化时失效。解决：优先用 API 与结构化数据源、加输入容错与失败重试、异常告警与人工复核兜底，定期巡检。",
+    metrics:["替代人工时长 / 错误率下降为核心度量","Python 批量文档处理与数据清洗（真实脚本）","异常告警降低漏处理风险"],
+    assets:["自动化流程脚本（Open Claw/Python）","异常处理与告警配置","SOP 与运维文档"],
+    links:["自动化流程脚本|./06-rpa/RPA流程脚本.py","异常处理与告警配置|./06-rpa/异常处理与告警配置.docx","SOP与运维文档|./06-rpa/SOP与运维文档.docx"],
+    retro:"如果重做，本人会优先选有 API 的系统做集成，把界面级自动化（RPA）用在确实无接口的场景，从根上提升稳定性。"
+  },
+  {
+    t:"Prompt 工程与评测体系", status:"🔧 自建 Demo", jd:"所有 JD（尤其工作流落地、智能体开发）",
+    pitch:"AI输出像抽卡不稳。我用结构化Prompt+JSON Schema校验+评测集做A/B，把抽卡变成可校验、可复现的生产线。",
+    pain:"Prompt 靠感觉写，输出不稳定、不可校验，像'抽卡'，无法支撑生产环境。",
+    role:"我建立 Prompt 库 + 评测集 + 输出校验规则 + 版本迭代记录，让 AI 输出稳定、可校验、可复现。",
+    arch:"Prompt 模板（分类/抽取/生成/审核/总结）→ JSON Schema/正则/规则校验 → 人工审核机制 → A/B 测试与准确率对比 → 版本迭代记录。",
+    tools:["大模型 API","JSON Schema","正则","Python","评测脚本","Coze/Dify"],
+    steps:["按场景沉淀 Prompt 模板（分类/抽取/生成/审核/总结）","定义 JSON Schema 与正则校验规则","建立评测集（标注样本）与准确率基线","做 A/B 测试对比不同 Prompt 效果","建立人工审核与反馈闭环","版本化管理 Prompt 与迭代记录"],
+    hard:"难点：业务场景多样、Prompt 难复用。解决：抽象出'角色+任务+约束+输出格式+示例'的结构化模板，用 Schema 强约束输出，让 Prompt 从'手艺'变为'工程'。",
+    metrics:["评测集准确率对比为核心度量","输出格式合规率提升","A/B 测试驱动持续优化"],
+    assets:["Prompt 模板库","评测集与标注样本","JSON Schema/校验规则","版本迭代记录"],
+    links:["Prompt模板库|./07-prompt-engineering/Prompt模板库.docx","评测集与标注样本|./07-prompt-engineering/评测集与标注样本.xlsx","JSONSchema校验规则|./07-prompt-engineering/JSONSchema校验规则.docx","版本迭代记录|./07-prompt-engineering/版本迭代记录.xlsx"],
+    retro:"如果重做，我会把评测自动化进 CI，每次 Prompt 变更自动跑评测集，防止'改好一个场景、改坏另一个'。"
+  },
+  {
+    t:"培训 / SOP / 推广运营包", status:"✅ 已交付", jd:"AI 工作流落地工程师 / AI 项目负责人",
+    pitch:"方案做出来客户不会用等于零。我做操作手册、培训脚本、FAQ和反馈闭环，把技术翻译成大白话——这就是FDE打通最后一公里。",
+    pain:"AI 工作流搭好了，但业务人员不会用、不愿用，'AI 不好用'的反馈无人处理，采纳率低。",
+    role:"本人面向客户与内部业务团队开展政策解读、申报流程与系统操作培训，制作操作手册、培训脚本与 FAQ，并参与内部技术培训体系搭建、部门工作流程与质量标准制定；以采纳率跟踪推广效果——这正是 FDE 打通'最后一公里'的核心能力。",
+    arch:"操作手册 → 培训视频 → FAQ → 反馈收集 → 'AI 不好用'处理流程 → 迭代优化 → 采纳率看板；带教 SOP 培养内部专员。",
+    tools:["操作手册","录屏工具","FAQ 知识库","钉钉/飞书","采纳率看板"],
+    steps:["编写业务人员视角的操作手册（图解+步骤）","录制培训视频脚本与常见问题 FAQ","建立'AI 不好用'反馈收集与处理流程","带教业务骨干与客户团队，培养内部推广力量","用采纳率看板跟踪使用率与自助解决率","按反馈迭代工作流与培训内容"],
+    hard:"难点：业务人员抵触新工具。解决：从'帮他们省事'的场景切入、先给甜头；培养内部专员做身边榜样；把反馈闭环可见化，让员工看到'提的问题真的被改了'。",
+    metrics:["培训覆盖率 / 采纳率为核心度量","AI 自助解决率目标 ≥ 70%","反馈闭环周期缩短"],
+    assets:["操作手册","培训视频脚本","FAQ 知识库","带教 SOP","采纳率看板"],
+    links:["操作手册|./08-training-sop/操作手册.docx","培训视频脚本|./08-training-sop/培训视频脚本.docx","FAQ知识库|./08-training-sop/FAQ知识库.docx","带教SOP|./08-training-sop/带教SOP.docx","采纳率看板|./08-training-sop/采纳率看板.xlsx"],
+    retro:"如果重做，我会把培训做成'场景化微课'而非长文档，并建立内部 AI 使用积分榜，用激励机制提升主动采纳率。"
+  },
+  {
+    t:"技术底座与运维证据", status:"🔧 自建 Demo", jd:"AI 智能体开发工程师",
+    pitch:"现场环境受限还得稳。我用Docker Compose一键起服务、配降级/容错/熔断和健康检查，让系统在客户现场也跑得住。",
+    pain:"AI 应用能跑起来，但在客户现场/资源受限环境不稳定、无监控、故障难排查，无法支撑高可用交付。",
+    role:"本人在资源受限环境下用 Docker Compose 快速搭建并现场部署调试 enterprise-agent，做容器化部署、API 集成、容错重试降级、性能调优、故障排查与安全权限，让系统不仅'能搭'还能在客户现场'稳定跑起来'——这是 FDE 的现场交付与问题解决能力。",
+    arch:"Docker/K8s 部署 → API 集成 → 容错/重试/降级 → 监控与日志 → 性能调优与压测 → 安全与权限管理。",
+    tools:["Docker","K8s","FastAPI","Nginx","Prometheus","日志系统","Python/Java"],
+    steps:["容器化打包（Docker）与编排（K8s）","实现 API 集成与鉴权","加入容错、重试、降级、熔断机制","部署监控与日志，建立告警","压测并发与响应，做性能调优","输出部署文档、故障排查手册与安全权限方案"],
+    hard:"难点：大模型调用不稳定、超时与限流。解决：加重试与退避、多模型降级、结果缓存；用监控及时发现异常，用压测提前暴露瓶颈。",
+    metrics:["系统可用性 / 故障恢复时间为核心度量","并发量与响应时间压测","安全权限合规"],
+    assets:["Docker/K8s 部署配置","容错重试模块","监控与告警方案","部署与排查文档"],
+    links:["部署文档|./09-tech-ops/部署文档.docx","监控截图|./09-tech-ops/监控截图.png","压测报告|./09-tech-ops/压测报告.docx","监控与告警方案|./09-tech-ops/监控与告警方案.docx"],
+    retro:"如果重做，我会引入蓝绿/灰度发布，让模型或 Prompt 升级可平滑回滚，避免'一次更新全线故障'。"
+  },
+  {
+    t:"项目复盘与量化数据报告", status:"✅ 已交付", jd:"所有 JD（JD 明确要求'必须有数据'）",
+    pitch:"做完说不清价值等于白干。我给每个项目建卡片、埋基线、前后对比出数据看板，300+项目、单年24家高企就是这么量化出来的。",
+    pain:"项目做完缺乏系统复盘，成果说不清、数据拿不出，无法证明价值、也无法沉淀可复用资产。",
+    role:"我为每个项目建立复盘报告与数据看板，用统一口径回答'痛点—主导—工具—成效—资产'，把成果量化、把经验沉淀。",
+    arch:"项目卡片 → 数据看板 → 复盘 PPT；每个项目回答：业务痛点是什么 / 我主导了什么 / 用了什么工具 / 上线后省了多少人提了多少效 / 有什么可复用资产。",
+    tools:["数据看板","复盘 PPT","项目卡片模板","Excel/BI"],
+    steps:["按统一模板沉淀每个项目卡片","采集上线前后对比数据（处理量/人天/准确率/转化率/成本/周期）","制作数据看板与复盘 PPT","提炼可复用资产（Prompt/SOP/代码/模板/看板）","归档并持续更新"],
+    hard:"难点：上线前缺乏基线数据，成效难对比。解决：项目启动即埋点采集基线，用'前后对比'而非'事后估算'；统一度量口径避免各说各话。",
+    metrics:["省多少人天 / 处理量 / 准确率 / 转化率 / 成本下降 / 周期缩短","用前后对比数据证明价值"],
+    assets:["项目卡片模板","数据看板","复盘 PPT","可复用资产库"],
+    links:["项目卡片模板|./10-retro-reports/项目卡片模板.xlsx","数据看板|./10-retro-reports/数据看板.xlsx","复盘PPT|./10-retro-reports/复盘PPT.pptx"],
+    retro:"如果重做，我会把'基线采集'作为项目立项的强制前置动作，没有基线不启动，从根上保证成效可量化。"
+  },
+  {
+    t:"企业级智能体 MCP Server 三件套（开源）", status:"✅ 已交付", jd:"所有 JD（AI 工程化 / 智能体 / MCP 生态）",
+    pitch:"把 3 个可独立复用的 MCP Server 开源到 GitHub：工具调度、作品集检索、RAG 知识问答，各带测试与文档，证明我不只会用工具，还会造工具。",
+    pain:"企业接入 MCP 生态时缺现成、可测试、可维护的 Server 实现，团队只能从零造轮子，质量与进度都不可控。",
+    role:"我基于 FastMCP 1.x 独立设计并实现三个 MCP Server（enterprise-agent-tools-mcp / portfolio-mcp / rag-knowledge-base-mcp），含 pyproject、README、测试与 uv.lock，统一放到 enterprise-agents 仓库 mcp/ 目录并开源。",
+    arch:"三个子项目各成独立 Python 包：enterprise-agent-tools-mcp 提供工具调度与统一入口；portfolio-mcp 提供作品集证据检索；rag-knowledge-base-mcp 提供中文 RAG 知识库问答（BM25 bigram）。每个含 tests/、README.md、pyproject.toml、uv.lock。",
+    tools:["Python","FastMCP 1.x","uv","pytest","GitHub","BM25（中文 bigram）"],
+    steps:["搭建三子项目骨架（pyproject/README/tests）","实现各自 MCP 工具与数据层","编写 pytest 用例并跑通（10/9/16 passed）","生成 uv.lock 并核对 .gitignore 无误伤","推送 GitHub 并集成进作品集网页"],
+    hard:"难点：三项目共享仓库内目录隔离与依赖锁定，避免互相污染。解决：各自独立 pyproject + uv.lock，CI 只扫根目录测试路径，mcp/ 子项目自行保证可测可跑。",
+    metrics:["三子项目 pytest 35 个用例全部通过","uv.lock 均存在且 .gitignore 无误伤","GitHub 已可公开访问"],
+    assets:["mcp/enterprise-agent-tools-mcp","mcp/portfolio-mcp","mcp/rag-knowledge-base-mcp","共享仓库 enterprise-agents"],
+    links:["仓库根目录|https://github.com/Jav1es/enterprise-agents/tree/main/mcp","工具调度 MCP|https://github.com/Jav1es/enterprise-agents/tree/main/mcp/enterprise-agent-tools-mcp","作品集 MCP|https://github.com/Jav1es/enterprise-agents/tree/main/mcp/portfolio-mcp","RAG 知识库 MCP|https://github.com/Jav1es/enterprise-agents/tree/main/mcp/rag-knowledge-base-mcp"],
+    retro:"如果重做，我会在一开始就统一三项目的脚手架与版本策略，并为每个 Server 增加 schema 快照测试，进一步降低集成回归风险。"
+  }
+];
+
+// ===== 渲染作品集模块 =====
+const itemsEl = document.getElementById('items');
+ITEMS.forEach((it,idx)=>{
+  const chips = it.tools.map(t=>`<span class="chip">${t}</span>`).join('');
+  const metrics = it.metrics.map(m=>`<span class="metric">${m}</span>`).join('');
+  const assets = it.assets.map(a=>`<span class="chip">${a}</span>`).join('');
+  const links = it.links.map(l=>{const p=l.split('|');return p.length===2?`<a class="ph-link" href="${p[1]}" target="_blank">${p[0]}</a>`:`<span class="ph">${l}</span>`}).join('');
+  const steps = it.steps.map((s,i)=>`<li><b>步骤${i+1}：</b>${s}</li>`).join('');
+  const shot = it.shot ? `<div class="frow"><div class="fkey">运行截图</div><div class="fval"><a href="${it.shot}" target="_blank"><img src="${it.shot}" loading="lazy" style="max-width:100%;border-radius:10px;border:1px solid var(--line2);display:block" alt="enterprise-agent RAG 检索演示真实运行截图"></a><div style="font-size:11.5px;color:var(--txt3);margin-top:6px">↑ enterprise-agent RAG 检索演示真实运行输出（retrieval-only 降级模式）· 点击查看原图</div></div></div>` : '';
+  const archimg = it.archImg ? `<div class="frow"><div class="fkey">架构图</div><div class="fval"><a href="${it.archImg}" target="_blank"><img src="${it.archImg}" loading="lazy" style="max-width:100%;border-radius:10px;border:1px solid var(--line2);display:block;background:#fff" alt="enterprise-agent 六层架构图"></a><div style="font-size:11.5px;color:var(--txt3);margin-top:6px">↑ 六层架构矢量图 · 点击查看原图</div></div></div>` : '';
+  const el = document.createElement('div');
+  el.className='item';
+  el.innerHTML=`
+    <div class="item-head">
+      <div class="item-no">${String(idx+1).padStart(2,'0')}</div>
+      <div class="item-tt">
+        <h3>${it.t}</h3>
+        <div class="meta"><span>对应 JD：<b>${it.jd}</b></span><span class="st ${(it.status||'').includes("已交付")?'st-ok':((it.status||'').includes("Demo")?'st-demo':'st-plan')}">${it.status||''}</span></div>
+      </div>
+      <div class="chev">⌄</div>
+    </div>
+    <div class="item-body"><div class="body-in">
+      <div class="frow"><div class="fkey">30秒口播</div><div class="fval" style="color:var(--txt);font-weight:600">${it.pitch||''}</div></div>
+      ${shot}
+      <div class="frow"><div class="fkey">业务痛点</div><div class="fval">${it.pain}</div></div>
+      <div class="frow"><div class="fkey">我的角色</div><div class="fval"><b>${it.role}</b></div></div>
+      <div class="frow"><div class="fkey">方案架构</div><div class="fval">${it.arch}</div></div>
+      ${archimg}
+      <div class="frow"><div class="fkey">工具栈</div><div class="fval"><div class="chips">${chips}</div></div></div>
+      <div class="frow"><div class="fkey">实施步骤</div><div class="fval"><ul>${steps}</ul></div></div>
+      <div class="frow"><div class="fkey">关键难点与解决</div><div class="fval">${it.hard}</div></div>
+      <div class="frow"><div class="fkey">量化测算</div><div class="fval">${metrics}<div style="font-size:11.5px;color:var(--txt3);margin-top:4px">* 测算模型 / 示例口径，实际以落地数据为准</div></div></div>
+      <div class="frow"><div class="fkey">可复用资产</div><div class="fval"><div class="chips">${assets}</div></div></div>
+      <div class="frow"><div class="fkey">证明链接</div><div class="fval">${links}</div></div>
+      <div class="frow"><div class="fkey">复盘</div><div class="fval">${it.retro}</div></div>
+    </div></div>`;
+  itemsEl.appendChild(el);
+  el.querySelector('.item-head').addEventListener('click',()=>el.classList.toggle('open'));
+});
+
+// 动态注入模块总数
+document.getElementById('itemCount').textContent = ITEMS.length + '项';
+
+// 全部展开/收起
+let allOpen=false;
+document.getElementById('expandAll').addEventListener('click',()=>{
+  allOpen=!allOpen;
+  document.querySelectorAll('.item').forEach(i=>i.classList.toggle('open',allOpen));
+});
+
+// ===== 检查表 =====
+const CHECKS=["作品集 PDF / 网页","enterprise-agent 已开源 GitHub（Jav1es/enterprise-agents）","Demo 录屏合集","数据监测报告 / BI 看板","办公自动化脚本（Open Claw/Python）","操作手册 / SOP","Prompt 库 + 评测集","数据复盘报告","培训材料 + 反馈记录","项目 ROI 测算表","白云科技版规划书","企业科技服务版 / 智能体版 / FDE 版作品集","FDE 能力映射与实战故事"];
+const ckGrid=document.getElementById('ckGrid');
+CHECKS.forEach(c=>{
+  const d=document.createElement('div');
+  d.className='ck';
+  d.innerHTML=`<div class="box">✓</div><span>${c}</span>`;
+  d.addEventListener('click',()=>{d.classList.toggle('done');updCk();});
+  ckGrid.appendChild(d);
+});
+document.getElementById('ckTotal').textContent=CHECKS.length;
+function updCk(){
+  const done=document.querySelectorAll('.ck.done').length;
+  document.getElementById('ckNum').textContent=done;
+  document.getElementById('ckBar').style.width=(done/CHECKS.length*100)+'%';
+}
+
+// ===== 导航高亮 =====
+const secs=[...document.querySelectorAll('section')];
+const navAs=[...document.querySelectorAll('.nav-links a')];
+window.addEventListener('scroll',()=>{
+  let cur='';
+  secs.forEach(s=>{if(window.scrollY>=s.offsetTop-90)cur=s.id;});
+  navAs.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+});
+</script>
+</body>
+</html>
