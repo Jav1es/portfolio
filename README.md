@@ -4,13 +4,13 @@
 
 > 从「会规划」到「能落地、可演示、可量化、可复用」
 
-  [![在线访问](https://img.shields.io/badge/🌐_在线作品集-jav1es.github.io/portfolio-2563eb?style=for-the-badge)](https://jav1es.github.io/portfolio/)
-  [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-059669?style=for-the-badge&logo=github)](https://jav1es.github.io/portfolio/)
-  [![License](https://img.shields.io/badge/License-MIT-64748b?style=for-the-badge)](./LICENSE)
+[![在线访问](https://img.shields.io/badge/🌐_在线作品集-jav1es.github.io/portfolio-2563eb?style=for-the-badge)](https://jav1es.github.io/portfolio/)
+[![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-059669?style=for-the-badge&logo=github)](https://jav1es.github.io/portfolio/)
+[![License](https://img.shields.io/badge/License-MIT-64748b?style=for-the-badge)](./LICENSE)
 
-  [![Modules](https://img.shields.io/badge/模块-13_个-0891b2?style=for-the-badge)](https://jav1es.github.io/portfolio/#works)
-  [![Tests](https://img.shields.io/badge/测试-35_项通过-059669?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
-  [![MCP](https://img.shields.io/badge/MCP_Server-3_件套-7c3aed?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
+[![Modules](https://img.shields.io/badge/模块-13_个-0891b2?style=for-the-badge)](https://jav1es.github.io/portfolio/#works)
+[![Tests](https://img.shields.io/badge/测试-35_项通过-059669?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
+[![MCP](https://img.shields.io/badge/MCP_Server-3_件套-7c3aed?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
 
 ---
 
@@ -143,5 +143,3 @@ portfolio/
 <p align="center">
   <i>本作品集持续更新中，欢迎交流与指正。</i>
 </p>
-
----
