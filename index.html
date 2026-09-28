@@ -6,12 +6,12 @@
 <title>黄家辉 · AI 数字化落地作品集</title>
 <style>
   :root{
-    --bg:#070b14; --bg2:#0b1120; --card:#111a2e; --card2:#0e1626;
-    --line:#1e2c47; --line2:#27375a;
-    --txt:#e6edf7; --txt2:#9fb0c9; --txt3:#6b7c99;
-    --blue:#3b82f6; --cyan:#22d3ee; --deep:#1d4ed8;
-    --grad:linear-gradient(135deg,#3b82f6,#22d3ee);
-    --green:#34d399; --amber:#fbbf24; --purple:#a78bfa;
+    --bg:#f8fafc; --bg2:#f1f5f9; --card:#ffffff; --card2:#f8fafc;
+    --line:#e2e8f0; --line2:#cbd5e1;
+    --txt:#0f172a; --txt2:#334155; --txt3:#64748b;
+    --blue:#2563eb; --cyan:#0e7490; --deep:#1d4ed8;
+    --grad:linear-gradient(135deg,#2563eb,#0891b2);
+    --green:#059669; --amber:#d97706; --purple:#7c3aed;
   }
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
@@ -23,9 +23,9 @@
   body::before{
     content:"";position:fixed;inset:0;z-index:-1;
     background:
-      radial-gradient(900px 500px at 12% -5%,rgba(59,130,246,.16),transparent 60%),
-      radial-gradient(800px 500px at 92% 8%,rgba(34,211,238,.12),transparent 60%),
-      radial-gradient(700px 600px at 50% 110%,rgba(29,78,216,.12),transparent 60%),
+      radial-gradient(900px 500px at 12% -5%,rgba(37,99,235,.07),transparent 60%),
+      radial-gradient(800px 500px at 92% 8%,rgba(8,145,178,.06),transparent 60%),
+      radial-gradient(700px 600px at 50% 110%,rgba(29,78,216,.06),transparent 60%),
       var(--bg);
   }
   a{color:inherit;text-decoration:none}
@@ -34,7 +34,7 @@
   /* NAV */
   nav{
     position:fixed;top:0;left:0;right:0;z-index:100;
-    background:rgba(7,11,20,.82);backdrop-filter:blur(14px);
+    background:rgba(255,255,255,.85);backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line);
   }
   .nav-in{max-width:1180px;margin:0 auto;padding:0 24px;height:62px;display:flex;align-items:center;gap:26px}
@@ -42,13 +42,13 @@
   .logo span{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
   .nav-links{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
   .nav-links a{font-size:13.5px;color:var(--txt2);padding:7px 12px;border-radius:8px;transition:.2s;white-space:nowrap}
-  .nav-links a:hover{color:var(--txt);background:rgba(59,130,246,.12)}
-  .nav-links a.active{color:#fff;background:rgba(59,130,246,.2)}
+  .nav-links a:hover{color:var(--blue);background:#eff6ff}
+  .nav-links a.active{color:#2563eb;background:#dbeafe}
 
   /* HERO */
   header{padding:130px 0 70px;position:relative}
   .badge{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;color:var(--cyan);
-    border:1px solid var(--line2);background:rgba(34,211,238,.07);padding:6px 14px;border-radius:999px;margin-bottom:22px}
+    border:1px solid var(--line2);background:rgba(8,145,178,.05);padding:6px 14px;border-radius:999px;margin-bottom:22px}
   .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan)}
   h1{font-size:46px;line-height:1.2;font-weight:800;letter-spacing:-.5px;margin-bottom:16px}
   h1 .g{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
@@ -62,7 +62,7 @@
   .stat i{font-style:normal;font-size:12.5px;color:var(--txt2)}
 
   /* SECTION */
-  section{padding:60px 0;border-top:1px solid rgba(30,44,71,.5)}
+  section{padding:60px 0;border-top:1px solid #e2e8f0}
   .sec-h{margin-bottom:34px}
   .sec-tag{font-size:12.5px;color:var(--cyan);letter-spacing:2px;font-weight:700;text-transform:uppercase}
   h2{font-size:29px;font-weight:800;margin:8px 0 10px;letter-spacing:-.3px}
@@ -92,7 +92,7 @@
   /* PORTFOLIO ITEMS */
   .item{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line);
     border-radius:18px;margin-bottom:20px;overflow:hidden;transition:.25s}
-  .item:hover{border-color:var(--line2)}
+  .item:hover{border-color:var(--line2);transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.06)}
   .item-head{padding:22px 26px;cursor:pointer;display:flex;align-items:flex-start;gap:16px;user-select:none}
   .item-no{font-size:13px;font-weight:800;color:#fff;background:var(--grad);width:40px;height:40px;
     border-radius:11px;display:grid;place-items:center;flex-shrink:0;box-shadow:0 4px 14px rgba(59,130,246,.35)}
@@ -105,30 +105,84 @@
   .item-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
   .item.open .item-body{max-height:2600px}
   .body-in{padding:0 26px 26px;border-top:1px solid var(--line)}
-  .frow{display:grid;grid-template-columns:120px 1fr;gap:14px;padding:13px 0;border-bottom:1px dashed rgba(30,44,71,.7)}
+  .frow{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:15px 0;border-bottom:1px dashed #e2e8f0}
   .frow:last-child{border-bottom:none}
-  .fkey{font-size:13px;font-weight:700;color:var(--blue)}
+  .fkey{font-size:12px;font-weight:600;color:var(--txt3);letter-spacing:.3px}
   .fval{font-size:13.5px;color:var(--txt2)}
   .fval ul{margin:0;padding-left:18px}
   .fval li{margin-bottom:5px}
   .fval b{color:var(--txt);font-weight:600}
   .chips{display:flex;flex-wrap:wrap;gap:7px}
-  .chip{font-size:11.5px;color:var(--txt2);background:rgba(59,130,246,.1);border:1px solid var(--line2);
+  .chip{font-size:11.5px;color:#334155;background:#eff6ff;border:1px solid #dbeafe;
     padding:3px 10px;border-radius:7px}
-  .metric{display:inline-block;font-size:12px;color:var(--green);background:rgba(52,211,153,.09);
-    border:1px solid rgba(52,211,153,.25);padding:3px 10px;border-radius:7px;margin:0 6px 6px 0}
-  .ph{font-size:12px;color:var(--amber);background:rgba(251,191,36,.08);border:1px dashed rgba(251,191,36,.35);
+  .metric{display:inline-block;font-size:12px;color:#059669;background:#ecfdf5;
+    border:1px solid #a7f3d0;padding:3px 10px;border-radius:7px;margin:0 6px 6px 0}
+  .ph{font-size:12px;color:#d97706;background:#fffbeb;border:1px dashed #fde68a;
     padding:3px 10px;border-radius:7px;display:inline-block;margin:0 6px 6px 0}
-  .ph-link{font-size:12px;color:#7dd3fc;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.4);
+  .ph-link{font-size:12px;color:#2563eb;background:#eff6ff;border:1px solid #bfdbfe;
     padding:3px 10px;border-radius:7px;display:inline-block;margin:0 6px 6px 0;text-decoration:none;transition:.2s}
-  .ph-link:hover{background:rgba(59,130,246,.22);color:#fff}
+  .ph-link:hover{background:#dbeafe;color:#1d4ed8}
   .st{margin-left:8px;font-size:11px;padding:2px 9px;border-radius:99px;font-weight:600}
-  .st-ok{color:#34d399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.32)}
-  .st-demo{color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.32)}
-  .st-plan{color:#7dd3fc;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.32)}
+  .st-ok{color:#166534;background:#dcfce7;border:1px solid #bbf7d0}
+  .st-demo{color:#92400e;background:#fed7aa;border:1px solid #fcd34d}
+  .st-plan{color:#1e40af;background:#dbeafe;border:1px solid #bfdbfe}
   .expand-all{font-size:13px;color:var(--cyan);cursor:pointer;border:1px solid var(--line2);
-    padding:7px 16px;border-radius:9px;background:rgba(34,211,238,.06);display:inline-block;margin-bottom:22px;transition:.2s}
-  .expand-all:hover{background:rgba(34,211,238,.14)}
+    padding:7px 16px;border-radius:9px;background:rgba(8,145,178,.05);display:inline-block;margin-bottom:22px;transition:.2s}
+  .expand-all:hover{background:rgba(8,145,178,.1)}
+
+  /* 3-TIER LAYOUT */
+  .hl{display:flex;flex-wrap:wrap;gap:26px;margin:4px 0 2px}
+  .q{display:flex;flex-direction:column;gap:3px;min-width:110px}
+  .q-num{font-size:32px;font-weight:800;color:var(--green);line-height:1.05;letter-spacing:-.5px}
+  .q-lb{font-size:11.5px;color:var(--txt3);line-height:1.45}
+  .pitch-line{font-size:14px;color:var(--txt);font-weight:600;margin:12px 0 6px;line-height:1.65}
+  .mt{width:100%;border-collapse:collapse;font-size:13px}
+  .mt td{border:1px solid var(--line);padding:8px 12px;color:var(--txt2);vertical-align:top;line-height:1.6}
+  .mt td:first-child{color:var(--green);font-weight:700;white-space:nowrap;width:36%}
+  .mt tr:first-child td{border-top:1px solid var(--line)}
+  .detail-toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--blue);
+    border:1px solid var(--line2);background:var(--card);padding:8px 18px;border-radius:10px;cursor:pointer;
+    margin:10px 0 4px;transition:.2s;user-select:none}
+  .detail-toggle:hover{background:#eff6ff;border-color:#bfdbfe}
+  .detail-toggle .ar{transition:.3s;display:inline-block}
+  .item.detail-open .detail-toggle .ar{transform:rotate(180deg)}
+  .detail-sec{max-height:0;overflow:hidden;transition:max-height .45s ease}
+  .item.detail-open .detail-sec{max-height:4000px}
+  .tool-txt{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:13px;color:var(--txt2)}
+  .tool-txt span{background:#f1f5f9;border:1px solid var(--line);border-radius:6px;padding:2px 9px;font-size:12px;color:var(--txt2)}
+
+  /* .MD MODAL */
+  .md-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+  .md-modal.open{display:flex}
+  .md-mask{position:absolute;inset:0;background:rgba(15,23,42,.45);backdrop-filter:blur(2px)}
+  .md-box{position:relative;background:#fff;border-radius:16px;max-width:860px;width:100%;max-height:80vh;
+    display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(15,23,42,.25)}
+  .md-bar{display:flex;align-items:center;justify-content:space-between;padding:15px 22px;border-bottom:1px solid #e2e8f0;flex-shrink:0}
+  .md-title{font-size:16px;font-weight:700;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:14px}
+  .md-x{width:32px;height:32px;border-radius:8px;border:none;background:transparent;color:var(--txt3);
+    font-size:22px;cursor:pointer;line-height:1;flex-shrink:0;transition:.2s}
+  .md-x:hover{background:#f1f5f9;color:var(--txt)}
+  .md-body{padding:22px 26px;overflow-y:auto;font-size:15px;line-height:1.8;color:#334155}
+  .md-body h1{font-size:26px;margin:0 0 16px;color:#0f172a;font-weight:800}
+  .md-body h2{font-size:20px;margin:22px 0 10px;color:#0f172a;font-weight:700;border-bottom:1px solid #e2e8f0;padding-bottom:6px}
+  .md-body h3{font-size:17px;margin:18px 0 8px;color:#0f172a;font-weight:700}
+  .md-body h4{font-size:15px;margin:14px 0 6px;color:#0f172a;font-weight:700}
+  .md-body p{margin:8px 0}
+  .md-body ul,.md-body ol{margin:8px 0;padding-left:24px}
+  .md-body li{margin:4px 0}
+  .md-body code{font-family:Consolas,"Courier New",monospace;font-size:13px;background:#f8fafc;border:1px solid #e2e8f0;
+    border-radius:5px;padding:1px 6px;color:#be123c}
+  .md-body pre{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;overflow-x:auto;margin:12px 0}
+  .md-body pre code{background:transparent;border:none;padding:0;color:#334155;font-size:13px;line-height:1.7}
+  .md-body blockquote{border-left:4px solid #bfdbfe;background:#eff6ff;margin:10px 0;padding:8px 14px;border-radius:0 8px 8px 0;color:#334155}
+  .md-body table{border-collapse:collapse;margin:12px 0;width:100%;font-size:13.5px}
+  .md-body th,.md-body td{border:1px solid #e2e8f0;padding:8px 12px;text-align:left;vertical-align:top}
+  .md-body th{background:#f1f5f9;font-weight:600;color:#0f172a}
+  .md-body tr:nth-child(even) td{background:#f8fafc}
+  .md-body a{color:#2563eb;text-decoration:underline}
+  .md-body img{max-width:100%;border-radius:8px}
+  .md-loading,.md-err{color:#64748b;font-size:14px;text-align:center;padding:40px 0}
+  .md-err{color:#dc2626}
 
   /* TEMPLATE */
   .tpl{background:var(--card2);border:1px solid var(--line2);border-radius:14px;padding:24px 26px;
@@ -151,35 +205,35 @@
   .bar i{display:block;height:100%;background:var(--grad);width:0;transition:.4s}
 
   /* BAIYUN */
-  .by{background:linear-gradient(160deg,rgba(59,130,246,.1),var(--card2));border:1px solid var(--line2);
+  .by{background:linear-gradient(160deg,rgba(37,99,235,.05),var(--card2));border:1px solid var(--line2);
     border-radius:18px;padding:30px}
   .by h3{font-size:20px;margin-bottom:8px}
-  .by .real{font-size:11.5px;color:var(--green);border:1px solid rgba(52,211,153,.3);background:rgba(52,211,153,.08);
+  .by .real{font-size:11.5px;color:var(--green);border:1px solid rgba(5,150,105,.25);background:rgba(5,150,105,.06);
     padding:3px 11px;border-radius:99px;display:inline-block;margin-bottom:16px}
   .by p{font-size:14px;color:var(--txt2);margin-bottom:14px}
   .by .cols{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-  .by .col{background:rgba(7,11,20,.5);border:1px solid var(--line);border-radius:11px;padding:14px}
+  .by .col{background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:14px}
   .by .col b{display:block;font-size:13px;color:var(--cyan);margin-bottom:5px}
   .by .col i{font-style:normal;font-size:12px;color:var(--txt3)}
 
   /* FDE */
-  .fde-hero{background:linear-gradient(160deg,rgba(52,211,153,.1),var(--card2));border:1px solid var(--line2);border-radius:16px;padding:22px 24px;margin-bottom:22px}
+  .fde-hero{background:linear-gradient(160deg,rgba(5,150,105,.05),var(--card2));border:1px solid var(--line2);border-radius:16px;padding:22px 24px;margin-bottom:22px}
   .fde-hero p{font-size:14px;color:var(--txt2);margin-bottom:6px}
   .map{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px}
   .map th,.map td{border:1px solid var(--line);padding:11px 13px;text-align:left;vertical-align:top;line-height:1.6}
-  .map th{background:rgba(59,130,246,.14);color:var(--txt);font-weight:700}
+  .map th{background:#eff6ff;color:var(--txt);font-weight:700}
   .map td{color:var(--txt2)}
   .map td:first-child{color:var(--cyan);font-weight:600;white-space:nowrap}
-  .map .ev{color:#7dd3fc}
+  .map .ev{color:#2563eb}
   .fde-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
   .fde-story{background:linear-gradient(160deg,var(--card),var(--card2));border:1px solid var(--line2);border-radius:16px;padding:22px 24px}
   .fde-story .tag{display:inline-block;font-size:11px;font-weight:700;padding:3px 11px;border-radius:99px;margin-bottom:10px}
-  .fde-story.biz .tag{color:#34d399;background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.32)}
-  .fde-story.eng .tag{color:#22d3ee;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.32)}
+  .fde-story.biz .tag{color:#059669;background:rgba(5,150,105,.08);border:1px solid rgba(5,150,105,.25)}
+  .fde-story.eng .tag{color:#0e7490;background:rgba(8,145,178,.08);border:1px solid rgba(8,145,178,.25)}
   .fde-story h4{font-size:16.5px;margin-bottom:12px;color:var(--txt)}
   .fde-story .kv{font-size:13px;color:var(--txt2);margin:9px 0;line-height:1.75}
   .fde-story .kv b{color:var(--txt);font-weight:600}
-  .fde-story .res{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line2);font-size:12.5px;color:#34d399;font-weight:600;line-height:1.7}
+  .fde-story .res{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line2);font-size:12.5px;color:#059669;font-weight:600;line-height:1.7}
   .fde-story .res span{color:var(--txt3);font-weight:400}
 
   footer{padding:44px 0 60px;border-top:1px solid var(--line);text-align:center}
@@ -198,8 +252,16 @@
     body::before{display:none!important}
     nav{display:none!important}
     .item-body{max-height:none!important;overflow:visible!important}
+    .detail-sec{max-height:none!important;overflow:visible!important}
+    .detail-toggle{display:none!important}
+    .md-modal{display:none!important}
     .expand-all{display:none}
     *{background:transparent!important;color:#111!important;box-shadow:none!important;text-shadow:none!important}
+    .st-ok{background:#dcfce7!important;color:#166534!important;border:1px solid #86efac!important}
+    .st-demo{background:#fed7aa!important;color:#92400e!important;border:1px solid #fdba74!important}
+    .st-plan{background:#dbeafe!important;color:#1e40af!important;border:1px solid #93c5fd!important}
+    .mt td:first-child{color:#059669!important}
+    .q-num{color:#059669!important}
     .item,.jd,.stat,.fde-story,.by,.step,.fde-hero,.tpl,.ck{border:1px solid #bbb!important}
     .fkey{color:#1d4ed8!important}.map td:first-child,.combo b,.jd .ic,.fde-story .tag{color:#1d4ed8!important}
     .map th{color:#1d4ed8!important}
@@ -259,12 +321,12 @@
         <div class="combo">本人对应作品：<b>AI 工具体系 0-1 规划包</b> + 跨部门推进证据（RACI/周报/验收）+ ROI 报告 + 培训推广包</div>
       </div>
       <div class="jd">
-        <h3><span class="ic">⚙️</span>AI 工作流程落地工程师</h3>
+        <h3><span class="ic">⇄</span>AI 工作流程落地工程师</h3>
         <p>本人能将 AI 工作流真正跑通、推动业务人员用起来，并基于反馈持续迭代优化。</p>
         <div class="combo">本人对应作品：<b>2-3 个"AI 先做一遍、人只审核"流程</b> + 操作手册 + 培训反馈 + Prompt 评测体系</div>
       </div>
       <div class="jd">
-        <h3><span class="ic">🛒</span>AI 项目负责人（电商 / 增长）</h3>
+        <h3><span class="ic">▦</span>AI 项目负责人（电商 / 增长）</h3>
         <p>本人具备数据看板、流程自动化与团队带教的通用能力，可迁移至电商多平台数据打通与经营看板场景（下含自建 demo 与示例口径，非电商客户实绩，慎用于强电商背景要求）。</p>
         <div class="combo">本人对应作品：<b>数据监测报告 + BI 看板能力</b> + Open Claw/Python 自动化 + 多维表"AI 先做人审核" + 带教 SOP</div>
       </div>
@@ -273,8 +335,8 @@
         <p>本人具备工程化能力：架构、RAG、工具调用、记忆、容错、部署，既能搭建也能保障稳定运行。</p>
         <div class="combo">本人对应作品：<b>企业级智能体系统 enterprise-agent（本地工程）</b> + 六层架构 + LangGraph 编排/RAG/双视野记忆/工具调用 + Docker/K8s 部署 + 容错重试熔断</div>
       </div>
-      <div class="jd" style="grid-column:1/-1;border-color:rgba(52,211,153,.4);background:linear-gradient(160deg,rgba(52,211,153,.08),var(--card2))">
-        <h3><span class="ic" style="background:rgba(52,211,153,.16)">🚀</span>FDE 全栈前线部署工程师（Forward Deployed Engineer）</h3>
+      <div class="jd" style="grid-column:1/-1;border-color:rgba(5,150,105,.25);background:linear-gradient(160deg,rgba(5,150,105,.05),var(--card2))">
+        <h3><span class="ic" style="background:rgba(5,150,105,.12)">🚀</span>FDE 全栈前线部署工程师（Forward Deployed Engineer）</h3>
         <p>本人的职业内核就是 FDE 画像：6 年深入客户企业一线，从需求诊断 → 方案设计 → 端到端交付 → 现场实施指导 → 把客户团队教会，全程"把方案真正落到客户手里"，并用高企通过率、1 周交付、300+ 企业服务等量化 ROI。详见下方「FDE 能力映射」与两则实战故事。</p>
         <div class="combo">本人对应作品：<b>高企认定现场交付（业务型 FDE）</b> ＋ <b>enterprise-agent 本地部署（工程型 FDE）</b> ＋ 培训/SOP 打通最后一公里 ＋ 数据监测报告</div>
       </div>
@@ -318,7 +380,7 @@
         <div class="kv"><b>快速搭原型：</b>用 Docker Compose 一键拉起 agent-api + Redis + pgvector，本地即可演示，绕开复杂环境依赖。</div>
         <div class="kv"><b>现场调试与救火：</b>用 OpenAI 兼容接口切本地 Ollama 模型、配置降级备用模型，解决启动依赖、模型不可用与超时问题。</div>
         <div class="kv"><b>稳定交付：</b>内置重试/熔断/调用次数限制与 FastAPI 健康检查，保证现场长时间演示不掉线。</div>
-        <div class="res">结果：本地完整跑通并支持现场演示，工程文档齐全，已开源：<a href="https://github.com/Jav1es/enterprise-agents" target="_blank" style="color:#7dd3fc">github.com/Jav1es/enterprise-agents</a>。<br><span>（本地真实代码工程，可现场演示）</span></div>
+        <div class="res">结果：本地完整跑通并支持现场演示，工程文档齐全，已开源：<a href="https://github.com/Jav1es/enterprise-agents" target="_blank" style="color:#2563eb">github.com/Jav1es/enterprise-agents</a>。<br><span>（本地真实代码工程，可现场演示）</span></div>
       </div>
     </div>
     <div class="fde-hero" style="margin-top:22px">
@@ -329,13 +391,13 @@
         <span class="tag">FDE 交付物 · 客户发现简报</span>
         <h4>Discovery Brief · 高企认定客户发现简报</h4>
         <div class="kv"><b>一句话说明：</b>以高企认定申报服务为背景，用 FDE 工作法（进客户企业→诊断研发费用归集缺口→知产与评分诊断→形成可验证交付范围）产出的客户发现简报，数据取自真实客户台账并已脱敏。</div>
-        <div class="res">查看全文：<a href="11-fde-templates/DiscoveryBrief_高企认定客户发现简报.md" target="_blank" style="color:#7dd3fc">DiscoveryBrief_高企认定客户发现简报.md</a></div>
+        <div class="res">查看全文：<a class="md-link" href="#" data-md="11-fde-templates/DiscoveryBrief_高企认定客户发现简报.md" data-title="DiscoveryBrief_高企认定客户发现简报.md">DiscoveryBrief_高企认定客户发现简报.md ↗</a></div>
       </div>
       <div class="fde-story eng">
         <span class="tag">FDE 交付物 · 评测计划</span>
         <h4>Eval Plan · enterprise-agent 评测计划</h4>
         <div class="kv"><b>一句话说明：</b>针对本地企业级智能体工程 enterprise-agent 的评测计划，定义评测数据集（对接 07 模块评测集与标注样本）、指标合同、RAG 五层与工具调用专项、发布门槛与生产监控闭环。</div>
-        <div class="res">查看全文：<a href="11-fde-templates/EvalPlan_enterprise-agent评测计划.md" target="_blank" style="color:#7dd3fc">EvalPlan_enterprise-agent评测计划.md</a></div>
+        <div class="res">查看全文：<a class="md-link" href="#" data-md="11-fde-templates/EvalPlan_enterprise-agent评测计划.md" data-title="EvalPlan_enterprise-agent评测计划.md">EvalPlan_enterprise-agent评测计划.md ↗</a></div>
       </div>
     </div>
   </div>
@@ -385,10 +447,10 @@
       <p class="sec-d">可当场演示、或按需提供录屏 / 脱敏源文件的内容，证明"能落地、跑得起来"，而非纸上方案。</p>
     </div>
     <div class="jd-grid">
-      <div class="jd"><h3><span class="ic">🖥️</span>enterprise-agent 智能体</h3><p>本地 Docker Compose 一键起服务，现场演示工作流编排 / RAG 问答 / 工具调用 / 容错降级。</p><div class="combo">状态：<b>可现场演示</b> ｜ <a href="https://github.com/Jav1es/enterprise-agents" target="_blank" style="color:#7dd3fc;text-decoration:none">GitHub：Jav1es/enterprise-agents</a></div></div>
-      <div class="jd"><h3><span class="ic">💬</span>企业问答 / 文档 AIGC Demo</h3><p>Coze + 多维表"AI 先做、人只审"双层工作流，现场演示问答与文档生成。</p><div class="combo">状态：<b>自建 demo 可演示</b></div></div>
+      <div class="jd"><h3><span class="ic">🖥️</span>enterprise-agent 智能体</h3><p>本地 Docker Compose 一键起服务，现场演示工作流编排 / RAG 问答 / 工具调用 / 容错降级。</p><div class="combo">状态：<b>可现场演示</b> ｜ <a href="https://github.com/Jav1es/enterprise-agents" target="_blank" style="color:#2563eb;text-decoration:none">GitHub：Jav1es/enterprise-agents</a></div></div>
+      <div class="jd"><h3><span class="ic">◈</span>企业问答 / 文档 AIGC Demo</h3><p>Coze + 多维表"AI 先做、人只审"双层工作流，现场演示问答与文档生成。</p><div class="combo">状态：<b>自建 demo 可演示</b></div></div>
       <div class="jd"><h3><span class="ic">📊</span>项目监测报告</h3><p>自建业务数据库 + SQL 报表，现场打开《项目监测报告》看数据如何驱动决策。</p><div class="combo">状态：<b>真实产出可展示</b></div></div>
-      <div class="jd"><h3><span class="ic">📐</span>白云科技规划书</h3><p>完整信息化与 AI 规划：成熟度模型、蓝图、业财一体化、8 个 AI 场景。</p><div class="combo">状态：<b>已完成 · 可发送脱敏版</b></div></div>
+      <div class="jd"><h3><span class="ic">△</span>白云科技规划书</h3><p>完整信息化与 AI 规划：成熟度模型、蓝图、业财一体化、8 个 AI 场景。</p><div class="combo">状态：<b>已完成 · 可发送脱敏版</b></div></div>
     </div>
   </div>
 </section>
@@ -465,7 +527,8 @@
 // ===== 作品集模块数据 =====
 const ITEMS = [
   {
-    t:"AI 工具体系 0-1 搭建规划包", status:"📐 方案规划", jd:"AI 项目经理 / AI 项目负责人",
+    t:"AI 工具体系 0-1 搭建规划包", status:"方案规划", jd:"AI 项目经理 / AI 项目负责人",
+    highlights:[{num:"300+",label:"项目可研/立项经验"},{num:"8",label:"业务域覆盖（8大场景）"},{num:"6个月",label:"分阶段路线图"}],
     pitch:"企业AI用得乱、没规划。我像做《白云科技规划》那样，先盘场景、用价值×难度排优先级、算ROI给老板看——300+项目可研立项练出来的规划，不是PPT。",
     pain:"公司各部门零散使用 AI 工具，无统一规划、无选型标准、无 ROI 衡量，重复采购、效果不可控。",
     role:"本人具备体系化规划能力：已独立完成《白云科技信息化总体规划与数字化转型方案》，并累计编制 300+ 政府/企业项目的可行性研究与立项方案；本模块是一套企业级 AI 工具体系 0-1 规划的方法与规划包（业务盘点、选型标准、ROI、路线图与跨部门推进机制）。",
@@ -479,7 +542,8 @@ const ITEMS = [
     retro:"如果重做，本人会更早引入业务骨干共创场景清单，避免规划与一线脱节；并建立工具使用数据埋点，让 ROI 从'测算'走向'实测'。"
   },
   {
-    t:"AI 工作流落地标杆 A：企业智能问答与申报文档 AIGC", status:"🔧 自建 Demo", jd:"AI 工作流落地工程师 / FDE / AI 项目负责人",
+    t:"AI 工作流落地标杆 A：企业智能问答与申报文档 AIGC", status:"自建 Demo", jd:"AI 工作流落地工程师 / FDE / AI 项目负责人",
+    highlights:[{num:"≥50%",label:"生成效率提升测算（示例）"},{num:"≥85%",label:"审核通过率目标（示例口径）"},{num:"2层",label:"AI先做+人工只审"}],
     pitch:"政策问答、材料预审、文档编写重复又易错。我用Coze+多维表搭出AI先做、人只审的双层流，demo已跑通方法，效率翻倍、可迁到任意业务。",
     pain:"企业科技服务中，政策咨询、申报材料合规预审、文档与内容编写重复度高、依赖人工，政策更新快、易出错。",
     role:"本人基于 Coze / 本地大模型搭建'AI 先做一遍、人只审核'的工作流（自建 demo 验证方法论，可迁移至项目申报、企业客服与内容场景），配合多维表做人工审核台。",
@@ -493,7 +557,8 @@ const ITEMS = [
     retro:"如果重做，本人会把'真实业务数据回流闭环'做得更早，让生成质量由采纳率与错误率数据驱动迭代，而非仅靠经验调 Prompt。"
   },
   {
-    t:"AI 工作流落地标杆 B：财务 / 行政 / 外贸跟单", status:"✅ 已交付", jd:"AI 工作流落地工程师 / AI 项目负责人",
+    t:"AI 工作流落地标杆 B：财务 / 行政 / 外贸跟单", status:"已交付", jd:"AI 工作流落地工程师 / AI 项目负责人",
+    highlights:[{num:"24家",label:"单年高企认定通过（真实）"},{num:"70%",label:"人工审核量下降测算（示例）"},{num:"92%",label:"准确率目标（示例口径）"}],
     pitch:"高企和加计扣除卡在研发费用与财务口径。我做过研发费用归集、技术鉴定、单年24家高企通过，能把财务和技术口径拉齐、合规自查到点。",
     pain:"发票报销人工逐条审核慢、易错；外贸询盘分类、报价、跟单、报关资料检查靠人工；行政重复报表汇总耗时。",
     role:"我设计 RPA + AI 审核的财务/行政/外贸工作流，把'人工逐条处理'改为'AI 先做一遍、人工只审异常'，并输出 SOP 与异常清单。",
@@ -507,7 +572,8 @@ const ITEMS = [
     retro:"如果重做，我会先做更细的错误分类统计，针对高频错误类型专门优化 Prompt 和规则，而不是泛泛调优。"
   },
   {
-    t:"企业级智能体系统（本地开发工程 enterprise-agent）", status:"✅ 已交付", jd:"AI 智能体开发工程师",
+    t:"企业级智能体系统（本地开发工程 enterprise-agent）", status:"已交付", jd:"AI 智能体开发工程师",
+    highlights:[{num:"6层",label:"企业级智能体架构"},{num:"70%",label:"HPA扩缩容CPU阈值"},{num:"5次",label:"熔断器连续失败阈值"}],
     pitch:"通用聊天机器人接不了企业系统。我自建enterprise-agent：LangGraph编排+RAG+双视野记忆+工具调用，Docker一键本地起服务，能现场演示。",
     shot:"./04-enterprise-agent/enterprise-agents/assets/rag_run_terminal.png",
     archImg:"./04-enterprise-agent/enterprise-agents/assets/architecture.svg",
@@ -523,7 +589,8 @@ const ITEMS = [
     retro:"这一版已把当初复盘里说的两件事落地：接入了 OpenTelemetry 全链路可观测性（日志/追踪/指标），并把 RAG 评测集纳入 CI 做回归。下一步我会扩大评测样本量、把检索准确率从当前 83.3%（Top-3，检索降级模式）进一步用 Cross-Encoder 重排与查询改写拉高，并补上端到端多轮对话的自动化评测。"
   },
   {
-    t:"业务数据库与数据监测报告（SQL 报表 + BI/ChatBI）", status:"✅ 已交付", jd:"AI 项目负责人（数据）/ FDE",
+    t:"业务数据库与数据监测报告（SQL 报表 + BI/ChatBI）", status:"已交付", jd:"AI 项目负责人（数据）/ FDE",
+    highlights:[{num:"40%+",label:"减少团队重复工作"},{num:"1套",label:"自建业务数据库"},{num:"SQL",label:"报表固化/存储过程"}],
     pitch:"项目数据散在Excel、决策没数。我自建业务库、用SQL固化报表、定期出《项目监测报告》，帮团队砍掉40%以上重复活。",
     pain:"项目与业务数据散落在 Excel 与纸质材料，报表靠人工汇总，管理者看不到实时进度与成效，决策缺数据支撑。",
     role:"本人自建项目信息数据库（业务知识库雏形），用 MySQL 存储、SQL/存储过程开发报表，采集执行数据并定期输出《项目监测报告》，以数据驱动方案迭代与管理决策；该数据方法论可迁移到电商经营看板与 ChatBI 自然语言问数。",
@@ -537,7 +604,8 @@ const ITEMS = [
     retro:"如果重做，本人会把数据质量监控做进看板，源数据异常自动预警，并把 ChatBI 问数尽早接入，让'看板好看且数据可信'。"
   },
   {
-    t:"RAG 知识库 Demo（enterprise-agent 真实带数据演示）", status:"🔧 自建 Demo", jd:"AI 智能体开发工程师",
+    t:"RAG 知识库 Demo（enterprise-agent 真实带数据演示）", status:"自建 Demo", jd:"AI 智能体开发工程师",
+    highlights:[{num:"83.3%",label:"检索准确率@3（真实评测）"},{num:"5/6",label:"引用来源准确（真实）"},{num:"40条",label:"示例制度文档"}],
     pitch:"企业问答答非所问、没出处。我在 enterprise-agent 里加了一套真实带数据的 RAG demo：上传制度文档→提问→返回带条款引用的回答，离线可跑、指标可量化。",
     pain:"大模型直接回答企业制度/知识类问题易幻觉、无引用来源，无法满足企业可信问答要求。",
     role:"本人基于自建 enterprise-agent 的知识层（ChromaDB + Dense+BM25 混合检索 RRF + Cross-Encoder 重排），新增 examples/rag_demo 真实演示模块：示例企业制度文档 + 可运行脚本 + 评测报告，跑通'加载文档→建索引→提问→返回引用来源'全流程，无 LLM Key 自动降级为 Top-K 检索结果。",
@@ -551,7 +619,8 @@ const ITEMS = [
     retro:"如果重做，本人会先把 Cross-Encoder 重排跑通并纳入评测对比（本机未装 sentence-transformers 已自动降级），并扩展评测集到 20+ 问，让检索准确率更稳健。"
   },
   {
-    t:"AI 评测与可观测性（评测集纳入 CI 回归 + OTel/Jaeger 全链路追踪）", status:"🔧 自建 Demo", jd:"AI 智能体开发工程师",
+    t:"AI 评测与可观测性（评测集纳入 CI 回归 + OTel/Jaeger 全链路追踪）", status:"自建 Demo", jd:"AI 智能体开发工程师",
+    highlights:[{num:"8",label:"单会话Jaeger trace span"},{num:"6条",label:"CI每次push自动评测"},{num:"≥60%",label:"CI断言阈值（检索/引用）"}],
     pitch:"智能体上线怕退化、出问题难定位。我把评测集纳入 GitHub Actions 每次 push 自动回归，并用 OpenTelemetry+Jaeger 打通 Router→Planner→Tool→Reviewer 全链路 trace，一次请求一条链、每阶段耗时可见。",
     pain:"智能体系统迭代缺少自动回归防线，评测依赖人工跑；生产环境一次会话跨多阶段（路由/规划/工具/评审），故障与慢节点无法按请求链路定位。",
     role:"本人为 enterprise-agent 补齐生产化双能力：① 将 examples/rag_demo 内置评测集纳入 CI（新增 eval-rag job），每次 push 自动跑 6 条评测并断言阈值、上传指标报告产物；② 基于 OpenTelemetry 实现全链路观测（observability 模块），对 Router/Planner/Retrieve/Tool/Reviewer/Respond 各节点打点，docker-compose 内置 Jaeger，真实运行会话抓取 Jaeger trace 截图与方案文档。",
@@ -565,7 +634,8 @@ const ITEMS = [
     retro:"如果重做，本人会为评测集补充检索延迟/LLM 回答质量维度并扩展 20+ 条，同时把 Jaeger 接入 FastAPI 请求中间件实现线上请求级追踪，形成评测-监控闭环。"
   },
   {
-    t:"办公流程自动化（Open Claw + Python 脚本）", status:"🔧 自建 Demo", jd:"AI 工作流落地工程师 / FDE / AI 项目负责人",
+    t:"办公流程自动化（Open Claw + Python 脚本）", status:"自建 Demo", jd:"AI 工作流落地工程师 / FDE / AI 项目负责人",
+    highlights:[{num:"自动化",label:"跨系统重复流程脚本执行"},{num:"兜底",label:"异常告警+人工复核"},{num:"SOP",label:"流程与运维文档"}],
     pitch:"采集、清洗、汇总这些重复活太吃人。我用Open Claw+Python脚本自动跑起来，异常再交人复核，稳且可维护。",
     pain:"信息采集、文档处理、数据清洗、报表与对账汇总等跨系统重复操作靠人工，慢且易错。",
     role:"本人部署调试 Open Claw 自动化工作流框架，并用 Python 编写自动化脚本批量完成文档处理与数据清洗，配合 Coze 编排，把重复流程改为自动执行 + 异常人工复核（影刀/钉钉 RPA 为方法储备）。",
@@ -579,7 +649,8 @@ const ITEMS = [
     retro:"如果重做，本人会优先选有 API 的系统做集成，把界面级自动化（RPA）用在确实无接口的场景，从根上提升稳定性。"
   },
   {
-    t:"Prompt 工程与评测体系", status:"🔧 自建 Demo", jd:"所有 JD（尤其工作流落地、智能体开发）",
+    t:"Prompt 工程与评测体系", status:"自建 Demo", jd:"所有 JD（尤其工作流落地、智能体开发）",
+    highlights:[{num:"A/B",label:"对比测试驱动优化"},{num:"Schema",label:"JSON输出强校验"},{num:"模板化",label:"Prompt结构化沉淀"}],
     pitch:"AI输出像抽卡不稳。我用结构化Prompt+JSON Schema校验+评测集做A/B，把抽卡变成可校验、可复现的生产线。",
     pain:"Prompt 靠感觉写，输出不稳定、不可校验，像'抽卡'，无法支撑生产环境。",
     role:"我建立 Prompt 库 + 评测集 + 输出校验规则 + 版本迭代记录，让 AI 输出稳定、可校验、可复现。",
@@ -593,7 +664,8 @@ const ITEMS = [
     retro:"如果重做，我会把评测自动化进 CI，每次 Prompt 变更自动跑评测集，防止'改好一个场景、改坏另一个'。"
   },
   {
-    t:"培训 / SOP / 推广运营包", status:"✅ 已交付", jd:"AI 工作流落地工程师 / AI 项目负责人",
+    t:"培训 / SOP / 推广运营包", status:"已交付", jd:"AI 工作流落地工程师 / AI 项目负责人",
+    highlights:[{num:"70%",label:"自助解决率目标"},{num:"闭环",label:"反馈收集→处理→迭代"},{num:"SOP",label:"带教培训体系"}],
     pitch:"方案做出来客户不会用等于零。我做操作手册、培训脚本、FAQ和反馈闭环，把技术翻译成大白话——这就是FDE打通最后一公里。",
     pain:"AI 工作流搭好了，但业务人员不会用、不愿用，'AI 不好用'的反馈无人处理，采纳率低。",
     role:"本人面向客户与内部业务团队开展政策解读、申报流程与系统操作培训，制作操作手册、培训脚本与 FAQ，并参与内部技术培训体系搭建、部门工作流程与质量标准制定；以采纳率跟踪推广效果——这正是 FDE 打通'最后一公里'的核心能力。",
@@ -607,7 +679,8 @@ const ITEMS = [
     retro:"如果重做，我会把培训做成'场景化微课'而非长文档，并建立内部 AI 使用积分榜，用激励机制提升主动采纳率。"
   },
   {
-    t:"技术底座与运维证据", status:"🔧 自建 Demo", jd:"AI 智能体开发工程师",
+    t:"技术底座与运维证据", status:"自建 Demo", jd:"AI 智能体开发工程师",
+    highlights:[{num:"Docker",label:"Compose一键起服务"},{num:"高可用",label:"容错/重试/降级/熔断"},{num:"监控",label:"日志+告警+压测"}],
     pitch:"现场环境受限还得稳。我用Docker Compose一键起服务、配降级/容错/熔断和健康检查，让系统在客户现场也跑得住。",
     pain:"AI 应用能跑起来，但在客户现场/资源受限环境不稳定、无监控、故障难排查，无法支撑高可用交付。",
     role:"本人在资源受限环境下用 Docker Compose 快速搭建并现场部署调试 enterprise-agent，做容器化部署、API 集成、容错重试降级、性能调优、故障排查与安全权限，让系统不仅'能搭'还能在客户现场'稳定跑起来'——这是 FDE 的现场交付与问题解决能力。",
@@ -621,7 +694,8 @@ const ITEMS = [
     retro:"如果重做，我会引入蓝绿/灰度发布，让模型或 Prompt 升级可平滑回滚，避免'一次更新全线故障'。"
   },
   {
-    t:"项目复盘与量化数据报告", status:"✅ 已交付", jd:"所有 JD（JD 明确要求'必须有数据'）",
+    t:"项目复盘与量化数据报告", status:"已交付", jd:"所有 JD（JD 明确要求'必须有数据'）",
+    highlights:[{num:"300+",label:"政府/企业项目交付"},{num:"24家",label:"单年高企通过"},{num:"100+",label:"服务企业客户"}],
     pitch:"做完说不清价值等于白干。我给每个项目建卡片、埋基线、前后对比出数据看板，300+项目、单年24家高企就是这么量化出来的。",
     pain:"项目做完缺乏系统复盘，成果说不清、数据拿不出，无法证明价值、也无法沉淀可复用资产。",
     role:"我为每个项目建立复盘报告与数据看板，用统一口径回答'痛点—主导—工具—成效—资产'，把成果量化、把经验沉淀。",
@@ -635,7 +709,8 @@ const ITEMS = [
     retro:"如果重做，我会把'基线采集'作为项目立项的强制前置动作，没有基线不启动，从根上保证成效可量化。"
   },
   {
-    t:"企业级智能体 MCP Server 三件套（开源）", status:"✅ 已交付", jd:"所有 JD（AI 工程化 / 智能体 / MCP 生态）",
+    t:"企业级智能体 MCP Server 三件套（开源）", status:"已交付", jd:"所有 JD（AI 工程化 / 智能体 / MCP 生态）",
+    highlights:[{num:"3个",label:"MCP Server开源"},{num:"35",label:"pytest用例全通过"},{num:"100%",label:"用例通过率"}],
     pitch:"把 3 个可独立复用的 MCP Server 开源到 GitHub：工具调度、作品集检索、RAG 知识问答，各带测试与文档，证明我不只会用工具，还会造工具。",
     pain:"企业接入 MCP 生态时缺现成、可测试、可维护的 Server 实现，团队只能从零造轮子，质量与进度都不可控。",
     role:"我基于 FastMCP 1.x 独立设计并实现三个 MCP Server（enterprise-agent-tools-mcp / portfolio-mcp / rag-knowledge-base-mcp），含 pyproject、README、测试与 uv.lock，统一放到 enterprise-agents 仓库 mcp/ 目录并开源。",
@@ -652,14 +727,20 @@ const ITEMS = [
 
 // ===== 渲染作品集模块 =====
 const itemsEl = document.getElementById('items');
+function boldRole(role){
+  const m=role.match(/^((?:本人|我)[^。；]{2,120}[。；])/);
+  if(m)return '<b>'+m[1]+'</b>'+role.slice(m[1].length);
+  return '<b>'+role+'</b>';
+}
 ITEMS.forEach((it,idx)=>{
-  const chips = it.tools.map(t=>`<span class="chip">${t}</span>`).join('');
-  const metrics = it.metrics.map(m=>`<span class="metric">${m}</span>`).join('');
   const assets = it.assets.map(a=>`<span class="chip">${a}</span>`).join('');
-  const links = it.links.map(l=>{const p=l.split('|');return p.length===2?`<a class="ph-link" href="${p[1]}" target="_blank">${p[0]}</a>`:`<span class="ph">${l}</span>`}).join('');
+  const links = it.links.map(l=>{const p=l.split('|');if(p.length===2){const isMd=/\.md$/i.test(p[1]);return isMd?`<a class="md-link" href="#" data-md="${p[1]}" data-title="${p[0]}">${p[0]} ↗</a>`:`<a class="ph-link" href="${p[1]}" target="_blank">${p[0]}</a>`;}return `<span class="ph">${l}</span>`}).join('');
   const steps = it.steps.map((s,i)=>`<li><b>步骤${i+1}：</b>${s}</li>`).join('');
   const shot = it.shot ? `<div class="frow"><div class="fkey">运行截图</div><div class="fval"><a href="${it.shot}" target="_blank"><img src="${it.shot}" loading="lazy" style="max-width:100%;border-radius:10px;border:1px solid var(--line2);display:block" alt="enterprise-agent RAG 检索演示真实运行截图"></a><div style="font-size:11.5px;color:var(--txt3);margin-top:6px">↑ enterprise-agent RAG 检索演示真实运行输出（retrieval-only 降级模式）· 点击查看原图</div></div></div>` : '';
   const archimg = it.archImg ? `<div class="frow"><div class="fkey">架构图</div><div class="fval"><a href="${it.archImg}" target="_blank"><img src="${it.archImg}" loading="lazy" style="max-width:100%;border-radius:10px;border:1px solid var(--line2);display:block;background:#fff" alt="enterprise-agent 六层架构图"></a><div style="font-size:11.5px;color:var(--txt3);margin-top:6px">↑ 六层架构矢量图 · 点击查看原图</div></div></div>` : '';
+  const pitchShort = it.pitch.length>72 ? it.pitch.slice(0,72)+'…' : it.pitch;
+  const hls = (it.highlights||[]).map(h=>`<div class="q"><span class="q-num">${h.num}</span><span class="q-lb">${h.label}</span></div>`).join('');
+  const metricRows = it.metrics.map(m=>{const i=m.indexOf('：');return i>0?`<tr><td>${m.slice(0,i)}</td><td>${m.slice(i+1)}</td></tr>`:`<tr><td colspan="2">${m}</td></tr>`;}).join('');
   const el = document.createElement('div');
   el.className='item';
   el.innerHTML=`
@@ -672,22 +753,27 @@ ITEMS.forEach((it,idx)=>{
       <div class="chev">⌄</div>
     </div>
     <div class="item-body"><div class="body-in">
-      <div class="frow"><div class="fkey">30秒口播</div><div class="fval" style="color:var(--txt);font-weight:600">${it.pitch||''}</div></div>
-      ${shot}
+      <div class="hl">${hls}</div>
+      <div class="pitch-line">${pitchShort}</div>
       <div class="frow"><div class="fkey">业务痛点</div><div class="fval">${it.pain}</div></div>
-      <div class="frow"><div class="fkey">我的角色</div><div class="fval"><b>${it.role}</b></div></div>
-      <div class="frow"><div class="fkey">方案架构</div><div class="fval">${it.arch}</div></div>
-      ${archimg}
-      <div class="frow"><div class="fkey">工具栈</div><div class="fval"><div class="chips">${chips}</div></div></div>
-      <div class="frow"><div class="fkey">实施步骤</div><div class="fval"><ul>${steps}</ul></div></div>
-      <div class="frow"><div class="fkey">关键难点与解决</div><div class="fval">${it.hard}</div></div>
-      <div class="frow"><div class="fkey">量化测算</div><div class="fval">${metrics}<div style="font-size:11.5px;color:var(--txt3);margin-top:4px">* 测算模型 / 示例口径，实际以落地数据为准</div></div></div>
-      <div class="frow"><div class="fkey">可复用资产</div><div class="fval"><div class="chips">${assets}</div></div></div>
+      <div class="frow"><div class="fkey">我的角色</div><div class="fval">${boldRole(it.role)}</div></div>
+      <div class="frow"><div class="fkey">量化测算</div><div class="fval"><table class="mt">${metricRows}</table><div style="font-size:11.5px;color:var(--txt3);margin-top:6px">* 测算模型 / 示例口径，实际以落地数据为准</div></div></div>
       <div class="frow"><div class="fkey">证明链接</div><div class="fval">${links}</div></div>
-      <div class="frow"><div class="fkey">复盘</div><div class="fval">${it.retro}</div></div>
+      <div class="detail-toggle"><span class="ar">↓</span> 展开完整详情</div>
+      <div class="detail-sec">
+        <div class="frow"><div class="fkey">方案架构</div><div class="fval">${it.arch}</div></div>
+        ${archimg}
+        ${shot}
+        <div class="frow"><div class="fkey">工具栈</div><div class="fval"><div class="tool-txt">${it.tools.map(t=>`<span>${t}</span>`).join('、')}</div></div></div>
+        <div class="frow"><div class="fkey">实施步骤</div><div class="fval"><ul>${steps}</ul></div></div>
+        <div class="frow"><div class="fkey">关键难点与解决</div><div class="fval">${it.hard}</div></div>
+        <div class="frow"><div class="fkey">可复用资产</div><div class="fval"><div class="chips">${assets}</div></div></div>
+        <div class="frow"><div class="fkey">复盘</div><div class="fval">${it.retro}</div></div>
+      </div>
     </div></div>`;
   itemsEl.appendChild(el);
   el.querySelector('.item-head').addEventListener('click',()=>el.classList.toggle('open'));
+  el.querySelector('.detail-toggle').addEventListener('click',e=>{e.stopPropagation();el.classList.toggle('detail-open');});
 });
 
 // 动态注入模块总数
@@ -697,7 +783,10 @@ document.getElementById('itemCount').textContent = ITEMS.length + '项';
 let allOpen=false;
 document.getElementById('expandAll').addEventListener('click',()=>{
   allOpen=!allOpen;
-  document.querySelectorAll('.item').forEach(i=>i.classList.toggle('open',allOpen));
+  document.querySelectorAll('.item').forEach(i=>{
+    i.classList.toggle('open',allOpen);
+    i.classList.toggle('detail-open',allOpen);
+  });
 });
 
 // ===== 检查表 =====
@@ -725,6 +814,37 @@ window.addEventListener('scroll',()=>{
   secs.forEach(s=>{if(window.scrollY>=s.offsetTop-90)cur=s.id;});
   navAs.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script>
+// ===== .md 模态框 =====
+const mdCache={};
+const mdModal=document.createElement('div');
+mdModal.className='md-modal';
+mdModal.innerHTML='<div class="md-mask"></div><div class="md-box"><div class="md-bar"><div class="md-title"></div><button class="md-x" aria-label="关闭">×</button></div><div class="md-body"><div class="md-loading">加载中…</div></div></div>';
+document.body.appendChild(mdModal);
+const mdTitle=mdModal.querySelector('.md-title');
+const mdBody=mdModal.querySelector('.md-body');
+function closeMd(){mdModal.classList.remove('open');}
+function openMd(link){
+  const md=link.getAttribute('data-md');
+  const title=link.getAttribute('data-title')||'文档';
+  mdTitle.textContent=title;
+  mdBody.innerHTML='<div class="md-loading">加载中…</div>';
+  mdModal.classList.add('open');
+  if(mdCache[md]){mdBody.innerHTML=mdCache[md];return;}
+  fetch(md).then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.text();}).then(txt=>{
+    const html=marked.parse(txt);
+    mdCache[md]=html;
+    mdBody.innerHTML=html;
+  }).catch(()=>{mdBody.innerHTML='<div class="md-err">文档加载失败，请稍后重试</div>';});
+}
+document.addEventListener('click',e=>{
+  const l=e.target.closest('.md-link');
+  if(l){e.preventDefault();openMd(l);return;}
+  if(e.target.closest('.md-x')||e.target.classList.contains('md-mask'))closeMd();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mdModal.classList.contains('open'))closeMd();});
 </script>
 </body>
 </html>
