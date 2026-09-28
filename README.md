@@ -76,20 +76,11 @@
 
 ## 🧭 如何使用本作品集
 
-**如果你是面试官 / HR：**
+**3 分钟快速了解我：**
 
-1. 直接打开 [在线作品集](https://jav1es.github.io/portfolio/)
-2. 顶部导航栏可快速跳转到「FDE 前线部署」「现场演示」「作品集模块」等章节
-3. 点击任意模块卡片可展开详细内容，包含可验证的证明链接
-4. 特别推荐关注：**FDE 能力映射**、**模块 04（企业级智能体系统）**、**模块 13（MCP Server 三件套）**
-
-**如果你想本地查看：**
-
-```bash
-git clone https://github.com/Jav1es/portfolio.git
-cd portfolio
-# 用浏览器打开 index.html 即可
-```
+1. 打开 [在线作品集](https://jav1es.github.io/portfolio/)
+2. 重点看 3 个模块：**04 enterprise-agent** · **13 MCP Server 三件套** · **FDE 能力映射**
+3. 想深入了解，看第 4-8 模块的完整证据链
 
 ---
 
