@@ -1,4 +1,5 @@
 # 黄家辉 · AI 数字化落地作品集
+![作品集首页](./screenshot.png)
 > 从「会规划」到「能落地、可演示、可量化、可复用」
 [![在线访问](https://img.shields.io/badge/🌐_在线作品集-jav1es.github.io/portfolio-2563eb?style=for-the-badge)](https://jav1es.github.io/portfolio/)
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-059669?style=for-the-badge&logo=github)](https://jav1es.github.io/portfolio/)
