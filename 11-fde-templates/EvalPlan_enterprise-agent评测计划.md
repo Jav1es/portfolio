@@ -21,7 +21,7 @@ AIGC:
 | 字段 | 内容 |
 | --- | --- |
 | 系统/功能 | enterprise-agent（企业级智能体系统 · 本地工程） |
-| 被评版本 | v0.1.0（src/enterprise_agent；仓库：`04-企业级智能体系统(本地开发工程(enterprise-agent))\enterprise-agents\`） |
+| 被评版本 | v0.1.0（src/enterprise_agent；仓库：`D:\Jav1e Flies\enterprise-agents\`） |
 | 计划负责人 | 黄家辉 / 企业数字化咨询方向 |
 | 业务批准人 | 黄家辉 |
 | 安全/数据批准人 | 黄家辉 |
@@ -193,7 +193,7 @@ AIGC:
 ### 执行与产物
 
 - 评测命令：`docker compose up -d` → `pytest tests/`（单元/集成） → 运行评测脚本（输入 07 模块样本） → 生成报告
-- 产物目录：`04-企业级智能体系统(本地开发工程(enterprise-agent))\enterprise-agents\eval_reports\`（每次运行按日期归档）
+- 产物目录：`D:\Jav1e Flies\enterprise-agents\eval_reports\`（每次运行按日期归档）
 - 报告字段：结论、汇总指标表、失败分类、限制说明、建议
 
 ## 12. 发布门槛
