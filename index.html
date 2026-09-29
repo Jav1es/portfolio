@@ -722,7 +722,22 @@ const ITEMS = [
     assets:["mcp/enterprise-agent-tools-mcp","mcp/portfolio-mcp","mcp/rag-knowledge-base-mcp","共享仓库 enterprise-agents"],
     links:["仓库根目录|https://github.com/Jav1es/enterprise-agents/tree/main/mcp","工具调度 MCP|https://github.com/Jav1es/enterprise-agents/tree/main/mcp/enterprise-agent-tools-mcp","作品集 MCP|https://github.com/Jav1es/enterprise-agents/tree/main/mcp/portfolio-mcp","RAG 知识库 MCP|https://github.com/Jav1es/enterprise-agents/tree/main/mcp/rag-knowledge-base-mcp"],
     retro:"如果重做，我会在一开始就统一三项目的脚手架与版本策略，并为每个 Server 增加 schema 快照测试，进一步降低集成回归风险。"
-  }
+  },
+    {
+      t:"dsh-bridge：让 Marvis 调用本机 DeepSeek Harness（开源）", status:"开源工具", jd:"AI 智能体开发工程师 / AI 工作流落地工程师 / FDE",
+      highlights:[{num:"3",label:"MCP 工具（零依赖手写协议）"},{num:"241×77",label:"技能 × MCP 工具本地检索"},{num:"10 秒",label:"派工单生成耗时"}],
+      pitch:"两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现、CI 全绿。",
+      pain:"本机同时跑着 Marvis（日常主力）与 DeepSeek Harness（带完整工具链的重活代理），但两者互不相通：Marvis 不知道 DSH 能做什么，DSH 也读不到 Marvis 的技能与 MCP 清单，只能手工在两个窗口之间搬运内容。",
+      role:"我独立完成了整个桥接的设计与实现：先用文件系统与 SQLite 把 Marvis 的技能库（241 个）与 MCP 目录（服务器与工具）读出来，做本地关键词检索挑候选，再让 DSH 生成结构化派工单。协议层是手写的 JSON-RPC（零运行时依赖），另配双语文档、排错手册与 CI。",
+      arch:"Marvis（MCP 客户端）→ dsh-bridge MCP Server（stdio，换行分隔 JSON-RPC，零依赖）→ 本地检索（读 ~/.marvis/skills/*/SKILL.md 的 frontmatter + data.db 的 mcp_server_index / mcp_tool_index，仅取 enabled=1）→ dsh --profile headless 生成派工单 → 回传 Marvis 按「建议调用」执行。任务文本经临时文件传递，规避命令行转义与中文编码问题。",
+      tools:["Node.js（零依赖，仅内置模块）","MCP 协议（stdio JSON-RPC 2.0）","node:sqlite","PowerShell 7","DeepSeek Harness headless","GitHub Actions CI"],
+      steps:["确认 DSH 的对外调用面：headless 一次性执行可用，ACP/SDK 内置；确认它只有 MCP 客户端、不能当 MCP 服务器","修复 headless profile 凭据路由（deepseek-official → deepseek-account），使 dsh --profile headless 真正可用","手写 MCP stdio 服务器：实现 initialize / tools/list / tools/call / ping，stdout 只走协议、日志走 stderr","解决中文与转义：任务文本写临时文件、由临时 .ps1 以变量传参，绝不做命令行字符串拼接","解决进程树泄漏：超时用 taskkill /T /F 杀整棵进程树，不留野进程","解决精简 PATH：pwsh 与 dsh 均按绝对路径回退，实测 PATH 只剩 node 时仍可用","新增 dsh_plan：读 Marvis 技能与 MCP 目录 → 本地中英混排分词检索 → 只把 top-K 喂给模型生成六节派工单","加约束消除幻觉：规划器不得读文件或调工具（76 秒 → 10 秒）；工具名必须逐字取自候选清单","补 CI：文件布局、Node 与 PowerShell 语法、MCP 协议冒烟、敏感信息扫描，五步全绿","补双语文档：设计取舍、MCP 参考、排错手册（含 Marvis 导入技能的四条硬性要求）"],
+      hard:"难点有三个。一是 DSH 不能当 MCP 服务器——社区 4382 条插件目录里，101 个 MCP 相关插件全是「DSH 去连别人」，没有「把 DSH 暴露出去」，只能自己补一层包装。二是模型会臆造候选清单外的工具名，调用方照着调就会失败，用提示词硬约束解决，复测越界为 0。三是规划器会「顺手把活干了」，单次调用 76 秒，加「只做规划」约束后降到 10 秒。",
+      metrics:["MCP 工具 3 个（dsh_plan / dsh_run / dsh_status），零运行时依赖","本地检索覆盖 241 个技能 × 77 个 MCP 工具，skip_llm 模式 0.1 秒返回","完整派工单生成约 10 秒（优化前 76 秒）","Skill 封装 6/6 用例通过（中文、管道、JSON 事件流、空任务、工作目录、多行引号）","端到端实战：对三份简历做独立审计，148 秒产出 622 行报告，挑出 3 处高风险问题","CI 五步全绿：布局 / Node 语法 / PowerShell 语法 / MCP 冒烟 / 敏感信息扫描"],
+      assets:["零依赖 MCP stdio 服务器 server.mjs","一次性 dsh 执行器 dsh-runner.ps1","Marvis 技能包（SKILL.md + dsh_ask.ps1）","双语文档（README.md / README.en.md）","设计取舍 docs/design.md","MCP 参考 docs/mcp-reference.md","排错手册 docs/troubleshooting.md","CI 工作流 .github/workflows/ci.yml","原创图标（鲸鱼 × 桥）"],
+      links:["GitHub 仓库：dsh-bridge（MIT 开源）|https://github.com/Jav1es/dsh-bridge","设计取舍：临时文件 / 杀进程树 / 路径回退|./12-dsh-bridge/design.md","MCP 参考：工具参数与手工调试|./12-dsh-bridge/mcp-reference.md","排错手册：后端 / 桥接 / Marvis 导入 / 安全|./12-dsh-bridge/troubleshooting.md","技术说明 README|./12-dsh-bridge/dsh-bridge-README.md","Marvis 技能定义|./12-dsh-bridge/dsh-bridge-SKILL.md","CI 运行记录（每次 push 自动跑）|https://github.com/Jav1es/dsh-bridge/actions"],
+      retro:"如果重做，我会一开始就把「调用方能不能真的调到」当成硬需求：第一版既没过滤 enabled，也没约束模型只能用清单内的名字，等于把失败推给了下一环。另外我低估了「规划器会顺手干活」的惯性——提示词里少一句「只做规划」，单次调用就贵了 7 倍。"
+    },
 ];
 
 // ===== 渲染作品集模块 =====
