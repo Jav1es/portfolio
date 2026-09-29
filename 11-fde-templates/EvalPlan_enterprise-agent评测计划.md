@@ -1,13 +1,3 @@
----
-AIGC:
-    Label: "1"
-    ContentProducer: 001191440300708461136T1XGW3
-    ProduceID: a9782e29de8590e62ac547221dcdd3cc_10cbedf8b73611f1a38a525400248c00
-    ReservedCode1: 96VmH0bSGnG7KBEaXqXVq4fBkytNGjlMPyMaFa62XMMI4dtIOXvFTD1GUxUmrxwj69MDPqNXxTf7t8KG/L4j20Xrzgc/PF+NhgV5kjYPnNDT68fRXHeCrbgKgxMHULaP6KtCzlKEY2l+dR8eCrlriWfg+E52dRORMau22Qzybk1i1XhgL0AOikAoxy4=
-    ContentPropagator: 001191440300708461136T1XGW3
-    PropagateID: a9782e29de8590e62ac547221dcdd3cc_10cbedf8b73611f1a38a525400248c00
-    ReservedCode2: 96VmH0bSGnG7KBEaXqXVq4fBkytNGjlMPyMaFa62XMMI4dtIOXvFTD1GUxUmrxwj69MDPqNXxTf7t8KG/L4j20Xrzgc/PF+NhgV5kjYPnNDT68fRXHeCrbgKgxMHULaP6KtCzlKEY2l+dR8eCrlriWfg+E52dRORMau22Qzybk1i1XhgL0AOikAoxy4=
----
 
 # Eval Plan · enterprise-agent 评测计划
 
