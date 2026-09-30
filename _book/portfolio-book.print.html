@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>黄家辉：AI数字化落地作品集</title>
+<style>
+  /* ============ 书籍排版基础 ============ */
+  @page {
+    size: A4;
+    margin: 20mm 18mm 18mm 18mm;
+    /* 页眉页脚由 build_book.py 用 reportlab 叠加（中文支持更好），CSS 不再生成 */
+  }
+  @page cover { margin: 0; }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+    font-size: 10.5pt; line-height: 1.75; color: #1e293b;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ============ 封面 ============ */
+  .cover {
+    page: cover;
+    width: 210mm; height: 297mm;
+    background: linear-gradient(160deg, #1e3a8a 0%, #0e7490 55%, #0891b2 100%);
+    color: #fff; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    text-align: center; padding: 30mm;
+  }
+  .cover::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(600px 380px at 18% 12%, rgba(255,255,255,.10), transparent 60%),
+      radial-gradient(500px 400px at 85% 20%, rgba(255,255,255,.08), transparent 60%),
+      radial-gradient(700px 500px at 50% 100%, rgba(255,255,255,.06), transparent 60%);
+  }
+  .cover .inner { position: relative; z-index: 1; }
+  .cover .badge {
+    display: inline-block; font-size: 11pt; letter-spacing: 4px; color: #a5f3fc;
+    border: 1px solid rgba(165,243,252,.4); border-radius: 999px; padding: 6px 20px; margin-bottom: 28mm;
+  }
+  .cover h1 { font-size: 36pt; font-weight: 800; line-height: 1.3; margin: 0 0 10mm; letter-spacing: 2px; }
+  .cover h1 .author { display: block; font-size: 20pt; font-weight: 700; letter-spacing: 12px; margin-bottom: 8mm; color: #e0f2fe; }
+  .cover .sub { font-size: 13pt; color: #e0f2fe; letter-spacing: 2px; margin: 0 0 22mm; line-height: 1.8; }
+  .cover .name { font-size: 15pt; font-weight: 700; letter-spacing: 6px; margin-bottom: 6mm; }
+  .cover .role { font-size: 10.5pt; color: #bae6fd; letter-spacing: 2px; }
+  .cover .meta { position: absolute; bottom: 18mm; left: 0; right: 0; font-size: 9pt; color: rgba(255,255,255,.6); letter-spacing: 1px; z-index: 1; }
+
+  /* ============ 目录 ============ */
+  .toc { page: toc; }
+  .toc h1 { font-size: 20pt; color: #0f172a; border-bottom: 3px solid #0891b2; padding-bottom: 10px; margin: 0 0 16px; }
+  .toc ul { list-style: none; margin: 0; padding: 0; }
+  .toc li { display: flex; align-items: baseline; margin: 7px 0; font-size: 11pt; }
+  .toc li .num { width: 26px; color: #0891b2; font-weight: 700; font-size: 10pt; flex-shrink: 0; }
+  .toc li .t { flex: 1; }
+  .toc li .dots { flex: 1; border-bottom: 1px dotted #94a3b8; margin: 0 6px; align-self: flex-end; }
+  .toc li .pg { color: #475569; }
+  .toc li a { color: #1e293b; text-decoration: none; }
+  .toc li.l1 { font-weight: 700; font-size: 11.5pt; margin-top: 12px; }
+  .toc li.l2 { padding-left: 26px; font-weight: 400; }
+
+  /* ============ 章节 ============ */
+  .chapter { page-break-before: always; string-set: chapter content(); }
+  .chapter:first-of-type { page-break-before: avoid; }
+  h1.chap {
+    font-size: 21pt; color: #0f172a; font-weight: 800; letter-spacing: .5px;
+    margin: 0 0 6px; padding-bottom: 12px; border-bottom: 3px solid #0891b2;
+  }
+  h1.chap .no { color: #0891b2; font-weight: 800; margin-right: 10px; }
+  .chap-lead { color: #475569; font-size: 10pt; margin: 10px 0 20px; }
+
+  h2 { font-size: 14pt; color: #0e7490; margin: 24px 0 10px; font-weight: 700; }
+  h3 { font-size: 11.5pt; color: #1e293b; margin: 16px 0 8px; font-weight: 700; }
+  p { margin: 6px 0; text-align: justify; }
+  ul, ol { margin: 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+
+  /* 字段行 */
+  .field { margin: 8px 0; }
+  .field .k { font-weight: 700; color: #0e7490; }
+  .field .v { color: #334155; }
+
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; }
+  th, td { border: 1px solid #cbd5e1; padding: 7px 10px; text-align: left; vertical-align: top; line-height: 1.6; }
+  th { background: #eff6ff; color: #0f172a; font-weight: 700; }
+  tr:nth-child(even) td { background: #f8fafc; }
+
+  /* 亮点数字卡 */
+  .hl { display: flex; gap: 14px; margin: 14px 0; flex-wrap: wrap; }
+  .hl .q { flex: 1; min-width: 100px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 12px 14px; }
+  .hl .q .num { font-size: 20pt; font-weight: 800; color: #0369a1; line-height: 1.1; }
+  .hl .q .lb { font-size: 8.5pt; color: #475569; line-height: 1.4; }
+
+  /* 引言 */
+  .pitch { font-size: 11pt; font-weight: 600; color: #0f172a; background: #f8fafc; border-left: 4px solid #0891b2; padding: 10px 14px; margin: 12px 0; line-height: 1.7; }
+
+  /* 标签/芯片 */
+  .chips { margin: 4px 0; }
+  .chip { display: inline-block; font-size: 8.5pt; color: #334155; background: #eff6ff; border: 1px solid #dbeafe; padding: 2px 8px; border-radius: 5px; margin: 2px 3px 2px 0; }
+  .tool { display: inline-block; font-size: 8.5pt; color: #475569; background: #f1f5f9; border: 1px solid #e2e8f0; padding: 2px 8px; border-radius: 5px; margin: 2px 3px 2px 0; }
+
+  /* 链接 */
+  .links a { color: #2563eb; text-decoration: none; }
+  .link-item { display: inline-block; font-size: 8.5pt; color: #2563eb; background: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 8px; border-radius: 5px; margin: 2px 3px 2px 0; }
+
+  /* 状态徽章 */
+  .st { font-size: 8pt; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
+  .st-ok { color: #166534; background: #dcfce7; border: 1px solid #bbf7d0; }
+  .st-demo { color: #92400e; background: #fed7aa; border: 1px solid #fcd34d; }
+  .st-plan { color: #1e40af; background: #dbeafe; border: 1px solid #bfdbfe; }
+  .st-open { color: #6d28d9; background: #ede9fe; border: 1px solid #ddd6fe; }
+
+  /* 故事卡 */
+  .story { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px 18px; margin: 12px 0; }
+  .story .tag { display: inline-block; font-size: 8.5pt; font-weight: 700; padding: 3px 10px; border-radius: 99px; margin-bottom: 8px; }
+  .story.biz .tag { color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; }
+  .story.eng .tag { color: #0e7490; background: #ecfeff; border: 1px solid #a5f3fc; }
+  .story h4 { font-size: 12pt; margin: 4px 0 10px; color: #0f172a; }
+  .story .kv { font-size: 9.5pt; color: #334155; margin: 7px 0; line-height: 1.7; }
+  .story .kv b { color: #0f172a; }
+  .story .res { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; font-size: 9.5pt; color: #059669; font-weight: 600; line-height: 1.7; }
+  .story .res span { color: #64748b; font-weight: 400; }
+
+  .note { font-size: 8.5pt; color: #64748b; }
+
+  /* 分页控制 */
+  .no-break { page-break-inside: avoid; }
+  .page-break { page-break-before: always; }
+
+  /* 链接地址 */
+  .url { color: #2563eb; word-break: break-all; font-size: 9pt; }
+</style>
+</head>
+<body>
+
+<!-- ================= 封面 ================= -->
+<div class="cover">
+  <div class="inner">
+    <div class="badge">AI · 数字化落地 · 作品集</div>
+    <h1><span class="author">黄 家 辉</span>AI数字化落地作品集</h1>
+    <p class="sub">从「会规划」到「能落地、可演示、可量化、可复用」</p>
+    <div class="role" style="font-size:11.5pt; margin-top:18mm">AI 项目经理 · 工作流落地工程师 · 智能体开发 · FDE 前线部署工程师</div>
+  </div>
+  <div class="meta">5 年+企业科技服务 · 300+ 项目 · 100+ 服务企业 · 14 个可追溯证据模块</div>
+</div>
+
+<!-- ================= 目录 ================= -->
+<div class="toc">
+  <h1>目录</h1>
+  <ul>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch1">第一章 · 关于我</a><span class="dots"></span><span class="pg">3</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch2">第二章 · 核心亮点</a><span class="dots"></span><span class="pg">4</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch3">第三章 · 目标岗位与能力组合</a><span class="dots"></span><span class="pg">5</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch4">第四章 · FDE 前线部署能力</a><span class="dots"></span><span class="pg">6</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch5">第五章 · 作品集模块（14 个）</a><span class="dots"></span><span class="pg">8</span></li>
+    <li class="l2"><span class="num">01</span><a class="t" href="#m01">AI 工具体系 0-1 搭建规划包</a><span class="dots"></span><span class="pg">10</span></li>
+    <li class="l2"><span class="num">02</span><a class="t" href="#m02">AI 工作流落地标杆 A：企业智能问答与申报文档 AIGC</a><span class="dots"></span><span class="pg">12</span></li>
+    <li class="l2"><span class="num">03</span><a class="t" href="#m03">AI 工作流落地标杆 B：财务 / 行政 / 外贸跟单</a><span class="dots"></span><span class="pg">14</span></li>
+    <li class="l2"><span class="num">04</span><a class="t" href="#m04">企业级智能体系统 enterprise-agent</a><span class="dots"></span><span class="pg">16</span></li>
+    <li class="l2"><span class="num">05</span><a class="t" href="#m05">业务数据库与数据监测报告（SQL + BI/ChatBI）</a><span class="dots"></span><span class="pg">19</span></li>
+    <li class="l2"><span class="num">06</span><a class="t" href="#m06">RAG 知识库 Demo（真实带数据演示）</a><span class="dots"></span><span class="pg">21</span></li>
+    <li class="l2"><span class="num">07</span><a class="t" href="#m07">AI 评测与可观测性（CI 回归 + OTel/Jaeger）</a><span class="dots"></span><span class="pg">23</span></li>
+    <li class="l2"><span class="num">08</span><a class="t" href="#m08">办公流程自动化（Open Claw + Python）</a><span class="dots"></span><span class="pg">25</span></li>
+    <li class="l2"><span class="num">09</span><a class="t" href="#m09">Prompt 工程与评测体系</a><span class="dots"></span><span class="pg">27</span></li>
+    <li class="l2"><span class="num">10</span><a class="t" href="#m10">培训 / SOP / 推广运营包</a><span class="dots"></span><span class="pg">29</span></li>
+    <li class="l2"><span class="num">11</span><a class="t" href="#m11">技术底座与运维证据</a><span class="dots"></span><span class="pg">31</span></li>
+    <li class="l2"><span class="num">12</span><a class="t" href="#m12">项目复盘与量化数据报告</a><span class="dots"></span><span class="pg">33</span></li>
+    <li class="l2"><span class="num">13</span><a class="t" href="#m13">企业级智能体 MCP Server 三件套（开源）</a><span class="dots"></span><span class="pg">35</span></li>
+    <li class="l2"><span class="num">14</span><a class="t" href="#m14">dsh-bridge：让 Marvis 调用本机 DSH（开源）</a><span class="dots"></span><span class="pg">37</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch6">第六章 · 行业定制规划能力 · 白云科技样本</a><span class="dots"></span><span class="pg">40</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch7">第七章 · 现场可演示清单</a><span class="dots"></span><span class="pg">41</span></li>
+    <li class="l1"><span class="num"></span><a class="t" href="#ch8">第八章 · 诚信说明与口径</a><span class="dots"></span><span class="pg">42</span></li>
+  </ul>
+</div>
+
+<!-- ================= 第一章 关于我 ================= -->
+<div class="chapter" id="ch1">
+  <h1 class="chap"><span class="no">壹</span>关于我</h1>
+  <p class="chap-lead">从「会规划」到「能落地、可演示、可量化、可复用」</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">5年+</div><div class="lb">企业科技服务与项目全流程经验</div></div>
+    <div class="q"><div class="num">300+</div><div class="lb">政府/企业项目交付</div></div>
+    <div class="q"><div class="num">100+</div><div class="lb">服务企业客户</div></div>
+    <div class="q"><div class="num">14项</div><div class="lb">可追溯、可演示的深度作品</div></div>
+  </div>
+
+  <h2>一句话介绍</h2>
+  <p>我是<b>黄家辉</b>，5 年+企业科技服务与项目全流程经验，坐标广州，计算机应用技术背景，软考中级，信息系统项目管理师备考中。</p>
+
+  <h2>目标岗位</h2>
+  <p>AI 项目经理 / AI 工作流落地工程师 / AI 智能体开发工程师 / FDE 前线部署工程师。</p>
+
+  <h2>我的定位</h2>
+  <p>我擅长把 AI 从「概念」落到「业务现场」——从需求诊断、方案设计、端到端交付到现场培训，全程打通最后一公里。本作品集是一份完整的<b>证据链</b>，每一项都可追溯、可验证、可演示。</p>
+
+  <h2>我的职业内核</h2>
+  <p>我的职业内核是 <b>FDE（Forward Deployed Engineer，前线部署工程师）</b>画像：5 年+深入客户企业一线，从需求诊断 → 方案设计 → 端到端交付 → 现场实施指导 → 把客户团队教会，全程「把方案真正落到客户手里」，并用高企通过率、最快 1 周交付、100+ 项目 / 服务企业 100+ 等量化 ROI 说话。</p>
+</div>
+
+<!-- ================= 第二章 核心亮点 ================= -->
+<div class="chapter" id="ch2">
+  <h1 class="chap"><span class="no">贰</span>核心亮点</h1>
+  <p class="chap-lead">六维能力，一张表看清</p>
+
+  <table>
+    <tr><th style="width:20%">维度</th><th>内容</th></tr>
+    <tr><td><b>真实项目</b></td><td><b>24 家（含复审）</b>单年高企通过 · <b>1 周</b>最快交付 · <b>300+</b> 项目可研</td></tr>
+    <tr><td><b>工程落地</b></td><td><b>6 层</b>智能体架构 · <b>83.3%</b> RAG 检索准确率 · <b>35 项</b>测试通过</td></tr>
+    <tr><td><b>开源贡献</b></td><td><b>3 个</b> MCP Server + <b>1 个</b> 跨应用桥接 MCP Server 开源 · CI 全绿</td></tr>
+    <tr><td><b>数据驱动</b></td><td>每个项目都有<b>前后对比量化数据</b>，全部标注口径</td></tr>
+    <tr><td><b>FDE 能力</b></td><td><b>完整能力映射表</b> + 2 则实战故事（业务型 + 工程型）</td></tr>
+    <tr><td><b>能带队</b></td><td><b>5 年+</b>客户现场交付 · 从诊断到培训全程主导</td></tr>
+  </table>
+
+  <p class="note">* 成效类数字凡涉测算，均标注「测算模型 / 示例口径」，实际以落地数据为准。</p>
+</div>
+
+<!-- ================= 第三章 目标岗位与能力组合 ================= -->
+<div class="chapter" id="ch3">
+  <h1 class="chap"><span class="no">叁</span>目标岗位与能力组合</h1>
+  <p class="chap-lead">针对不同目标岗位，分别组织对应的工作证据组合</p>
+
+  <h2>🎯 AI 项目经理</h2>
+  <p>能从公司层面搭建 AI 工具体系、跨部门推进落地，并以 ROI 量化价值，而非停留在单个工具的使用。</p>
+  <p class="field"><span class="k">对应作品：</span><span class="v">AI 工具体系 0-1 规划包 + 跨部门推进证据（RACI/周报/验收）+ ROI 报告 + 培训推广包</span></p>
+
+  <h2>⇄ AI 工作流落地工程师</h2>
+  <p>能将 AI 工作流真正跑通、推动业务人员用起来，并基于反馈持续迭代优化。</p>
+  <p class="field"><span class="k">对应作品：</span><span class="v">2-3 个「AI 先做一遍、人只审核」流程 + 操作手册 + 培训反馈 + Prompt 评测体系</span></p>
+
+  <h2>▦ AI 项目负责人（电商 / 增长）</h2>
+  <p>具备数据看板、流程自动化与团队带教的通用能力，可迁移至电商多平台数据打通与经营看板场景（下含自建 demo 与示例口径，非电商客户实绩，慎用于强电商背景要求）。</p>
+  <p class="field"><span class="k">对应作品：</span><span class="v">数据监测报告 + BI 看板能力 + Open Claw/Python 自动化 + 多维表「AI 先做人审核」+ 带教 SOP</span></p>
+
+  <h2>🤖 AI 智能体开发工程师</h2>
+  <p>具备工程化能力：架构、RAG、工具调用、记忆、容错、部署，既能搭建也能保障稳定运行。</p>
+  <p class="field"><span class="k">对应作品：</span><span class="v">企业级智能体系统 enterprise-agent（本地工程）+ 六层架构 + LangGraph 编排/RAG/双视野记忆/工具调用 + Docker/K8s 部署 + 容错重试熔断</span></p>
+
+  <h2>🚀 FDE 全栈前线部署工程师</h2>
+  <p>职业内核即 FDE 画像：5 年+深入客户企业一线，从需求诊断到端到端交付、现场实施指导、把客户团队教会，并用高企通过率、最快 1 周交付、100+ 项目 / 服务企业 100+ 等量化 ROI。详见第四章「FDE 能力映射」与两则实战故事。</p>
+  <p class="field"><span class="k">对应作品：</span><span class="v">高企认定现场交付（业务型 FDE）+ enterprise-agent 本地部署（工程型 FDE）+ 培训/SOP 打通最后一公里 + 数据监测报告</span></p>
+</div>
+
+<!-- ================= 第四章 FDE ================= -->
+<div class="chapter" id="ch4">
+  <h1 class="chap"><span class="no">肆</span>FDE 前线部署能力</h1>
+  <p class="chap-lead">深入一线、端到端交付、把方案真正落到客户手里</p>
+
+  <p>FDE 的核心不是「会做技术」，而是深入客户现场、把方案端到端落地、并教会客户团队用起来。下表把 FDE 的五项核心要求逐条映射到本人真实经历与作品集证据。</p>
+
+  <p class="pitch">一句话定位：本人 5 年+做的是「科技服务/项目申报的现场交付」——本质就是 FDE 工作法：进客户门、诊断业务、端到端交付、现场培训、用通过率与周期量化结果。AI 与工程能力（enterprise-agent、Coze、RAG、部署）是把这套方法论从「人力密集」升级为「AI 提效」的新引擎。</p>
+
+  <h2>FDE 能力映射表</h2>
+  <table>
+    <tr><th style="width:22%">FDE 核心要求</th><th>本人真实经历对应</th><th style="width:24%">作品集证据</th></tr>
+    <tr><td>深入一线 · 需求诊断</td><td>面向客户企业做需求调研、痛点诊断与可行性分析，累计覆盖 100+ 家企业</td><td>模块 1 规划包 · 模块 12 复盘</td></tr>
+    <tr><td>端到端交付</td><td>从方案编制、材料合规到申报交付一条龙，最快 1 周完成签单到申报交付</td><td>高企认定实战故事（下）</td></tr>
+    <tr><td>业务沟通 · 跨部门</td><td>协同营销做客户诊断与谈判支持，联动财务/技术完成研发费用归集与合规自查</td><td>模块 10 培训/带教 · 模块 3 财务合规</td></tr>
+    <tr><td>快速搭原型 · 现场部署</td><td>在本地/资源受限环境用 Docker Compose 快速起 enterprise-agent、现场调试降级容错</td><td>模块 4 · 模块 11 现场部署</td></tr>
+    <tr><td>ROI 量化 · 数据说话</td><td>自建项目信息数据库，输出《项目监测报告》，减少团队约 40% 重复工作</td><td>模块 5 数据监测 · 模块 12 复盘</td></tr>
+  </table>
+
+  <h2>实战故事一 · 业务型 FDE</h2>
+  <div class="story biz">
+    <span class="tag">业务型 FDE · 真实项目</span>
+    <h4>高新技术企业认定 · 端到端现场交付</h4>
+    <div class="kv"><b>客户痛点：</b>科技型企业想拿高企资质享税收优惠，但不懂研发费用归集、知识产权与材料合规，自己报大概率被否。</div>
+    <div class="kv"><b>深入现场诊断：</b>进企业盘研发项目、知识产权、财务口径与科技人员占比，定位申报缺口。</div>
+    <div class="kv"><b>端到端方案：</b>制定申报路线 → 指导研发费用辅助账归集 → 编制技术方案与申报材料 → 组织合规性自查 → 跟进审批。</div>
+    <div class="kv"><b>打通最后一公里：</b>给企业财务/技术团队做政策与系统操作培训，让客户具备后续自主申报能力。</div>
+    <div class="res">结果：单年最高通过 24 家（含复审）、单年通过项目 60+，最快 1 周完成从签单到申报交付。<br><span>（真实业务经验；具体企业名与年度数据面试时可脱敏提供）</span></div>
+  </div>
+
+  <h2>实战故事二 · 工程型 FDE</h2>
+  <div class="story eng">
+    <span class="tag">工程型 FDE · 真实工程</span>
+    <h4>enterprise-agent · 资源受限环境现场部署</h4>
+    <div class="kv"><b>业务痛点：</b>要在一台普通机器上跑通一套企业智能体（编排/RAG/记忆/工具调用），不能依赖云端与专职运维。</div>
+    <div class="kv"><b>快速搭原型：</b>用 Docker Compose 一键拉起 agent-api + Redis + pgvector，本地即可演示，绕开复杂环境依赖。</div>
+    <div class="kv"><b>现场调试与救火：</b>用 OpenAI 兼容接口切本地 Ollama 模型、配置降级备用模型，解决启动依赖、模型不可用与超时问题。</div>
+    <div class="kv"><b>稳定交付：</b>内置重试/熔断/调用次数限制与 FastAPI 健康检查，保证现场长时间演示不掉线。</div>
+    <div class="res">结果：本地完整跑通并支持现场演示，工程文档齐全，已开源。<br><span class="url">github.com/Jav1es/enterprise-agents</span></div>
+  </div>
+
+  <h2>FDE 交付物模板</h2>
+  <p>把 FDE 工作法沉淀为可直接复用的交付物——从「客户发现」到「工程评测」的两份标准模板，均为真实内容落地。</p>
+  <ul>
+    <li><b>Discovery Brief · 高企认定客户发现简报：</b>以高企认定申报服务为背景，用 FDE 工作法（进客户企业→诊断研发费用归集缺口→知产与评分诊断→形成可验证交付范围）产出的客户发现简报，数据取自真实客户台账并已脱敏。</li>
+    <li><b>Eval Plan · enterprise-agent 评测计划：</b>针对本地企业级智能体工程 enterprise-agent 的评测计划，定义评测数据集、指标合同、RAG 五层与工具调用专项、发布门槛与生产监控闭环。</li>
+  </ul>
+</div>
+
+<!-- ================= 第五章 作品集模块 ================= -->
+<div class="chapter" id="ch5">
+  <h1 class="chap"><span class="no">伍</span>作品集模块（14 个）</h1>
+  <p class="chap-lead">每个模块含：业务痛点、我的角色、方案架构、工具栈、实施步骤、关键难点、量化测算、可复用资产、证明链接与复盘。量化数据凡涉成效均标注为测算模型 / 示例口径，实际以真实落地数据为准。</p>
+
+  <h2>模块总览</h2>
+  <table>
+    <tr><th style="width:5%">#</th><th style="width:34%">模块</th><th style="width:10%">类型</th><th>核心亮点</th></tr>
+    <tr><td>01</td><td>AI 工具体系 0-1 搭建规划包</td><td>方案规划</td><td>300+ 项目可研/立项经验 · 8 大业务域覆盖 · 6 个月分阶段路线图</td></tr>
+    <tr><td>02</td><td>AI 工作流落地标杆 A：企业智能问答与申报文档 AIGC</td><td>自建 Demo</td><td>≥50% 生成效率提升测算 · ≥85% 审核通过率目标 · AI 先做+人工只审 2 层流</td></tr>
+    <tr><td>03</td><td>AI 工作流落地标杆 B：财务 / 行政 / 外贸跟单</td><td>已交付</td><td>24 家单年高企认定通过（含复审） · 70% 人工审核量下降测算 · 92% 准确率目标</td></tr>
+    <tr><td>04</td><td>企业级智能体系统 enterprise-agent</td><td>个人开源</td><td>6 层企业级智能体架构 · 70% HPA 扩缩容 CPU 阈值 · 5 次熔断器连续失败阈值</td></tr>
+    <tr><td>05</td><td>业务数据库与数据监测报告（SQL 报表 + BI/ChatBI）</td><td>已交付</td><td>约 40% 减少团队重复工作 · 1 套自建业务数据库 · SQL 报表固化/存储过程</td></tr>
+    <tr><td>06</td><td>RAG 知识库 Demo（真实带数据演示）</td><td>自建 Demo</td><td>83.3% 检索准确率@3（真实评测） · 5/6 引用来源准确 · 40 条示例制度文档</td></tr>
+    <tr><td>07</td><td>AI 评测与可观测性（CI 回归 + OTel/Jaeger）</td><td>自建 Demo</td><td>8 个单会话 Jaeger trace span · 6 条 CI 每次 push 自动评测 · ≥60% CI 断言阈值</td></tr>
+    <tr><td>08</td><td>办公流程自动化（Open Claw + Python 脚本）</td><td>自建 Demo</td><td>跨系统重复流程脚本自动化 · 异常告警+人工复核兜底 · SOP 流程沉淀</td></tr>
+    <tr><td>09</td><td>Prompt 工程与评测体系</td><td>自建 Demo</td><td>A/B 对比测试驱动优化 · JSON Schema 输出强校验 · Prompt 结构化模板化</td></tr>
+    <tr><td>10</td><td>培训 / SOP / 推广运营包</td><td>已交付</td><td>70% 自助解决率目标 · 反馈收集→处理→迭代闭环 · 带教培训 SOP 体系</td></tr>
+    <tr><td>11</td><td>技术底座与运维证据</td><td>自建 Demo</td><td>Docker Compose 一键起服务 · 容错/重试/降级/熔断高可用 · 日志+告警+压测监控</td></tr>
+    <tr><td>12</td><td>项目复盘与量化数据报告</td><td>已交付</td><td>300+ 政府/企业项目交付 · 24 家单年高企通过（含复审） · 100+ 服务企业客户</td></tr>
+    <tr><td>13</td><td>企业级智能体 MCP Server 三件套（开源）</td><td>已交付</td><td>3 个 MCP Server 开源 · 35 项 pytest 用例全通过 · 100% 通过率</td></tr>
+    <tr><td>14</td><td>dsh-bridge：让 Marvis 调用本机 DSH（开源）</td><td>开源工具</td><td>零依赖手写 MCP 协议（3 个工具） · 241 技能 × 77 MCP 工具本地检索 · CI 五步全绿</td></tr>
+  </table>
+</div>
+
+<!-- ============ 模块 01 ============ -->
+<div class="chapter" id="m01">
+  <h1 class="chap"><span class="no">01</span>AI 工具体系 0-1 搭建规划包 <span class="st st-plan">方案规划</span></h1>
+  <p class="chap-lead">对应 JD：AI 项目经理 / AI 项目负责人</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">300+</div><div class="lb">项目可研/立项经验</div></div>
+    <div class="q"><div class="num">8</div><div class="lb">业务域覆盖（8大场景）</div></div>
+    <div class="q"><div class="num">6个月</div><div class="lb">分阶段路线图</div></div>
+  </div>
+
+  <p class="pitch">企业AI用得乱、没规划。我像做《白云科技规划》那样，先盘场景、用价值×难度排优先级、算ROI给老板看——300+项目可研立项练出来的规划，不是PPT。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">公司各部门零散使用 AI 工具，无统一规划、无选型标准、无 ROI 衡量，重复采购、效果不可控。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人具备体系化规划能力：已独立完成《白云科技信息化总体规划与数字化转型方案》，并累计编制 300+ 政府/企业项目的可行性研究与立项方案；本模块是一套企业级 AI 工具体系 0-1 规划的方法与规划包（业务盘点、选型标准、ROI、路线图与跨部门推进机制）。</span></div>
+
+  <h2>方案架构</h2>
+  <p>业务场景盘点（营销/推广/内容/客服/财务/行政/外贸/电商）→ 价值×难度优先级矩阵 → 工具选型对比 → 6 个月路线图 → 成本预算与 ROI 测算 → 跨部门推进机制（RACI/周报/验收标准）。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">ChatGPT</span><span class="tool">豆包</span><span class="tool">Gemini</span><span class="tool">Midjourney</span><span class="tool">剪映</span><span class="tool">即梦</span><span class="tool">Coze</span><span class="tool">Dify</span><span class="tool">n8n</span><span class="tool">影刀</span><span class="tool">钉钉千问</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>盘点 8 大业务场景的 AI 应用机会</li>
+    <li>用价值×难度矩阵排优先级</li>
+    <li>对比主流工具（能力/成本/合规/上手难度）</li>
+    <li>编制 6 个月分阶段路线图</li>
+    <li>测算工具费+人力+预计节省人天，输出 ROI</li>
+    <li>设计 RACI 职责矩阵、周报模板与验收标准</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：业务部门需求分散、对 AI 期望不切实际。解决：先选 2-3 个高频痛点场景做试点，用可见成效建立信任，再全面推广；用 ROI 测算争取管理层预算支持。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">真实样本</td><td>《白云科技信息化总体规划》+ 300+ 项目可研/立项</td></tr>
+    <tr><td>覆盖范围</td><td>规划包覆盖 8 大业务域 + 工具选型对比 + ROI 测算</td></tr>
+    <tr><td>优先级方法</td><td>价值×难度矩阵定优先级</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">《白云科技信息化总体规划》（真实）</span><span class="chip">工具选型对比表</span><span class="chip">规划路线图</span><span class="chip">ROI 测算表</span><span class="chip">RACI 推进机制模板</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，本人会更早引入业务骨干共创场景清单，避免规划与一线脱节；并建立工具使用数据埋点，让 ROI 从「测算」走向「实测」。</p>
+</div>
+
+<!-- ============ 模块 02 ============ -->
+<div class="chapter" id="m02">
+  <h1 class="chap"><span class="no">02</span>AI 工作流落地标杆 A：企业智能问答与申报文档 AIGC <span class="st st-demo">自建 Demo</span></h1>
+  <p class="chap-lead">对应 JD：AI 工作流落地工程师 / FDE / AI 项目负责人</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">≥50%</div><div class="lb">生成效率提升测算（示例）</div></div>
+    <div class="q"><div class="num">≥85%</div><div class="lb">审核通过率目标（示例口径）</div></div>
+    <div class="q"><div class="num">2层</div><div class="lb">AI先做+人工只审</div></div>
+  </div>
+
+  <p class="pitch">政策问答、材料预审、文档编写重复又易错。我用Coze+多维表搭出AI先做、人只审的双层流，demo已跑通方法，效率翻倍、可迁到任意业务。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">企业科技服务中，政策咨询、申报材料合规预审、文档与内容编写重复度高、依赖人工，政策更新快、易出错。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人基于 Coze / 本地大模型搭建「AI 先做一遍、人只审核」的工作流（自建 demo 验证方法论，可迁移至项目申报、企业客服与内容场景），配合多维表做人工审核台。</span></div>
+
+  <h2>方案架构</h2>
+  <p>输入（政策/材料/需求）→ AI 分类与信息抽取 → 大模型生成草稿/回复 → 多维表人工审核台 → 采纳发布/归档；批量文档处理与数据清理由 Python 承担。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Coze</span><span class="tool">Dify</span><span class="tool">n8n</span><span class="tool">飞书/钉钉多维表</span><span class="tool">大模型 API</span><span class="tool">Python</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>梳理企业问答与文档场景全流程与痛点</li>
+    <li>设计 AI 预处理 + 人工审核的双层流程</li>
+    <li>在 Coze/Dify 编排分类、生成、审核节点</li>
+    <li>用多维表搭建「AI 先做、人审核」工作台</li>
+    <li>小范围试点 → 收集反馈 → 迭代 Prompt 与流程</li>
+    <li>输出操作手册并培训业务人员</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：AI 生成内容质量不稳、合规要求高。解决：Prompt 模板 + 输出校验规则 + 人工审核兜底，把「抽卡」变为「可控生产线」；关键结论人工确认。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">审核量下降</td><td>自建 demo 验证：AI 预处理后人工审核量大幅下降（示例：千条级 → 数百条审核）</td></tr>
+    <tr><td>审核通过率</td><td>目标 ≥ 85%（示例口径）</td></tr>
+    <tr><td>生成效率</td><td>内容/文档生成效率提升测算 ≥ 50%</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">问答/文档工作流配置</span><span class="chip">Prompt 模板库</span><span class="chip">人工审核台模板</span><span class="chip">操作手册</span></div>
+
+  <h2>证明链接</h2>
+  <div class="links"><span class="link-item">工作流运行截图</span><span class="link-item">数据对比表</span><span class="link-item">操作手册</span><span class="link-item">Prompt模板库</span><span class="link-item">人工审核台模板</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，本人会把「真实业务数据回流闭环」做得更早，让生成质量由采纳率与错误率数据驱动迭代，而非仅靠经验调 Prompt。</p>
+</div>
+
+<!-- ============ 模块 03 ============ -->
+<div class="chapter" id="m03">
+  <h1 class="chap"><span class="no">03</span>AI 工作流落地标杆 B：财务 / 行政 / 外贸跟单 <span class="st st-ok">已交付</span></h1>
+  <p class="chap-lead">对应 JD：AI 工作流落地工程师 / AI 项目负责人</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">24家</div><div class="lb">单年高企认定通过（含复审）</div></div>
+    <div class="q"><div class="num">70%</div><div class="lb">人工审核量下降测算（示例）</div></div>
+    <div class="q"><div class="num">92%</div><div class="lb">准确率目标（示例口径）</div></div>
+  </div>
+
+  <p class="pitch">高企和加计扣除卡在研发费用与财务口径。我做过研发费用归集、技术鉴定、单年24家（含复审）高企通过，能把财务和技术口径拉齐、合规自查到点。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">发票报销人工逐条审核慢、易错；外贸询盘分类、报价、跟单、报关资料检查靠人工；行政重复报表汇总耗时。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">我设计 RPA + AI 审核的财务/行政/外贸工作流，把「人工逐条处理」改为「AI 先做一遍、人工只审异常」，并输出 SOP 与异常清单。</span></div>
+
+  <h2>方案架构</h2>
+  <p>发票/报销：OCR 识别 → 规则校验 → 大模型合规判断 → 异常表 → 人工复核；外贸：询盘分类 → 报价生成 → 跟单提醒 → 报关资料检查。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">影刀</span><span class="tool">实在智能</span><span class="tool">UiBot</span><span class="tool">钉钉 RPA</span><span class="tool">Coze</span><span class="tool">Dify</span><span class="tool">n8n</span><span class="tool">OCR</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>盘点财务/行政/外贸高频重复流程</li>
+    <li>设计 OCR+规则+大模型的三层校验流程</li>
+    <li>用 RPA 打通系统间数据搬运</li>
+    <li>建立异常清单与人工复核机制</li>
+    <li>试点 → 统计准确率与人工审核量下降 → 迭代</li>
+    <li>输出 SOP 与培训材料</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：财务合规要求高、AI 误判风险大。解决：关键节点（金额、税率、合规）保留人工把关，AI 只做预筛与提示；用规则引擎兜底大模型的不确定性。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">审核量下降</td><td>示例测算：人工审核量下降约 70%</td></tr>
+    <tr><td>准确率目标</td><td>≥ 92%（示例口径）</td></tr>
+    <tr><td>节省工时</td><td>测算 ≥ 2 人天/周</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">RPA+AI 审核流程配置</span><span class="chip">异常清单模板</span><span class="chip">SOP 文档</span><span class="chip">校验规则库</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会先做更细的错误分类统计，针对高频错误类型专门优化 Prompt 和规则，而不是泛泛调优。</p>
+</div>
+
+<!-- ============ 模块 04 ============ -->
+<div class="chapter" id="m04">
+  <h1 class="chap"><span class="no">04</span>企业级智能体系统（本地开发工程 enterprise-agent） <span class="st st-open">个人开源</span></h1>
+  <p class="chap-lead">对应 JD：AI 智能体开发工程师</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">6层</div><div class="lb">企业级智能体架构</div></div>
+    <div class="q"><div class="num">70%</div><div class="lb">HPA扩缩容CPU阈值</div></div>
+    <div class="q"><div class="num">5次</div><div class="lb">熔断器连续失败阈值</div></div>
+  </div>
+
+  <p class="pitch">通用聊天机器人接不了企业系统。我自建enterprise-agent：LangGraph编排+RAG+双视野记忆+工具调用，Docker一键本地起服务，能现场演示。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">通用聊天机器人无法对接企业系统、无持久记忆、无工具调用、输出不可控、故障无兜底，难以支撑真实企业场景。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人独立设计并开发了一套面向企业场景的本地智能体系统，具备工作流编排、工具调用、记忆管理、RAG 知识库四大核心能力，通过标准化接入层对接 ERP/CRM/OA/钉钉/企微，内置容错重试与降级机制，支持 Docker Compose 本地部署与 K8s 集群部署。</span></div>
+
+  <h2>方案架构（六层）</h2>
+  <p>接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph：Router→Planner→Skill→Tool→Reviewer）→ 工具层（Native Tool Calling / MCP 协议 / HTTP Connector）→ 记忆层（短期 Redis + 长期 PostgreSQL 事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层（DeepSeek/Qwen/Ollama 本地模型，OpenAI 兼容接口）。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Python 3.11+</span><span class="tool">FastAPI</span><span class="tool">LangGraph</span><span class="tool">LangChain</span><span class="tool">Pydantic v2</span><span class="tool">ChromaDB/Milvus</span><span class="tool">Redis</span><span class="tool">PostgreSQL</span><span class="tool">SQLAlchemy</span><span class="tool">MCP SDK</span><span class="tool">Docker</span><span class="tool">Helm/K8s</span><span class="tool">Pytest</span><span class="tool">GitHub Actions CI</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li><b>编排层：</b>用 LangGraph StateGraph 构建 Router→Planner→Skill→Tool→Reviewer 五阶段链路，Pydantic 结构化输出衔接各阶段，支持多步工具调用循环</li>
+    <li><b>记忆层：</b>双视野记忆——短期 Redis（会话状态 TTL 30 分钟、滚动摘要、上下文预算控制）+ 长期 PostgreSQL（事实三元组持久化、按访问频率自动提升、按时间修剪、去重与冲突检测）</li>
+    <li><b>知识层 RAG：</b>语义边界智能切分（段落→换行→句子，chunk 500/overlap 50）→ Dense+BM25 混合检索 → RRF 融合 → Cross-Encoder（bge-reranker-base）重排 → 生成附引用来源</li>
+    <li><b>工具层与接入：</b>Pydantic 严格 Schema 定义工具输入输出，UnifiedMessage 统一多平台消息模型，企微经 wecom-aibot-python-sdk WebSocket 长连接，MCP 系统经 MultiServerMCPClient 标准化工具发现</li>
+    <li><b>容错与稳定性：</b>错误分类处理（瞬态→指数退避重试、LLM 可恢复→ToolMessage 反馈、Provider 宕机→降级备用模型、过度调用→调用次数限制）+ 熔断器（连续失败 5 次 Open→恢复超时 Half-Open 试探）</li>
+    <li><b>部署与服务：</b>Docker Compose 编排 agent-api/redis/pgvector，K8s Helm 部署（HPA CPU 70% 自动扩缩容、Liveness/Readiness 探针）；FastAPI 提供同步 /v1/chat 与 SSE 流式 /v1/chat/stream 接口、Swagger UI 文档；Locust 压测 TTFT/P95/P99/QPS/错误率</li>
+    <li><b>质量与工程化：</b>为核心模块编写 pytest 单元测试，GitHub Actions CI 每次推送自动跑 lint + 测试作为合并门禁；提交前用 check_sensitive.sh 扫描硬编码密钥/Token，保证源码可公开而不泄露凭证</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：多阶段智能体协作的稳定性、幻觉控制与故障兜底。解决：用 Pydantic 结构化输出约束各阶段格式、RAG 混合检索+重排降低幻觉并附引用来源、中间件层做重试/降级/熔断/调用次数限制防死循环，关键输出经 Reviewer 节点校验。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">记忆</td><td>短期记忆 TTL 30 分钟，长期记忆事实三元组持久化</td></tr>
+    <tr><td>熔断阈值</td><td>连续失败 5 次触发 Open→Half-Open</td></tr>
+    <tr><td>扩缩容</td><td>HPA 自动扩缩容 CPU 阈值 70%</td></tr>
+    <tr><td>RAG 参数</td><td>chunk 500 / overlap 50，Dense+BM25→RRF→重排</td></tr>
+    <tr><td>压测维度</td><td>TTFT / P95-P99 延迟 / QPS / 错误率</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">六层架构设计文档</span><span class="chip">LangGraph 工作流编排代码</span><span class="chip">双视野记忆模块</span><span class="chip">RAG 混合检索+重排模块</span><span class="chip">容错/降级/熔断中间件</span><span class="chip">Docker Compose + Helm Chart</span><span class="chip">FastAPI 服务与 Swagger 文档</span><span class="chip">Locust 压测脚本</span><span class="chip">pytest 单元测试</span><span class="chip">GitHub Actions CI</span><span class="chip">敏感信息扫描脚本</span></div>
+
+  <h2>证明链接</h2>
+  <div class="links"><span class="link-item">《企业级智能体系统开发文档》</span><span class="link-item">本地代码工程（可现场演示）</span><span class="link-item url">github.com/Jav1es/enterprise-agents</span><span class="link-item">RAG 检索演示·真实运行截图</span><span class="link-item">RAG 评测报告</span></div>
+
+  <h2>复盘</h2>
+  <p>这一版已把当初复盘里说的两件事落地：接入了 OpenTelemetry 全链路可观测性（日志/追踪/指标），并把 RAG 评测集纳入 CI 做回归。下一步我会扩大评测样本量、把检索准确率从当前 83.3%（Top-3，检索降级模式）进一步用 Cross-Encoder 重排与查询改写拉高，并补上端到端多轮对话的自动化评测。</p>
+</div>
+
+<!-- ============ 模块 05 ============ -->
+<div class="chapter" id="m05">
+  <h1 class="chap"><span class="no">05</span>业务数据库与数据监测报告（SQL 报表 + BI/ChatBI） <span class="st st-ok">已交付</span></h1>
+  <p class="chap-lead">对应 JD：AI 项目负责人（数据）/ FDE</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">约40%</div><div class="lb">减少团队重复工作</div></div>
+    <div class="q"><div class="num">1套</div><div class="lb">自建业务数据库</div></div>
+    <div class="q"><div class="num">SQL</div><div class="lb">报表固化/存储过程</div></div>
+  </div>
+
+  <p class="pitch">项目数据散在Excel、决策没数。我自建业务库、用SQL固化报表、定期出《项目监测报告》，帮团队砍掉40%以上重复活。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">项目与业务数据散落在 Excel 与纸质材料，报表靠人工汇总，管理者看不到实时进度与成效，决策缺数据支撑。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人自建项目信息数据库（业务知识库雏形），用 MySQL 存储、SQL/存储过程开发报表，采集执行数据并定期输出《项目监测报告》，以数据驱动方案迭代与管理决策；该数据方法论可迁移到电商经营看板与 ChatBI 自然语言问数。</span></div>
+
+  <h2>方案架构</h2>
+  <p>数据采集（项目立项/进度/材料/财务归集）→ MySQL 业务数据库 → SQL/存储过程查询与报表 → 《项目监测报告》→ 管理决策；延伸：ETL 入仓 → 指标体系 → BI 看板 → ChatBI 自然语言问数。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">MySQL</span><span class="tool">SQL / 存储过程</span><span class="tool">Python</span><span class="tool">数据分析/建模</span><span class="tool">FineBI/PowerBI（方法）</span><span class="tool">钉钉智能报表</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>盘点数据来源与统计口径</li>
+    <li>建库并统一字段与主数据口径</li>
+    <li>用 SQL/存储过程固化常用报表</li>
+    <li>定期采集数据并输出《项目监测报告》</li>
+    <li>延伸：ETL 入仓 + 指标体系 + BI 看板</li>
+    <li>延伸：接入 ChatBI 自然语言问数</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：数据来源分散、口径不一。解决：先统一数据字段与口径建结构化库，用 SQL 固化报表，避免「同名不同义」与人工汇总出错。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">重复工作</td><td>减少团队约 40% 重复工作</td></tr>
+    <tr><td>自建数据库</td><td>自建业务数据库并定期输出《项目监测报告》</td></tr>
+    <tr><td>核心度量</td><td>报表自动化率 / 数据入仓率（示例口径）</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">项目信息数据库结构</span><span class="chip">SQL 报表 / 存储过程</span><span class="chip">《项目监测报告》模板</span><span class="chip">指标体系与指标字典</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，本人会把数据质量监控做进看板，源数据异常自动预警，并把 ChatBI 问数尽早接入，让「看板好看且数据可信」。</p>
+</div>
+
+<!-- ============ 模块 06 ============ -->
+<div class="chapter" id="m06">
+  <h1 class="chap"><span class="no">06</span>RAG 知识库 Demo（enterprise-agent 真实带数据演示） <span class="st st-demo">自建 Demo</span></h1>
+  <p class="chap-lead">对应 JD：AI 智能体开发工程师</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">83.3%</div><div class="lb">检索准确率@3（真实评测）</div></div>
+    <div class="q"><div class="num">5/6</div><div class="lb">引用来源准确（真实）</div></div>
+    <div class="q"><div class="num">40条</div><div class="lb">示例制度文档</div></div>
+  </div>
+
+  <p class="pitch">企业问答答非所问、没出处。我在 enterprise-agent 里加了一套真实带数据的 RAG demo：上传制度文档→提问→返回带条款引用的回答，离线可跑、指标可量化。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">大模型直接回答企业制度/知识类问题易幻觉、无引用来源，无法满足企业可信问答要求。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人基于自建 enterprise-agent 的知识层（ChromaDB + Dense+BM25 混合检索 RRF + Cross-Encoder 重排），新增 examples/rag_demo 真实演示模块：示例企业制度文档 + 可运行脚本 + 评测报告，跑通「加载文档→建索引→提问→返回引用来源」全流程，无 LLM Key 自动降级为 Top-K 检索结果。</span></div>
+
+  <h2>方案架构</h2>
+  <p>sample_policy.md（脱敏企业制度）→ indexer.split_documents 语义切分（chunk 500/overlap 50）→ ChromaDB 建索引 → HybridRetriever（Dense+BM25→RRF）→ Cross-Encoder 重排（可选）→ 带章节引用的回答；无 Key 降级返回 Top-K 命中片段与来源。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Python 3.11+</span><span class="tool">ChromaDB</span><span class="tool">rank-bm25</span><span class="tool">LangChain</span><span class="tool">RRF</span><span class="tool">Cross-Encoder（可选）</span><span class="tool">Ollama/OpenAI 兼容接口（可选）</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>编写脱敏公开企业制度示例文档 sample_policy.md（40 条制度）</li>
+    <li>复用 knowledge 层实现 rag_demo.py：加载→切分→建索引→混合检索→降级引用</li>
+    <li>配置 6 条人工标注黄金条款的评测集，内置 run_eval 量化指标</li>
+    <li>本地实际运行 3-5 个示例提问并记录真实输出</li>
+    <li>生成 RAG_Eval_Report.md：检索准确率/拒答率/引用来源准确率</li>
+    <li>编写 requirements.txt 与 README 说明运行方式</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：中文制度条款检索命中率与无 Key 可演示性。解决：Dense+BM25 混合检索 + RRF 融合提升召回，Cross-Encoder 重排预留降级点；无 Key 时自动降级为 Top-K 片段+来源，保证离线可跑。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">检索准确率</td><td>@3：83.3%（5/6，真实评测）</td></tr>
+    <tr><td>拒答率</td><td>16.7%（1/6，检索层判定资料不足应拒答）</td></tr>
+    <tr><td>引用来源准确率</td><td>83.3%（5/6，引用即 Top-K 命中片段）</td></tr>
+    <tr><td>评测集</td><td>6 条人工标注黄金条款，指标可复现</td></tr>
+  </table>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">示例企业制度文档（脱敏）</span><span class="chip">RAG 演示脚本</span><span class="chip">RAG 评测报告（真实运行数据）</span><span class="chip">运行说明 README</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，本人会先把 Cross-Encoder 重排跑通并纳入评测对比（本机未装 sentence-transformers 已自动降级），并扩展评测集到 20+ 问，让检索准确率更稳健。</p>
+</div>
+
+<!-- ============ 模块 07 ============ -->
+<div class="chapter" id="m07">
+  <h1 class="chap"><span class="no">07</span>AI 评测与可观测性（评测集纳入 CI 回归 + OTel/Jaeger 全链路追踪） <span class="st st-demo">自建 Demo</span></h1>
+  <p class="chap-lead">对应 JD：AI 智能体开发工程师</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">8</div><div class="lb">单会话Jaeger trace span</div></div>
+    <div class="q"><div class="num">6条</div><div class="lb">CI每次push自动评测</div></div>
+    <div class="q"><div class="num">≥60%</div><div class="lb">CI断言阈值（检索/引用）</div></div>
+  </div>
+
+  <p class="pitch">智能体上线怕退化、出问题难定位。我把评测集纳入 GitHub Actions 每次 push 自动回归，并用 OpenTelemetry+Jaeger 打通 Router→Planner→Tool→Reviewer 全链路 trace，一次请求一条链、每阶段耗时可见。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">智能体系统迭代缺少自动回归防线，评测依赖人工跑；生产环境一次会话跨多阶段（路由/规划/工具/评审），故障与慢节点无法按请求链路定位。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人为 enterprise-agent 补齐生产化双能力：① 将 examples/rag_demo 内置评测集纳入 CI（新增 eval-rag job），每次 push 自动跑 6 条评测并断言阈值、上传指标报告产物；② 基于 OpenTelemetry 实现全链路观测（observability 模块），对 Router/Planner/Retrieve/Tool/Reviewer/Respond 各节点打点，docker-compose 内置 Jaeger，真实运行会话抓取 Jaeger trace 截图与方案文档。</span></div>
+
+  <h2>方案架构</h2>
+  <p>评测回归：GitHub Actions（push 触发）→ uv 装依赖 → rag_demo.py --eval（无 Key 降级）→ 断言检索准确率≥60%/引用准确率≥60%/拒答率≤40% → upload-artifact 保存报告。可观测性：Agent 会话根 span（trace_id 贯穿）→ 各节点 span（记录 duration_ms）→ OTLP HTTP(4318) → Jaeger all-in-one（UI 16686）按 trace 聚合展示阶段耗时。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Python 3.11+</span><span class="tool">OpenTelemetry SDK</span><span class="tool">OTLP HTTP/protobuf</span><span class="tool">Jaeger all-in-one</span><span class="tool">GitHub Actions CI</span><span class="tool">uv</span><span class="tool">FastAPI instrumentation</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>评测集纳入 CI：新增 eval-rag job，py3.11/3.12 双矩阵，运行 rag_demo.py --eval --top-k 3 并断言阈值</li>
+    <li>评测输出与本地命令完全一致，本地实际运行验证指标（检索准确率 83.3% / 拒答率 16.7% / 引用准确率 83.3%）</li>
+    <li>实现 observability/telemetry.py：TracerProvider + OTLPSpanExporter + traced_node 节点打点装饰器</li>
+    <li>编排层接入：nodes.py 全部节点 @traced_node 打点，graph.py 创建根 span 使 trace_id 贯穿整条链路</li>
+    <li>docker-compose 新增 Jaeger 服务，agent-api 配置 OTEL_EXPORTER_OTLP_ENDPOINT</li>
+    <li>真实运行 run_trace_demo.py 会话经 OTLP 上报 Jaeger，抓取 trace 详情页真实截图（8 span 含 tool 循环）</li>
+    <li>输出 docs/observability.md 方案文档（架构/span 定义/trace_id 机制/复现步骤/真实截图）</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：评测 stdout 含 banner 非纯 JSON、OTLP 上报与 Jaeger 落地验证、trace_id 跨异步节点贯穿。解决：CI 断言脚本做 JSON 块提取；本地起 Jaeger all-in-one 实际接收 OTLP 并查询 trace 验证；根 span 包裹编排、子 span 经 Context 继承 trace_id（asyncio task 亦继承）。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">CI 回归</td><td>每次 push 自动跑 6 条评测，断言检索≥60%/引用≥60%/拒答≤40%，报告作为 artifact 保存</td></tr>
+    <tr><td>评测基线</td><td>top_k=3：检索准确率 83.3%、拒答率 16.7%、引用来源准确率 83.3%</td></tr>
+    <tr><td>Jaeger trace</td><td>一次会话 8 个 span（根 + Router/Planner×2(工具循环)/Retrieve/Tool/Reviewer/Respond），trace_id 贯穿</td></tr>
+  </table>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">OTel 观测模块（telemetry.py + 节点打点）</span><span class="chip">Jaeger 服务编排（docker-compose）</span><span class="chip">可观测性方案文档</span><span class="chip">Jaeger trace 真实截图</span><span class="chip">CI 评测回归 job</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，本人会为评测集补充检索延迟/LLM 回答质量维度并扩展 20+ 条，同时把 Jaeger 接入 FastAPI 请求中间件实现线上请求级追踪，形成评测-监控闭环。</p>
+</div>
+
+<!-- ============ 模块 08 ============ -->
+<div class="chapter" id="m08">
+  <h1 class="chap"><span class="no">08</span>办公流程自动化（Open Claw + Python 脚本） <span class="st st-demo">自建 Demo</span></h1>
+  <p class="chap-lead">对应 JD：AI 工作流落地工程师 / FDE / AI 项目负责人</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">自动化</div><div class="lb">跨系统重复流程脚本执行</div></div>
+    <div class="q"><div class="num">兜底</div><div class="lb">异常告警+人工复核</div></div>
+    <div class="q"><div class="num">SOP</div><div class="lb">流程与运维文档</div></div>
+  </div>
+
+  <p class="pitch">采集、清洗、汇总这些重复活太吃人。我用Open Claw+Python脚本自动跑起来，异常再交人复核，稳且可维护。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">信息采集、文档处理、数据清洗、报表与对账汇总等跨系统重复操作靠人工，慢且易错。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人部署调试 Open Claw 自动化工作流框架，并用 Python 编写自动化脚本批量完成文档处理与数据清洗，配合 Coze 编排，把重复流程改为自动执行 + 异常人工复核（影刀/钉钉 RPA 为方法储备）。</span></div>
+
+  <h2>方案架构</h2>
+  <p>触发（定时/事件）→ Open Claw / Python 自动化脚本（信息采集 / 文档处理 / 数据清洗 / 汇总）→ 大模型增强 → 结果汇总 → 异常告警 → 人工复核。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Open Claw</span><span class="tool">Python</span><span class="tool">大模型 API</span><span class="tool">Coze</span><span class="tool">定时任务/脚本</span><span class="tool">影刀/钉钉 RPA（方法了解）</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>盘点高频重复的跨系统操作</li>
+    <li>设计自动化流程（触发→执行→汇总→告警）</li>
+    <li>用 Open Claw 编排 + Python 脚本实现</li>
+    <li>加异常处理、失败重试与人工复核兜底</li>
+    <li>试点 → 统计替代人工时长与错误率 → 推广</li>
+    <li>输出 SOP 与运维文档</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：脚本在环境/界面变化时失效。解决：优先用 API 与结构化数据源、加输入容错与失败重试、异常告警与人工复核兜底，定期巡检。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">核心度量</td><td>替代人工时长 / 错误率下降</td></tr>
+    <tr><td>真实脚本</td><td>Python 批量文档处理与数据清洗（真实脚本）</td></tr>
+    <tr><td>风险降低</td><td>异常告警降低漏处理风险</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">自动化流程脚本（Open Claw/Python）</span><span class="chip">异常处理与告警配置</span><span class="chip">SOP 与运维文档</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，本人会优先选有 API 的系统做集成，把界面级自动化（RPA）用在确实无接口的场景，从根上提升稳定性。</p>
+</div>
+
+<!-- ============ 模块 09 ============ -->
+<div class="chapter" id="m09">
+  <h1 class="chap"><span class="no">09</span>Prompt 工程与评测体系 <span class="st st-demo">自建 Demo</span></h1>
+  <p class="chap-lead">对应 JD：所有 JD（尤其工作流落地、智能体开发）</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">A/B</div><div class="lb">对比测试驱动优化</div></div>
+    <div class="q"><div class="num">Schema</div><div class="lb">JSON输出强校验</div></div>
+    <div class="q"><div class="num">模板化</div><div class="lb">Prompt结构化沉淀</div></div>
+  </div>
+
+  <p class="pitch">AI输出像抽卡不稳。我用结构化Prompt+JSON Schema校验+评测集做A/B，把抽卡变成可校验、可复现的生产线。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">Prompt 靠感觉写，输出不稳定、不可校验，像「抽卡」，无法支撑生产环境。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">我建立 Prompt 库 + 评测集 + 输出校验规则 + 版本迭代记录，让 AI 输出稳定、可校验、可复现。</span></div>
+
+  <h2>方案架构</h2>
+  <p>Prompt 模板（分类/抽取/生成/审核/总结）→ JSON Schema/正则/规则校验 → 人工审核机制 → A/B 测试与准确率对比 → 版本迭代记录。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">大模型 API</span><span class="tool">JSON Schema</span><span class="tool">正则</span><span class="tool">Python</span><span class="tool">评测脚本</span><span class="tool">Coze/Dify</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>按场景沉淀 Prompt 模板（分类/抽取/生成/审核/总结）</li>
+    <li>定义 JSON Schema 与正则校验规则</li>
+    <li>建立评测集（标注样本）与准确率基线</li>
+    <li>做 A/B 测试对比不同 Prompt 效果</li>
+    <li>建立人工审核与反馈闭环</li>
+    <li>版本化管理 Prompt 与迭代记录</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：业务场景多样、Prompt 难复用。解决：抽象出「角色+任务+约束+输出格式+示例」的结构化模板，用 Schema 强约束输出，让 Prompt 从「手艺」变为「工程」。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">核心度量</td><td>评测集准确率对比</td></tr>
+    <tr><td>输出质量</td><td>输出格式合规率提升</td></tr>
+    <tr><td>持续优化</td><td>A/B 测试驱动持续优化</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">Prompt 模板库</span><span class="chip">评测集与标注样本</span><span class="chip">JSON Schema/校验规则</span><span class="chip">版本迭代记录</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会把评测自动化进 CI，每次 Prompt 变更自动跑评测集，防止「改好一个场景、改坏另一个」。</p>
+</div>
+
+<!-- ============ 模块 10 ============ -->
+<div class="chapter" id="m10">
+  <h1 class="chap"><span class="no">10</span>培训 / SOP / 推广运营包 <span class="st st-ok">已交付</span></h1>
+  <p class="chap-lead">对应 JD：AI 工作流落地工程师 / AI 项目负责人</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">70%</div><div class="lb">自助解决率目标</div></div>
+    <div class="q"><div class="num">闭环</div><div class="lb">反馈收集→处理→迭代</div></div>
+    <div class="q"><div class="num">SOP</div><div class="lb">带教培训体系</div></div>
+  </div>
+
+  <p class="pitch">方案做出来客户不会用等于零。我做操作手册、培训脚本、FAQ和反馈闭环，把技术翻译成大白话——这就是FDE打通最后一公里。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">AI 工作流搭好了，但业务人员不会用、不愿用，「AI 不好用」的反馈无人处理，采纳率低。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人面向客户与内部业务团队开展政策解读、申报流程与系统操作培训，制作操作手册、培训脚本与 FAQ，并参与内部技术培训体系搭建、部门工作流程与质量标准制定；以采纳率跟踪推广效果——这正是 FDE 打通「最后一公里」的核心能力。</span></div>
+
+  <h2>方案架构</h2>
+  <p>操作手册 → 培训视频 → FAQ → 反馈收集 → 「AI 不好用」处理流程 → 迭代优化 → 采纳率看板；带教 SOP 培养内部专员。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">操作手册</span><span class="tool">录屏工具</span><span class="tool">FAQ 知识库</span><span class="tool">钉钉/飞书</span><span class="tool">采纳率看板</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>编写业务人员视角的操作手册（图解+步骤）</li>
+    <li>录制培训视频脚本与常见问题 FAQ</li>
+    <li>建立「AI 不好用」反馈收集与处理流程</li>
+    <li>带教业务骨干与客户团队，培养内部推广力量</li>
+    <li>用采纳率看板跟踪使用率与自助解决率</li>
+    <li>按反馈迭代工作流与培训内容</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：业务人员抵触新工具。解决：从「帮他们省事」的场景切入、先给甜头；培养内部专员做身边榜样；把反馈闭环可见化，让员工看到「提的问题真的被改了」。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">核心度量</td><td>培训覆盖率 / 采纳率</td></tr>
+    <tr><td>自助解决率</td><td>目标 ≥ 70%</td></tr>
+    <tr><td>闭环周期</td><td>反馈闭环周期缩短</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">操作手册</span><span class="chip">培训视频脚本</span><span class="chip">FAQ 知识库</span><span class="chip">带教 SOP</span><span class="chip">采纳率看板</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会把培训做成「场景化微课」而非长文档，并建立内部 AI 使用积分榜，用激励机制提升主动采纳率。</p>
+</div>
+
+<!-- ============ 模块 11 ============ -->
+<div class="chapter" id="m11">
+  <h1 class="chap"><span class="no">11</span>技术底座与运维证据 <span class="st st-demo">自建 Demo</span></h1>
+  <p class="chap-lead">对应 JD：AI 智能体开发工程师</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">Docker</div><div class="lb">Compose一键起服务</div></div>
+    <div class="q"><div class="num">高可用</div><div class="lb">容错/重试/降级/熔断</div></div>
+    <div class="q"><div class="num">监控</div><div class="lb">日志+告警+压测</div></div>
+  </div>
+
+  <p class="pitch">现场环境受限还得稳。我用Docker Compose一键起服务、配降级/容错/熔断和健康检查，让系统在客户现场也跑得住。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">AI 应用能跑起来，但在客户现场/资源受限环境不稳定、无监控、故障难排查，无法支撑高可用交付。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">本人在资源受限环境下用 Docker Compose 快速搭建并现场部署调试 enterprise-agent，做容器化部署、API 集成、容错重试降级、性能调优、故障排查与安全权限，让系统不仅「能搭」还能在客户现场「稳定跑起来」——这是 FDE 的现场交付与问题解决能力。</span></div>
+
+  <h2>方案架构</h2>
+  <p>Docker/K8s 部署 → API 集成 → 容错/重试/降级 → 监控与日志 → 性能调优与压测 → 安全与权限管理。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Docker</span><span class="tool">K8s</span><span class="tool">FastAPI</span><span class="tool">Nginx</span><span class="tool">Prometheus</span><span class="tool">日志系统</span><span class="tool">Python/Java</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>容器化打包（Docker）与编排（K8s）</li>
+    <li>实现 API 集成与鉴权</li>
+    <li>加入容错、重试、降级、熔断机制</li>
+    <li>部署监控与日志，建立告警</li>
+    <li>压测并发与响应，做性能调优</li>
+    <li>输出部署文档、故障排查手册与安全权限方案</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：大模型调用不稳定、超时与限流。解决：加重试与退避、多模型降级、结果缓存；用监控及时发现异常，用压测提前暴露瓶颈。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">核心度量</td><td>系统可用性 / 故障恢复时间</td></tr>
+    <tr><td>性能</td><td>并发量与响应时间压测</td></tr>
+    <tr><td>安全</td><td>安全权限合规</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">Docker/K8s 部署配置</span><span class="chip">容错重试模块</span><span class="chip">监控与告警方案</span><span class="chip">部署与排查文档</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会引入蓝绿/灰度发布，让模型或 Prompt 升级可平滑回滚，避免「一次更新全线故障」。</p>
+</div>
+
+<!-- ============ 模块 12 ============ -->
+<div class="chapter" id="m12">
+  <h1 class="chap"><span class="no">12</span>项目复盘与量化数据报告 <span class="st st-ok">已交付</span></h1>
+  <p class="chap-lead">对应 JD：所有 JD（JD 明确要求「必须有数据」）</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">300+</div><div class="lb">政府/企业项目交付</div></div>
+    <div class="q"><div class="num">24家</div><div class="lb">单年高企通过（含复审）</div></div>
+    <div class="q"><div class="num">100+</div><div class="lb">服务企业客户</div></div>
+  </div>
+
+  <p class="pitch">做完说不清价值等于白干。我给每个项目建卡片、埋基线、前后对比出数据看板，300+项目、单年24家（含复审）高企就是这么量化出来的。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">项目做完缺乏系统复盘，成果说不清、数据拿不出，无法证明价值、也无法沉淀可复用资产。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">我为每个项目建立复盘报告与数据看板，用统一口径回答「痛点—主导—工具—成效—资产」，把成果量化、把经验沉淀。</span></div>
+
+  <h2>方案架构</h2>
+  <p>项目卡片 → 数据看板 → 复盘 PPT；每个项目回答：业务痛点是什么 / 我主导了什么 / 用了什么工具 / 上线后省了多少人提了多少效 / 有什么可复用资产。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">数据看板</span><span class="tool">复盘 PPT</span><span class="tool">项目卡片模板</span><span class="tool">Excel/BI</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>按统一模板沉淀每个项目卡片</li>
+    <li>采集上线前后对比数据（处理量/人天/准确率/转化率/成本/周期）</li>
+    <li>制作数据看板与复盘 PPT</li>
+    <li>提炼可复用资产（Prompt/SOP/代码/模板/看板）</li>
+    <li>归档并持续更新</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：上线前缺乏基线数据，成效难对比。解决：项目启动即埋点采集基线，用「前后对比」而非「事后估算」；统一度量口径避免各说各话。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">核心度量</td><td>省多少人天 / 处理量 / 准确率 / 转化率 / 成本下降 / 周期缩短</td></tr>
+    <tr><td>方法</td><td>用前后对比数据证明价值</td></tr>
+  </table>
+  <p class="note">* 测算模型 / 示例口径，实际以落地数据为准</p>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">项目卡片模板</span><span class="chip">数据看板</span><span class="chip">复盘 PPT</span><span class="chip">可复用资产库</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会把「基线采集」作为项目立项的强制前置动作，没有基线不启动，从根上保证成效可量化。</p>
+</div>
+
+<!-- ============ 模块 13 ============ -->
+<div class="chapter" id="m13">
+  <h1 class="chap"><span class="no">13</span>企业级智能体 MCP Server 三件套（开源） <span class="st st-ok">已交付</span></h1>
+  <p class="chap-lead">对应 JD：所有 JD（AI 工程化 / 智能体 / MCP 生态）</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">3个</div><div class="lb">MCP Server开源</div></div>
+    <div class="q"><div class="num">35</div><div class="lb">pytest用例全通过</div></div>
+    <div class="q"><div class="num">100%</div><div class="lb">用例通过率</div></div>
+  </div>
+
+  <p class="pitch">把 3 个可独立复用的 MCP Server 开源到 GitHub：工具调度、作品集检索、RAG 知识问答，各带测试与文档，证明我不只会用工具，还会造工具。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">企业接入 MCP 生态时缺现成、可测试、可维护的 Server 实现，团队只能从零造轮子，质量与进度都不可控。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">我基于 FastMCP 1.x 独立设计并实现三个 MCP Server（enterprise-agent-tools-mcp / portfolio-mcp / rag-knowledge-base-mcp），含 pyproject、README、测试与 uv.lock，统一放到 enterprise-agents 仓库 mcp/ 目录并开源。</span></div>
+
+  <h2>方案架构</h2>
+  <p>三个子项目各成独立 Python 包：enterprise-agent-tools-mcp 提供工具调度与统一入口；portfolio-mcp 提供作品集证据检索；rag-knowledge-base-mcp 提供中文 RAG 知识库问答（BM25 bigram）。每个含 tests/、README.md、pyproject.toml、uv.lock。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Python</span><span class="tool">FastMCP 1.x</span><span class="tool">uv</span><span class="tool">pytest</span><span class="tool">GitHub</span><span class="tool">BM25（中文 bigram）</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>搭建三子项目骨架（pyproject/README/tests）</li>
+    <li>实现各自 MCP 工具与数据层</li>
+    <li>编写 pytest 用例并跑通（10/9/16 passed）</li>
+    <li>生成 uv.lock 并核对 .gitignore 无误伤</li>
+    <li>推送 GitHub 并集成进作品集网页</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点：三项目共享仓库内目录隔离与依赖锁定，避免互相污染。解决：各自独立 pyproject + uv.lock，CI 只扫根目录测试路径，mcp/ 子项目自行保证可测可跑。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">测试</td><td>三子项目 pytest 35 个用例全部通过</td></tr>
+    <tr><td>依赖锁定</td><td>uv.lock 均存在且 .gitignore 无误伤</td></tr>
+    <tr><td>可访问</td><td>GitHub 已可公开访问</td></tr>
+  </table>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">mcp/enterprise-agent-tools-mcp</span><span class="chip">mcp/portfolio-mcp</span><span class="chip">mcp/rag-knowledge-base-mcp</span><span class="chip">共享仓库 enterprise-agents</span></div>
+
+  <h2>证明链接</h2>
+  <div class="links"><span class="link-item url">github.com/Jav1es/enterprise-agents/tree/main/mcp</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会在一开始就统一三项目的脚手架与版本策略，并为每个 Server 增加 schema 快照测试，进一步降低集成回归风险。</p>
+</div>
+
+<!-- ============ 模块 14 ============ -->
+<div class="chapter" id="m14">
+  <h1 class="chap"><span class="no">14</span>dsh-bridge：让 Marvis 调用本机 DeepSeek Harness（开源） <span class="st st-open">开源工具</span></h1>
+  <p class="chap-lead">对应 JD：AI 智能体开发工程师 / AI 工作流落地工程师 / FDE</p>
+
+  <div class="hl">
+    <div class="q"><div class="num">3</div><div class="lb">MCP 工具（零依赖手写协议）</div></div>
+    <div class="q"><div class="num">241×77</div><div class="lb">技能 × MCP 工具本地检索</div></div>
+    <div class="q"><div class="num">10 秒</div><div class="lb">派工单生成耗时</div></div>
+  </div>
+
+  <p class="pitch">两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现、CI 全绿。</p>
+
+  <div class="field"><span class="k">业务痛点：</span><span class="v">本机同时跑着 Marvis（日常主力）与 DeepSeek Harness（带完整工具链的重活代理），但两者互不相通：Marvis 不知道 DSH 能做什么，DSH 也读不到 Marvis 的技能与 MCP 清单，只能手工在两个窗口之间搬运内容。</span></div>
+  <div class="field"><span class="k">我的角色：</span><span class="v">我独立完成了整个桥接的设计与实现：先用文件系统与 SQLite 把 Marvis 的技能库（241 个）与 MCP 目录（服务器与工具）读出来，做本地关键词检索挑候选，再让 DSH 生成结构化派工单。协议层是手写的 JSON-RPC（零运行时依赖），另配双语文档、排错手册与 CI。</span></div>
+
+  <h2>方案架构</h2>
+  <p>Marvis（MCP 客户端）→ dsh-bridge MCP Server（stdio，换行分隔 JSON-RPC，零依赖）→ 本地检索（读 ~/.marvis/skills/*/SKILL.md 的 frontmatter + data.db 的 mcp_server_index / mcp_tool_index，仅取 enabled=1）→ dsh --profile headless 生成派工单 → 回传 Marvis 按「建议调用」执行。任务文本经临时文件传递，规避命令行转义与中文编码问题。</p>
+
+  <h2>工具栈</h2>
+  <p><span class="tool">Node.js（零依赖，仅内置模块）</span><span class="tool">MCP 协议（stdio JSON-RPC 2.0）</span><span class="tool">node:sqlite</span><span class="tool">PowerShell 7</span><span class="tool">DeepSeek Harness headless</span><span class="tool">GitHub Actions CI</span></p>
+
+  <h2>实施步骤</h2>
+  <ol>
+    <li>确认 DSH 的对外调用面：headless 一次性执行可用，ACP/SDK 内置；确认它只有 MCP 客户端、不能当 MCP 服务器</li>
+    <li>修复 headless profile 凭据路由，使 dsh --profile headless 真正可用</li>
+    <li>手写 MCP stdio 服务器：实现 initialize / tools/list / tools/call / ping，stdout 只走协议、日志走 stderr</li>
+    <li>解决中文与转义：任务文本写临时文件、由临时 .ps1 以变量传参，绝不做命令行字符串拼接</li>
+    <li>解决进程树泄漏：超时用 taskkill /T /F 杀整棵进程树，不留野进程</li>
+    <li>解决精简 PATH：pwsh 与 dsh 均按绝对路径回退，实测 PATH 只剩 node 时仍可用</li>
+    <li>新增 dsh_plan：读 Marvis 技能与 MCP 目录 → 本地中英混排分词检索 → 只把 top-K 喂给模型生成六节派工单</li>
+    <li>加约束消除幻觉：规划器不得读文件或调工具（76 秒 → 10 秒）；工具名必须逐字取自候选清单</li>
+    <li>补 CI：文件布局、Node 与 PowerShell 语法、MCP 协议冒烟、敏感信息扫描，五步全绿</li>
+    <li>补双语文档：设计取舍、MCP 参考、排错手册（含 Marvis 导入技能的四条硬性要求）</li>
+  </ol>
+
+  <h2>关键难点与解决</h2>
+  <p>难点有三个。一是 DSH 不能当 MCP 服务器——社区 4382 条插件目录里，101 个 MCP 相关插件全是「DSH 去连别人」，没有「把 DSH 暴露出去」，只能自己补一层包装。二是模型会臆造候选清单外的工具名，调用方照着调就会失败，用提示词硬约束解决，复测越界为 0。三是规划器会「顺手把活干了」，单次调用 76 秒，加「只做规划」约束后降到 10 秒。</p>
+
+  <h2>量化测算</h2>
+  <table>
+    <tr><td style="width:36%">MCP 工具</td><td>3 个（dsh_plan / dsh_run / dsh_status），零运行时依赖</td></tr>
+    <tr><td>本地检索</td><td>覆盖 241 个技能 × 77 个 MCP 工具，skip_llm 模式 0.1 秒返回</td></tr>
+    <tr><td>派工单</td><td>完整生成约 10 秒（优化前 76 秒）</td></tr>
+    <tr><td>Skill 封装</td><td>6/6 用例通过（中文、管道、JSON 事件流、空任务、工作目录、多行引号）</td></tr>
+    <tr><td>端到端实战</td><td>对三份简历做独立审计，148 秒产出 622 行报告，挑出 3 处高风险问题</td></tr>
+    <tr><td>CI</td><td>五步全绿：布局 / Node 语法 / PowerShell 语法 / MCP 冒烟 / 敏感信息扫描</td></tr>
+  </table>
+
+  <h2>可复用资产</h2>
+  <div class="chips"><span class="chip">零依赖 MCP stdio 服务器 server.mjs</span><span class="chip">一次性 dsh 执行器 dsh-runner.ps1</span><span class="chip">Marvis 技能包（SKILL.md + dsh_ask.ps1）</span><span class="chip">双语文档（README.md / README.en.md）</span><span class="chip">设计取舍 docs/design.md</span><span class="chip">MCP 参考 docs/mcp-reference.md</span><span class="chip">排错手册 docs/troubleshooting.md</span><span class="chip">CI 工作流 .github/workflows/ci.yml</span><span class="chip">原创图标（鲸鱼 × 桥）</span></div>
+
+  <h2>证明链接</h2>
+  <div class="links"><span class="link-item url">github.com/Jav1es/dsh-bridge</span><span class="link-item">设计取舍</span><span class="link-item">MCP 参考</span><span class="link-item">排错手册</span></div>
+
+  <h2>复盘</h2>
+  <p>如果重做，我会一开始就把「调用方能不能真的调到」当成硬需求：第一版既没过滤 enabled，也没约束模型只能用清单内的名字，等于把失败推给了下一环。另外我低估了「规划器会顺手干活」的惯性——提示词里少一句「只做规划」，单次调用就贵了 7 倍。</p>
+</div>
+
+<!-- ================= 第六章 白云科技 ================= -->
+<div class="chapter" id="ch6">
+  <h1 class="chap"><span class="no">陆</span>行业定制规划能力 · 白云科技样本</h1>
+  <p class="chap-lead">体系化思维 + 行业理解 + 信息化蓝图</p>
+
+  <p>除通用作品集外，我针对具体企业做过深度行业定制规划，证明「体系化思维 + 行业理解 + 信息化蓝图」能力。</p>
+
+  <div class="story biz">
+    <span class="tag">✓ 真实完成的作品样本</span>
+    <h4>《白云科技信息化总体规划与数字化转型方案（含 AI 赋能）》</h4>
+    <div class="kv">面向广州白云科技股份有限公司（建筑密封胶 / 高分子新材料研发制造领军企业、国标起草单位、国家知识产权示范企业）编制的公司级信息化总体规划。以「入职后规划」视角，覆盖 ERP / SRM / PLM / MES / HR / LIMS 五大业务系统 + 数据中台 + AI 能力平台 + 基础设施安全，并深度融入 AIGC 与 AI Agent 落地场景。</div>
+  </div>
+
+  <h2>三大能力亮点</h2>
+  <table>
+    <tr><th style="width:22%">能力</th><th>说明</th></tr>
+    <tr><td>体系化规划</td><td>L1-L5 成熟度模型 + 总体蓝图 + 按系统完善程度推进的优先级矩阵</td></tr>
+    <tr><td>行业深度适配</td><td>配方研发 Copilot、多标准合规核查、批次质量追溯等 8 个专属 AI 场景</td></tr>
+    <tr><td>财务方向强项</td><td>业财一体化、研发费用归集与加计扣除，契合高新技术企业真实需求</td></tr>
+  </table>
+</div>
+
+<!-- ================= 第七章 现场演示 ================= -->
+<div class="chapter" id="ch7">
+  <h1 class="chap"><span class="no">柒</span>现场可演示清单</h1>
+  <p class="chap-lead">可当场演示、或按需提供录屏 / 脱敏源文件的内容，证明「能落地、跑得起来」</p>
+
+  <table>
+    <tr><th style="width:24%">演示项</th><th>内容</th><th style="width:20%">状态</th></tr>
+    <tr><td>enterprise-agent 智能体</td><td>本地 Docker Compose 一键起服务，现场演示工作流编排 / RAG 问答 / 工具调用 / 容错降级</td><td>可现场演示</td></tr>
+    <tr><td>企业问答 / 文档 AIGC Demo</td><td>Coze + 多维表「AI 先做、人只审」双层工作流，现场演示问答与文档生成</td><td>自建 demo 可演示</td></tr>
+    <tr><td>项目监测报告</td><td>自建业务数据库 + SQL 报表，现场打开《项目监测报告》看数据如何驱动决策</td><td>真实产出可展示</td></tr>
+    <tr><td>白云科技规划书</td><td>完整信息化与 AI 规划：成熟度模型、蓝图、业财一体化、8 个 AI 场景</td><td>已完成 · 可发送脱敏版</td></tr>
+  </table>
+</div>
+
+<!-- ================= 第八章 诚信说明 ================= -->
+<div class="chapter" id="ch8">
+  <h1 class="chap"><span class="no">捌</span>诚信说明与口径</h1>
+
+  <h2>真实项</h2>
+  <ul>
+    <li>「企业级智能体系统 enterprise-agent」为本人本地开发工程（含完整开发文档，可现场演示，已开源至 GitHub）。</li>
+    <li>《白云科技规划方案》、高企认定 / 项目申报交付、自建项目信息数据库与《项目监测报告》为本人客户服务真实经历。</li>
+    <li>各模块「证明链接」多为本人制作的实物材料。</li>
+  </ul>
+
+  <h2>口径说明</h2>
+  <ul>
+    <li>凡成效类数字均标注为「测算模型 / 示例口径」，实际以落地数据为准。</li>
+    <li>电商相关场景为自建 demo / 方法储备，非电商客户实绩。</li>
+    <li>FDE 板块两则实战故事基于真实项目，企业名与年度数据面试时可脱敏提供。</li>
+  </ul>
+
+  <h2>关键数字口径（统一）</h2>
+  <table>
+    <tr><th style="width:28%">项</th><th>口径</th></tr>
+    <tr><td>工作年限</td><td>5 年+</td></tr>
+    <tr><td>项目数</td><td>300+（其中申报并通过 200+）</td></tr>
+    <tr><td>服务企业</td><td>100+</td></tr>
+    <tr><td>高企通过</td><td>24 家（含复审）</td></tr>
+    <tr><td>提效</td><td>约 40%</td></tr>
+  </table>
+
+  <h2>联系方式</h2>
+  <p>在线作品集：<span class="url">jav1es.github.io/portfolio</span> ｜ GitHub：<span class="url">github.com/Jav1es</span> ｜ 联系方式：面试时提供</p>
+</div>
+
+</body>
+</html>
