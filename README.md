@@ -70,10 +70,13 @@
 | 12 | 项目复盘与量化数据报告 | ✅ 已交付 | 300+ 政府/企业项目交付 · 24 家单年高企通过（含复审） · 100+ 服务企业客户 |
 | 13 | 企业级智能体 MCP Server 三件套（开源） | ✅ 已交付 | 3 个 MCP Server 开源 · 35 项 pytest 用例全通过 · 100% 通过率 |
 | 14 | dsh-bridge：让 Marvis 调用本机 DeepSeek Harness（开源） | 🔧 开源工具 | 零依赖手写 MCP 协议（3 个工具） · 241 技能 × 77 MCP 工具本地检索 · CI 五步全绿 |
+| 15 | DeepSeek Harness 本机插件三件套（开源） | 🔧 开源工具 | 3 个自研插件 MIT 开源 · 零运行时依赖 · 推送前凭据扫描 0 命中 |
 
 > 模块 13 对应三个独立开源的 MCP Server，仓库地址：[github.com/Jav1es/enterprise-agents/tree/main/mcp](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
 >
 > 模块 14 为独立开源项目，仓库地址：[github.com/Jav1es/dsh-bridge](https://github.com/Jav1es/dsh-bridge)（MIT）——把本机 DeepSeek Harness 接进 Marvis：先出派工单，再按建议调技能与 MCP 工具。
+>
+> 模块 15 为独立开源项目，仓库地址：[github.com/Jav1es/dsh-local-plugins](https://github.com/Jav1es/dsh-local-plugins)（MIT）——三个补宿主生态空白的 DSH 插件：消息推送微信 / 图片与 PDF 侧边栏预览 / Todo 与推理过程面板。
 
 ---
 
