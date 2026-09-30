@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>黄家辉 · AI 数字化落地作品集</title>
-<meta name="description" content="黄家辉 · AI 数字化落地作品集：5 年+ 企业科技服务与项目全流程经验，主导 100+ 政府/企业项目、申报并通过 200+，服务企业 100+。14 个可追溯、可验证、可现场演示的证据模块，覆盖方案规划 / 工作流落地 / 智能体工程 / MCP 开源 / FDE 前线交付。">
+<meta name="description" content="黄家辉 · AI 数字化落地作品集：5 年+ 企业科技服务与项目全流程经验，主导 100+ 政府/企业项目、申报并通过 200+，服务企业 100+。15 个可追溯、可验证、可现场演示的证据模块，覆盖方案规划 / 工作流落地 / 智能体工程 / MCP 开源 / FDE 前线交付。">
 <meta name="author" content="黄家辉">
 <meta name="keywords" content="AI 项目经理,AI 工作流落地,FDE 前线部署工程师,智能体开发,MCP,LangGraph,RAG,作品集">
 <meta name="robots" content="index,follow">
@@ -13,7 +13,7 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="黄家辉 · AI 数字化落地作品集">
 <meta property="og:title" content="黄家辉 · AI 数字化落地作品集">
-<meta property="og:description" content="5 年+ 企业科技服务 · 100+ 项目 · 100+ 服务企业 · 14 个可追溯、可验证、可现场演示的证据模块">
+<meta property="og:description" content="5 年+ 企业科技服务 · 100+ 项目 · 100+ 服务企业 · 15 个可追溯、可验证、可现场演示的证据模块">
 <meta property="og:url" content="https://jav1es.github.io/portfolio/">
 <meta property="og:image" content="https://jav1es.github.io/portfolio/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -24,7 +24,7 @@
 <!-- Twitter / X -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="黄家辉 · AI 数字化落地作品集">
-<meta name="twitter:description" content="5 年+ 企业科技服务 · 100+ 项目 · 100+ 服务企业 · 14 个可追溯可验证的证据模块">
+<meta name="twitter:description" content="5 年+ 企业科技服务 · 100+ 项目 · 100+ 服务企业 · 15 个可追溯可验证的证据模块">
 <meta name="twitter:image" content="https://jav1es.github.io/portfolio/og-image.png">
 
 <!-- 图标 -->
@@ -325,7 +325,7 @@
       <div class="stat"><b>5年+</b><i>企业科技服务与交付经验</i></div>
       <div class="stat"><b>300+</b><i>政府/企业项目交付</i></div>
       <div class="stat"><b>100+</b><i>服务企业客户</i></div>
-      <div class="stat"><b id="itemCount">14项</b><i>可点开查看的深度作品</i></div>
+      <div class="stat"><b id="itemCount">15项</b><i>可点开查看的深度作品</i></div>
     </div>
   </div>
 </header>
@@ -700,6 +700,21 @@ const ITEMS = [
       assets:["零依赖 MCP stdio 服务器 server.mjs","一次性 dsh 执行器 dsh-runner.ps1","Marvis 技能包（SKILL.md + dsh_ask.ps1）","双语文档（README.md / README.en.md）","设计取舍 docs/design.md","MCP 参考 docs/mcp-reference.md","排错手册 docs/troubleshooting.md","CI 工作流 .github/workflows/ci.yml","原创图标（鲸鱼 × 桥）"],
       links:["GitHub 仓库：dsh-bridge（MIT 开源）|https://github.com/Jav1es/dsh-bridge","设计取舍：临时文件 / 杀进程树 / 路径回退|./12-dsh-bridge/design.md","MCP 参考：工具参数与手工调试|./12-dsh-bridge/mcp-reference.md","排错手册：后端 / 桥接 / Marvis 导入 / 安全|./12-dsh-bridge/troubleshooting.md","技术说明 README|./12-dsh-bridge/dsh-bridge-README.md","Marvis 技能定义|./12-dsh-bridge/dsh-bridge-SKILL.md","CI 运行记录（每次 push 自动跑）|https://github.com/Jav1es/dsh-bridge/actions"],
       retro:"如果重做，我会一开始就把「调用方能不能真的调到」当成硬需求：第一版既没过滤 enabled，也没约束模型只能用清单内的名字，等于把失败推给了下一环。另外我低估了「规划器会顺手干活」的惯性——提示词里少一句「只做规划」，单次调用就贵了 7 倍。"
+    },
+    {
+      t:"DeepSeek Harness 本机插件三件套（开源）", status:"个人开源", jd:"AI 智能体开发工程师 / 工具链与平台工程",
+      highlights:[{num:"3",label:"自研 DSH 插件"},{num:"100%",label:"离线可跑 · 零云依赖"},{num:"MIT",label:"开源许可"}],
+      pitch:"AI 助手天天用，但工具链缺什么就得等官方排期。我直接读了宿主插件的源码与打包格式，自己写了三个插件补上空白：消息推手机、文件能预览、待办与推理过程看得见。",
+      pain:"日常重度使用 DeepSeek Harness，但官方生态里缺三样东西：① 长任务跑完人不在电脑前就不知道结果；② 侧边栏点开图片和 PDF 只能看文件名，没法预览；③ 待办清单与模型的推理过程藏在会话流里，没有独立面板可看。这些都不是「不会用」，而是工具本身没有。",
+      role:"我独立完成了三个插件的设计、实现与打包。做法是先逆向宿主：读 app.asar 里的插件加载器与已有插件源码，确认插件的注册点（工具注册、侧边栏文件查看器注册、面板插槽）与 bundle 打包约定（package.json 的 dsh.bundle.patch 指向 cordis.patch.yml），再用 ESM 写实现、按约定挂载。全过程不需要官方 SDK，也不依赖任何云端服务。",
+      arch:"宿主 DeepSeek Harness → profile 的 bundles 清单加载插件 → 插件通过 package.json 的 dsh.bundle.patch 声明配置层 → cordis.patch.yml 注入注册点。三个插件分别是：host 侧插件（监听助手回复事件 → 经 Server酱 HTTP 接口推送到微信）、web 侧插件 A（向 better-sidebar 注册图片/PDF 文件查看器）、web 侧插件 B（注册右侧栏 Todo 面板与 Thinking 面板两个标签页）。",
+      tools:["Node.js ESM（零运行时依赖）","DeepSeek Harness 插件 API","Cordis bundle 打包约定","React（web 侧 UI）","app.asar 逆向阅读","PowerShell 7"],
+      steps:["逆向宿主：解包 app.asar，读插件加载器与 dsh-tool-todo 等已有插件，确认事件与应用状态的真实语义","确认注册点：工具注册、betterSidebar.registerFileViewer、右侧栏面板插槽各自的调用签名","按 bundle 约定搭建骨架：package.json 声明 dsh.bundle.patch，cordis.patch.yml 声明配置","实现插件一（消息推送）：监听助手回复事件，支持「全部推送」与「仅需确认时推送」两种模式；未配置密钥时静默停用，不报错","实现插件二（文件预览）：注册图片与 PDF 查看器，接入侧边栏文件点击流程","实现插件三（面板）：Todo 面板读待办投影，Thinking 面板展示推理流","处理凭据卫生：推送密钥只从本机配置文件读取，代码里默认为空串","纳入版本控制并开源：抽成独立仓库、补 README 与 MIT 许可、推送前跑凭据扫描"],
+      hard:"难点在于没有任何官方文档可查，全部要靠读源码反推。最典型的是插件加载时机与注册点的签名——写错了不会报错，只是「没反应」，只能靠对照已有插件的写法逐个比对。另外消息推送插件踩到凭据卫生的坑：密钥如果写进代码就会随仓库泄露，所以设计成默认空值 + 本机配置文件读取，未配置时静默降级。",
+      metrics:["自研 DSH 插件 3 个，全部 MIT 开源","插件零运行时依赖，仅用 Node 内置模块与宿主 API","推送密钥默认空值，未配置时静默停用（0 泄露风险）","推送前凭据扫描：全仓库 14 个文件，命中 0 处真实密钥","三个插件源码此前零版本控制，现已纳入 Git 与异地备份"],
+      assets:["dsh-serverchan-notify（助手回复推送微信）","dsh-sidebar-preview（图片 / PDF 侧边栏预览）","dsh-workpanel（Todo 面板 + Thinking 推理面板）","仓库 README（含安装与配置说明）","MIT 许可","凭据排除用 .gitignore"],
+      links:["GitHub 仓库：dsh-local-plugins（MIT 开源）|https://github.com/Jav1es/dsh-local-plugins","插件总览 README（安装与配置）|./15-dsh-plugins/dsh-plugins-README.md"],
+      retro:"如果重做，我会先把「宿主怎么加载插件」这件事写成一页笔记再动手——中途有两次因为注册点签名理解错了，代码不报错但功能不生效，只能靠对照已有插件反复比对才发现。另外这三个插件我一开始是直接写在插件目录里、完全没进版本控制，等于单点存放；直到做资产盘点才发现，这也是我现在坚持「凡自产先入库」的原因。"
     },
 ];
 
