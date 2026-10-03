@@ -8,9 +8,10 @@
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-059669?style=for-the-badge&logo=github)](https://jav1es.github.io/portfolio/)
 [![License](https://img.shields.io/badge/License-MIT-64748b?style=for-the-badge)](./LICENSE)
 
-[![Modules](https://img.shields.io/badge/模块-14_个-0891b2?style=for-the-badge)](https://jav1es.github.io/portfolio/#works)
+[![Modules](https://img.shields.io/badge/模块-16_个-0891b2?style=for-the-badge)](https://jav1es.github.io/portfolio/#works)
 [![Tests](https://img.shields.io/badge/测试-35_项通过-059669?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
 [![MCP](https://img.shields.io/badge/MCP_Server-3_件套-7c3aed?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
+[![dsh-toolkit](https://img.shields.io/badge/DSH_运维工具箱-开源-0ea5e9?style=for-the-badge)](https://github.com/Jav1es/dsh-toolkit)
 
 ---
 
@@ -18,7 +19,7 @@
 
 - [👋 关于我](#-关于我)
 - [🎯 核心亮点](#-核心亮点)
-- [📚 作品集模块（14个）](#-作品集模块14-个)
+- [📚 作品集模块（16个）](#-作品集模块16-个)
 - [🧭 如何使用本作品集](#-如何使用本作品集)
 - [🛠 技术栈与实现](#-技术栈与实现)
 - [📁 仓库结构](#-仓库结构)
@@ -43,14 +44,14 @@
 |---|---|
 | **真实项目** | **24 家（含复审）**单年高企通过 · **1 周**最快交付 · **300+** 项目可研 |
 | **工程落地** | **6 层**智能体架构 · **83.3%** RAG 检索准确率 · **35 项**测试通过 |
-| **开源贡献** | **3 个** MCP Server + **1 个** 跨应用桥接 MCP Server 开源 · CI 全绿 |
+| **开源贡献** | **3 个** MCP Server + **1 个** 跨应用桥接 + **3 个** DSH 插件 + **1 套** 运维工具箱开源 · CI 全绿 |
 | **数据驱动** | 每个项目都有**前后对比量化数据**，全部标注口径 |
 | **FDE 能力** | **完整能力映射表** + 2 则实战故事（业务型 + 工程型）|
 | **能带队** | **5 年+**客户现场交付 · 从诊断到培训全程主导 |
 
 ---
 
-## 📚 作品集模块（14 个）
+## 📚 作品集模块（16 个）
 
 点击卡片可展开查看完整详情。每个模块包含：业务痛点、我的角色、方案架构、工具栈、实施步骤、关键难点、量化测算、可复用资产、证明链接与复盘。
 
@@ -71,12 +72,15 @@
 | 13 | 企业级智能体 MCP Server 三件套（开源） | ✅ 已交付 | 3 个 MCP Server 开源 · 35 项 pytest 用例全通过 · 100% 通过率 |
 | 14 | dsh-bridge：让 Marvis 调用本机 DeepSeek Harness（开源） | 🔧 开源工具 | 零依赖手写 MCP 协议（3 个工具） · 241 技能 × 77 MCP 工具本地检索 · CI 五步全绿 |
 | 15 | DeepSeek Harness 本机插件三件套（开源） | 🔧 开源工具 | 3 个自研插件 MIT 开源 · 零运行时依赖 · 推送前凭据扫描 0 命中 |
+| 16 | DSH 运维工具箱：升级自检 / 插件兼容预检 / 生态全量调研（开源） | 🔧 开源工具 | 4382 条插件目录全量调研 · 退出码可分档门禁 · 补丁幂等可回滚 |
 
 > 模块 13 对应三个独立开源的 MCP Server，仓库地址：[github.com/Jav1es/enterprise-agents/tree/main/mcp](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
 >
 > 模块 14 为独立开源项目，仓库地址：[github.com/Jav1es/dsh-bridge](https://github.com/Jav1es/dsh-bridge)（MIT）——把本机 DeepSeek Harness 接进 Marvis：先出派工单，再按建议调技能与 MCP 工具。
 >
 > 模块 15 为独立开源项目，仓库地址：[github.com/Jav1es/dsh-local-plugins](https://github.com/Jav1es/dsh-local-plugins)（MIT）——三个补宿主生态空白的 DSH 插件：消息推送微信 / 图片与 PDF 侧边栏预览 / Todo 与推理过程面板。
+>
+> 模块 16 为独立开源项目，仓库地址：[github.com/Jav1es/dsh-toolkit](https://github.com/Jav1es/dsh-toolkit)（MIT）——把 DSH 的升级自检、插件兼容性预检、缺失能力补丁与生态全量调研固化成一键可跑的工具与文档。
 
 ---
 
@@ -117,8 +121,11 @@ portfolio/
 ├── 10-retro-reports/          # 模块 10 附件
 ├── 11-fde-templates/          # 模块 11 附件（FDE 交付物模板）
 ├── 12-dsh-bridge/             # 模块 14 附件（图标 / 技能定义 / 设计取舍 / MCP 参考 / 排错手册）
+├── 15-dsh-plugins/            # 模块 15 附件（插件总览 README）
 └── README.md                  # 本文件
 ```
+
+> 模块 16（dsh-toolkit）的证明链接全部指向独立开源仓库，故本仓库不另存附件副本。
 
 ---
 
