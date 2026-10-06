@@ -237,9 +237,11 @@ portfolio/
 └── README.md                  # 本文件
 ```
 
-> 模块 16（dsh-toolkit）与模块 17（dsh-knowledge-guide）的证明链接全部指向独立开源仓库；
-> 模块 17 另在本仓库存了规程全文副本 `./17-knowledge-guide/knowledge-guide-SKILL.md`，
-> 便于现场直接打开、无需联网。
+> 模块 16（dsh-toolkit）与模块 17（dsh-knowledge-guide）的证明链接指向独立开源仓库；
+> 模块 17 另在本仓库存了规程副本 `./17-knowledge-guide/knowledge-guide-SKILL.md`，
+> 便于现场离线打开。
+> ⚠️ GitHub Pages **不会发布文件名为 `*SKILL.md` 的文件**（模块 14 的 `dsh-bridge-SKILL.md` 同样 404），
+> 因此模块 17 的「规程全文」链接指向 `raw.githubusercontent.com`，`README.md` 链接仍走站内弹层。
 >
 > `_book/` 为可打印的 PDF 书稿（`黄家辉_AI数字化落地作品集.pdf`）与生成脚本，用于面试携带或邮件附件场景。
 
