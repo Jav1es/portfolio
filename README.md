@@ -8,10 +8,11 @@
 [![GitHub Pages](https://img.shields.io/badge/Deployed-GitHub_Pages-059669?style=for-the-badge&logo=github)](https://jav1es.github.io/portfolio/)
 [![License](https://img.shields.io/badge/License-MIT-64748b?style=for-the-badge)](./LICENSE)
 
-[![Modules](https://img.shields.io/badge/模块-16_个-0891b2?style=for-the-badge)](https://jav1es.github.io/portfolio/#works)
+[![Modules](https://img.shields.io/badge/模块-17_个-0891b2?style=for-the-badge)](https://jav1es.github.io/portfolio/#works)
 [![Tests](https://img.shields.io/badge/测试-35_项通过-059669?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
 [![MCP](https://img.shields.io/badge/MCP_Server-3_件套-7c3aed?style=for-the-badge)](https://github.com/Jav1es/enterprise-agents/tree/main/mcp)
 [![dsh-toolkit](https://img.shields.io/badge/DSH_运维工具箱-开源-0ea5e9?style=for-the-badge)](https://github.com/Jav1es/dsh-toolkit)
+[![knowledge-guide](https://img.shields.io/badge/knowledge--guide-检索规程-0ea5e9?style=for-the-badge)](https://github.com/Jav1es/dsh-knowledge-guide)
 
 ---
 
@@ -21,7 +22,7 @@
 - [🎯 核心亮点](#-核心亮点)
 - [🧭 三个目标岗位](#-三个目标岗位)
 - [📊 三岗位能力映射](#-三岗位能力映射)
-- [📚 作品集：六大能力类目（16 个作品）](#-作品集六大能力类目16-个作品)
+- [📚 作品集：六大能力类目（17 个作品）](#-作品集六大能力类目17-个作品)
 - [🖥 现场可演示清单](#-现场可演示清单)
 - [🏭 行业定制规划（分类 ⑥）](#-行业定制规划分类-)
 - [🛠 技术栈与实现](#-技术栈与实现)
@@ -47,7 +48,7 @@
 |---|---|
 | **真实项目** | **300+** 政府/企业项目（申报并通过 **200+**）· **100+** 服务企业 · **24 家（含复审）**单年高企通过 · **1 周**最快交付 |
 | **工程落地** | **6 层**智能体架构 · **83.3%** RAG 检索准确率 · **35 项**测试通过 |
-| **开源贡献** | **3 个** MCP Server + **1 个** 跨应用桥接 + **3 个** DSH 插件 + **1 套** 运维工具箱开源 · CI 全绿 |
+| **开源贡献** | **3 个** MCP Server + **1 个** 跨应用桥接 + **3 个** DSH 插件 + **1 套** 运维工具箱 + **1 份** 检索规程开源 · CI 全绿 |
 | **数据驱动** | 每个项目都有**前后对比量化数据**，全部标注口径 |
 | **FDE 能力** | **完整能力映射表** + 2 则实战故事（业务型 + 工程型）|
 | **能带队** | **5 年+**客户现场交付 · 从诊断到培训全程主导 |
@@ -62,7 +63,7 @@
 |---|---|---|
 | 🎯 **AI 项目经理** | 从公司层面规划 AI 工具体系，跨部门推进落地，用 ROI 量化价值 | 模块 01 规划包 · 《白云科技信息化总体规划》· 模块 10 培训推广 · 模块 12 复盘量化 |
 | 🚀 **FDE 前线部署工程师** | 进客户门 → 诊断业务 → 端到端交付 → 现场培训 → 用数据量化结果 | 高企认定端到端交付（单年 24 家含复审、最快 1 周）· enterprise-agent 现场部署 · FDE 交付物模板 |
-| 🤖 **AI 智能体开发工程师** | 独立完成智能体系统的架构、实现、评测与开源 | 模块 04 六层架构 · 模块 06 RAG 真实评测 83.3% · 模块 07 OTel/Jaeger 全链路 · 模块 13–16 四个开源仓库 |
+| 🤖 **AI 智能体开发工程师** | 独立完成智能体系统的架构、实现、评测与开源 | 模块 04 六层架构 · 模块 06 RAG 真实评测 83.3% · 模块 07 OTel/Jaeger 全链路 · 模块 13–17 五个开源仓库 |
 
 ---
 
@@ -78,13 +79,13 @@
 
 ---
 
-## 📚 作品集：六大能力类目（16 个作品）
+## 📚 作品集：六大能力类目（17 个作品）
 
-16 个作品按**能力属性**归为六大类，每类标注「该类体现的能力水平」与代表作。**第 ① 类默认展开**作为示例（让读者先看懂组织逻辑），其余各类默认折叠，点击类目标题或类目底部的「展开这类作品」即可展开；也可用顶部「全部展开 / 收起」一次性控制。每个模块展开后包含：业务痛点、我的角色、方案架构、工具栈、实施步骤、关键难点、量化测算、可复用资产、证明链接与复盘。
+17 个作品按**能力属性**归为六大类，每类标注「该类体现的能力水平」与代表作。**第 ① 类默认展开**作为示例（让读者先看懂组织逻辑），其余各类默认折叠，点击类目标题或类目底部的「展开这类作品」即可展开；也可用顶部「全部展开 / 收起」一次性控制。每个模块展开后包含：业务痛点、我的角色、方案架构、工具栈、实施步骤、关键难点、量化测算、可复用资产、证明链接与复盘。
 
 > **按角色直达**（页面 hero 区提供同款入口）：
 > 技术负责人 → [模块 04 六层架构](https://jav1es.github.io/portfolio/#mod-04) / [模块 06 RAG 评测 83.3%](https://jav1es.github.io/portfolio/#mod-06) / [模块 13 MCP 开源](https://jav1es.github.io/portfolio/#mod-13)；
-> 开源与平台工程 → 模块 13–16 四个 MIT 开源仓库；HR / 猎头 → 三岗位能力映射。
+> 开源与平台工程 → 模块 13–17 五个 MIT 开源仓库；HR / 猎头 → 三岗位能力映射。
 
 ### ① 规划与方案能力（1 个作品）
 
@@ -126,9 +127,9 @@
 | 05 | 业务数据库与数据监测报告（SQL 报表 + BI/ChatBI）★代表作 | ✅ 已交付 | 约 40% 减少团队重复工作 · 1 套自建业务数据库 · SQL 报表固化/存储过程 |
 | 12 | 项目复盘与量化数据报告 ★代表作 | ✅ 已交付 | 300+ 政府/企业项目交付 · 24 家单年高企通过（含复审） · 100+ 服务企业客户 |
 
-### ⑤ 开源与工具链（4 个作品）
+### ⑤ 开源与工具链（5 个作品）
 
-> **能力水平**：不只会用工具，还能造工具——4 个独立开源仓库，从 MCP Server 到宿主插件与运维工具链，全部带测试与文档。
+> **能力水平**：不只会用工具，还能造工具——5 个独立开源仓库，从 MCP Server 到宿主插件、运维工具链与检索规程，全部带测试与文档。
 
 | # | 模块 | 类型 | 核心亮点 |
 |---|---|---|---|
@@ -136,6 +137,7 @@
 | 14 | dsh-bridge：让 Marvis 调用本机 DeepSeek Harness（开源）★代表作 | 🔧 开源工具 | 零依赖手写 MCP 协议（3 个工具） · 241 技能 × 77 MCP 工具本地检索 · CI 五步全绿 |
 | 15 | DeepSeek Harness 本机插件三件套（开源）★代表作 | 🧩 个人开源 | 3 个自研插件 MIT 开源 · 零运行时依赖 · 推送前凭据扫描 0 命中 |
 | 16 | DSH 运维工具箱：升级自检 / 插件兼容预检 / 生态全量调研（开源）★代表作 | 🧩 个人开源 | 4382 条插件目录全量调研 · 退出码可分档门禁 · 补丁幂等可回滚 |
+| 17 | 知识指南：把「先检索再作答」写成可复用的规程（开源）★代表作 | 🧩 个人开源 | 1 份可复用检索规程 · 100% 零云依赖（纯 Markdown） · 强制来源标注与正对照 |
 
 ### ⑥ 行业定制规划（独立章节）
 
@@ -149,7 +151,8 @@
 > 模块 13 → [enterprise-agents/mcp](https://github.com/Jav1es/enterprise-agents/tree/main/mcp) ｜
 > 模块 14 → [dsh-bridge](https://github.com/Jav1es/dsh-bridge) ｜
 > 模块 15 → [dsh-local-plugins](https://github.com/Jav1es/dsh-local-plugins) ｜
-> 模块 16 → [dsh-toolkit](https://github.com/Jav1es/dsh-toolkit)（全部 MIT 开源）
+> 模块 16 → [dsh-toolkit](https://github.com/Jav1es/dsh-toolkit) ｜
+> 模块 17 → [dsh-knowledge-guide](https://github.com/Jav1es/dsh-knowledge-guide)（全部 MIT 开源）
 
 ---
 
@@ -182,7 +185,8 @@
 | RAG 知识库真实演示 | 上传制度文档→提问→返回条款引用；真实评测 83.3% @3 | 可现场演示 |
 | OTel + Jaeger 全链路追踪 | 一次会话 8 个 span，trace_id 贯穿 Router→Planner→Tool→Reviewer | 可现场演示 |
 | MCP Server 三件套 | 3 个 MCP Server，35 个 pytest 用例全通过 | 可现场演示（仓库公开） |
-| dsh-bridge / DSH 插件 / 运维工具箱 | 三个独立开源项目，含 CI 与测试 | 可现场演示（仓库公开） |
+| dsh-bridge / DSH 插件 / 运维工具箱 | 四个独立开源项目，含 CI 与测试 | 可现场演示（仓库公开） |
+| knowledge-guide 检索规程 | SKILL.md 单文件规程，装进 `~/.dsh/skills/` 即被 skill 工具装载 | 可现场演示（纯 Markdown，本仓库存有副本） |
 
 ---
 
@@ -228,11 +232,14 @@ portfolio/
 ├── 11-fde-templates/          # 模块 11 附件（FDE 交付物模板）
 ├── 12-dsh-bridge/             # 模块 14 附件（图标 / 技能定义 / 设计取舍 / MCP 参考 / 排错手册）
 ├── 15-dsh-plugins/            # 模块 15 附件（插件总览 README）
+├── 17-knowledge-guide/        # 模块 17 附件（SKILL.md 规程全文 + 说明 README）
 ├── _book/                     # 作品集 PDF 书稿与构建脚本（离线投递版）
 └── README.md                  # 本文件
 ```
 
-> 模块 16（dsh-toolkit）的证明链接全部指向独立开源仓库，故本仓库不另存附件副本。
+> 模块 16（dsh-toolkit）与模块 17（dsh-knowledge-guide）的证明链接全部指向独立开源仓库；
+> 模块 17 另在本仓库存了规程全文副本 `./17-knowledge-guide/knowledge-guide-SKILL.md`，
+> 便于现场直接打开、无需联网。
 >
 > `_book/` 为可打印的 PDF 书稿（`黄家辉_AI数字化落地作品集.pdf`）与生成脚本，用于面试携带或邮件附件场景。
 
