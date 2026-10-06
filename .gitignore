@@ -9,3 +9,8 @@ __pycache__/
 04-backup/
 *.bak
 *.bak.*
+
+# _book 构建中间产物（print.html 由 build_book.py 生成）
+_book/portfolio-book.print.html
+_book/_pass1.pdf
+_book/_edge_profile_*/
