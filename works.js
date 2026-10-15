@@ -361,28 +361,30 @@
           coverSVG(it) +
         '</div>';
 
-    // ---- 可展开详情：完整作品情况 ----
+    // ---- 可展开详情：完整作品情况（横向分两栏，避免竖着拉长） ----
     var detail = '';
     if (it.role || it.arch || it.pain || (it.steps && it.steps.length) || it.hard || it.retro) {
-      var rows = '';
       function row(label, val) {
         if (!val) return '';
         return '<div class="d-row"><span class="d-label">' + esc(label) + '</span>' +
                '<span class="d-val">' + esc(val) + '</span></div>';
       }
-      rows += row('我负责什么', it.role);
-      rows += row('解决的痛点', it.pain);
-      rows += row('架构 / 方案', it.arch);
+      // 左栏：背景与方案（我负责什么 / 痛点 / 架构）
+      var left = row('我负责什么', it.role) + row('解决的痛点', it.pain) + row('架构 / 方案', it.arch);
+      // 右栏：实施与复盘（步骤 / 难点 / 复盘 / 口径）
+      var right = '';
       if (it.steps && it.steps.length) {
-        rows += '<div class="d-row"><span class="d-label">实施步骤</span><ol class="d-steps">' +
+        right += '<div class="d-row"><span class="d-label">实施步骤</span><ol class="d-steps">' +
           it.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') +
           '</ol></div>';
       }
-      rows += row('难点与取舍', it.hard);
-      rows += row('复盘', it.retro);
-      rows += row('量化口径', it.metric);
+      right += row('难点与取舍', it.hard) + row('复盘', it.retro) + row('量化口径', it.metric);
 
-      detail = '<div class="w-more" hidden>' + rows +
+      detail = '<div class="w-more" hidden>' +
+        '<div class="d-cols">' +
+          '<div class="d-col">' + left + '</div>' +
+          '<div class="d-col">' + right + '</div>' +
+        '</div>' +
         '<div class="w-preview-box" hidden></div>' +
         (links ? '<div class="w-links is-all">' + links + '</div>' : '') +
         '</div>';
@@ -505,6 +507,11 @@
       btn.setAttribute('aria-expanded', String(!open));
       btn.textContent = open ? '展开详情' : '收起';
       more.hidden = open;
+      // 展开时让卡片横跨整行：详情才有宽幅可并排两栏，不至于竖向拉长
+      card.classList.toggle('is-expanded', !open);
+      if (!open) {
+        card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
     });
   }
 
