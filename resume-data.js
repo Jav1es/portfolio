@@ -127,7 +127,7 @@ window.__RESUME__ = {
       role: '独立设计与开发',
       bullets: [
         '主导企业级智能体系统建设，采用六层架构集成 RAG、工具调用与 MCP，基于 LangGraph StateGraph 实现 Router → Planner → Skill → Tool → Reviewer 五阶段编排，RAG 检索准确率达 93.3% @3（30 题分层评测）。',
-        '建立评测集并纳入 CI 每次 push 自动回归，结合 OpenTelemetry + Jaeger 全链路追踪（一次会话 7 个 span：root + router/planner/retrieve/tool_call/reviewer/respond），将 Agent 稳定性问题的定位时间从小时级降到分钟级。',
+        '建立评测集并纳入 CI 每次 push 自动回归，结合 OpenTelemetry + Jaeger 全链路追踪（一次会话 7 个 span：root · router · planner · retrieve · tool_call · reviewer · respond），将 Agent 稳定性问题的定位时间从小时级降到分钟级。',
         '完成服务端工程化：FastAPI + SSE 流式接口、Pydantic 结构化输出、重试/降级/熔断中间件；Docker Compose 一键起全栈，K8s Helm 配双指标 HPA 与健康探针。'
       ],
       tags: ['LangGraph', 'RAG', 'MCP', 'FastAPI', 'Redis', 'PostgreSQL', 'K8s'],

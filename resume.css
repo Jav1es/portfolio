@@ -65,6 +65,11 @@
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, .08), 0 12px 32px rgba(0, 0, 0, .10);
   box-sizing: border-box;
+  /* ⚠️ 窄屏防溢出（2026-10-16 实测）：A4 是固定宽版式，正文里一旦有不可断行
+     的长 token（如 router/planner/retrieve/tool_call/… 这类斜杠串），
+     在 360px 视口下会把内容顶出纸张 16px 并撑宽整个文档。
+     anywhere 会把长 token 计入 min-content，允许在任意处断行。 */
+  overflow-wrap: anywhere;
 }
 
 /* ---------------- 简历内容排版 ---------------- */
