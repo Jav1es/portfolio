@@ -14,3 +14,8 @@ __pycache__/
 _book/portfolio-book.print.html
 _book/_pass1.pdf
 _book/_edge_profile_*/
+
+# 视觉验证与工具产物
+.dsh-vision-router/
+.verify/
+
