@@ -42,8 +42,8 @@
       <div class="role-banner accent-amber">
         <span class="rb-ico" aria-hidden="true">✨</span>
         <div>
-          <b>本岗位承载 6 个作品模块（全部开源）</b>
-          <span>13 MCP Server 三件套 · 14 dsh-bridge · 15 DSH 插件三件套 · 16 运维工具箱 · 17 知识指南检索规程 · 18 dsh-prompt-compiler</span>
+          <b>本岗位承载 8 个作品模块（全部开源）</b>
+          <span>12 dsh-bridge · 15 DSH 插件三件套 · 16 MCP Server 三件套 · 17 知识指南检索规程 · 18 dsh-prompt-compiler · 19 运维工具箱 · 20 高企自评离线 PWA · 21 workbuddy-bridge</span>
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="kicker">作品清单</p>
-        <h2>开源与工具链主线作品</h2>
+        <h2>开源与工具链主线作品 · 8 个模块</h2>
         <p>每个模块含背景、做法、量化指标与可点开的仓库链接。模块编号与全站一致。</p>
       </div>
       <div id="vibe-works" class="w-grid"></div>
@@ -108,6 +108,7 @@
 <script src="./menu.js" defer></script>
 <script>
   WORKS.loadData(function (data) {
+    WORKS.bindExpand(document);
     document.getElementById('vibe-works').innerHTML = WORKS.listByRole(data.items, 'vibe');
   });
 </script>

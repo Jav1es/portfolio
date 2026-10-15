@@ -108,21 +108,21 @@
         <a class="entry-card accent-blue" href="./fde.html">
           <span class="card-ico" aria-hidden="true">FDE</span>
           <h3>FDE 前线部署工程师</h3>
-          <p>贴近业务现场做需求发现、方案落地与交付验收，对项目结果与项目管理全流程负责。承载 01 / 02 / 03 / 05 / 08 / 10 / 12 号作品。</p>
+          <p>贴近业务现场做需求发现、方案落地与交付验收，对项目结果与项目管理全流程负责。<span data-owns="fde">承载 8 个模块</span>。</p>
           <span class="go" aria-hidden="true">进入岗位页 →</span>
         </a>
 
         <a class="entry-card accent-teal" href="./ai-agent.html">
           <span class="card-ico" aria-hidden="true">AI</span>
           <h3>AI 智能体开发工程师</h3>
-          <p>独立设计并交付企业级智能体：六层架构、RAG、工具调用、评测与全链路可观测性。承载 04 / 06 / 07 / 09 / 11 号作品。</p>
+          <p>独立设计并交付企业级智能体：六层架构、RAG、工具调用、评测与全链路可观测性。<span data-owns="agent">承载 5 个模块</span>。</p>
           <span class="go" aria-hidden="true">进入岗位页 →</span>
         </a>
 
         <a class="entry-card accent-amber" href="./vibe-engineer.html">
           <span class="card-ico" aria-hidden="true">VS</span>
           <h3>VibeCoding / VibeEngineering 工程师</h3>
-          <p>用自然语言驱动编码，做创意编码、交互体验与视觉实验，把验证过的原型沉淀成可交付代码与开源工具。承载 13–18 号作品。</p>
+          <p>用自然语言驱动编码，做创意编码、交互体验与视觉实验，把验证过的原型沉淀成可交付代码与开源工具。<span data-owns="vibe">承载 8 个模块</span>。</p>
           <span class="go" aria-hidden="true">进入岗位页 →</span>
         </a>
 
@@ -137,7 +137,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="kicker">作品全景</p>
-        <h2>18 个深度作品模块</h2>
+        <h2>21 个深度作品模块</h2>
         <p>每个模块含背景、做法、难点、量化指标与可点开的证明材料。点击任一模块直达对应岗位页。</p>
       </div>
 
@@ -146,7 +146,7 @@
         <button type="button" data-filter="fde" aria-pressed="false">FDE</button>
         <button type="button" data-filter="agent" aria-pressed="false">AI Agent</button>
         <button type="button" data-filter="vibe" aria-pressed="false">Vibe</button>
-        <span class="w-filter-count" data-filter-count>18 / 18 个模块</span>
+        <span class="w-filter-count" data-filter-count>21 / 21 个模块</span>
       </div>
 
       <div id="home-tiles" class="w-tiles"></div>
@@ -177,7 +177,13 @@
 <script src="./menu.js" defer></script>
 <script>
   WORKS.loadData(function (data) {
-    document.getElementById('home-stats').innerHTML = WORKS.statHTML();
+    WORKS.bindExpand(document);
+    document.getElementById('home-stats').innerHTML = WORKS.statHTML(data.items);
+    // 入口卡片的模块清单由数据生成，避免手写编号与 works.js 不同步
+    document.querySelectorAll('[data-owns]').forEach(function (el) {
+      var r = WORKS.ROLES[el.getAttribute('data-owns')];
+      if (r) el.textContent = '承载 ' + r.owns.length + ' 个模块（' + r.owns.join(' / ') + '）';
+    });
     var root = document.getElementById('home-tiles');
     root.innerHTML = data.items.map(WORKS.tileHTML).join('');
     WORKS.bindFilter(document.getElementById('home-filters'), root);

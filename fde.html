@@ -42,8 +42,8 @@
       <div class="role-banner accent-blue">
         <span class="rb-ico" aria-hidden="true">🚧</span>
         <div>
-          <b>本岗位承载 7 个作品模块</b>
-          <span>01 规划包 · 02 智能问答与文档 AIGC · 03 RPA+AI 审核（已交付）· 05 业务数据库 · 08 办公流程自动化 · 10 培训 SOP · 12 量化复盘</span>
+          <b>本岗位承载 8 个作品模块</b>
+          <span>01 规划包 · 02 智能问答与文档 AIGC · 03 RPA+AI 审核（已交付）· 05 业务数据库 · 06 办公流程自动化 · 08 培训 SOP · 10 量化复盘 · 11 FDE 交付物模板</span>
         </div>
       </div>
     </div>
@@ -72,7 +72,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="kicker">作品清单</p>
-        <h2>FDE 主线作品</h2>
+        <h2>FDE 主线作品 · 8 个模块</h2>
         <p>每个模块含背景、做法、量化指标与可点开的证明材料。模块编号与全站一致。</p>
       </div>
       <div id="fde-works" class="w-grid"></div>
@@ -108,6 +108,7 @@
 <script src="./menu.js" defer></script>
 <script>
   WORKS.loadData(function (data) {
+    WORKS.bindExpand(document);
     document.getElementById('fde-works').innerHTML = WORKS.listByRole(data.items, 'fde');
   });
 </script>
