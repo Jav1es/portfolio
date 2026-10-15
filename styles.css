@@ -53,9 +53,11 @@
   --green-bg: #ecfdf5;
   --green-line: #a7f3d0;
 
-  /* ---- 3D 背景层：网格线 / 地平线 / 柔光（亮暗主题各自取值） ---- */
-  --grid-line: rgba(10, 10, 10, .16);
-  --grid-line2: rgba(10, 10, 10, .15);
+  /* ---- 3D 背景层：网格线 / 地平线 / 柔光（亮暗主题各自取值） ----
+     brief P2-2：浅色下网格密度偏大、近看像噪点，线条 alpha 再降约 1/3
+     （暗色侧另有 opacity .35 收敛，不动）。间距不变，只降强度。 */
+  --grid-line: rgba(10, 10, 10, .105);
+  --grid-line2: rgba(10, 10, 10, .095);
   --horizon-1: rgba(10, 10, 10, .30);
   --horizon-2: rgba(10, 10, 10, .42);
   --stage-glow-1: rgba(10, 10, 10, .045);
@@ -376,22 +378,24 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
   background-clip: text; -webkit-text-fill-color: transparent;
 }
 
-/* 指标条：首屏最醒目的一行数字 */
-.metrics {
-  display: grid; gap: 10px;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  list-style: none; margin: 0 0 24px;
+/* 首屏合作状态（brief P2-3）：原本是带发光圆点的胶囊，与整体极简风格冲突，
+   降为普通小字 —— 信息保留，视觉权重让给主标题与核心指标。 */
+.hero-note {
+  font-size: 12.5px; font-weight: 600; color: var(--txt3);
+  letter-spacing: .2px; margin: 0 0 14px;
 }
-.metrics li {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: 12px; padding: 12px 14px;
-  display: flex; flex-direction: column; gap: 2px;
+
+/* 核心指标（brief P2-1）：原来 6 张卡片在桌面约占视口 1/3，视觉权重压过核心项目，
+   现改为**一行轻量文字** —— 小字号、弱色、可自然换行，只在数字上加重。
+   指标口径与 resume-data.js 的 metrics 同源，改一处必须同步另一处。 */
+.hero-nums {
+  font-size: 13.4px; color: var(--txt3); line-height: 1.8;
+  max-width: 780px; margin: 0 0 22px;
 }
-.metrics b {
-  font-size: clamp(19px, 2.4vw, 25px); font-weight: 800; letter-spacing: -0.6px;
-  color: var(--blue); font-variant-numeric: tabular-nums; line-height: 1.2;
+.hero-nums b {
+  font-size: 15px; font-weight: 800; color: var(--blue);
+  font-variant-numeric: tabular-nums;
 }
-.metrics span { font-size: 12.2px; color: var(--txt3); font-weight: 600; }
 
 /* 转型说明条（brief P0-4 / §5.2）—— 首屏内答完「申报咨询和 AI 什么关系」
    与「这些是生产交付还是自建」两个必问项。刻意做得紧凑、低视觉权重，
@@ -976,6 +980,29 @@ mark {
   padding: 4px 11px; border-radius: 7px; margin-bottom: 16px;
 }
 
+/* 诚信说明（brief P2-7）：原为 .sample-note 单行药丸 —— 那段文字含多处加粗、
+   是一整段长文，塞进 inline-flex 药丸后在窄屏折行严重、几乎读不下去。
+   改为**分条列表**：每条一个断言（真实项 / 演练项 / 数字口径），互不挤占。 */
+.integrity {
+  margin-top: 26px; padding: 16px 18px;
+  background: var(--bg2); border: 1px solid var(--line); border-radius: 12px;
+}
+.integrity__head {
+  font-size: 13px; font-weight: 800; color: var(--txt);
+  margin: 0 0 11px; letter-spacing: .2px;
+}
+.integrity ul { list-style: none; display: grid; gap: 9px; margin: 0; padding: 0; }
+.integrity li {
+  font-size: 13.2px; color: var(--txt2); line-height: 1.62;
+  /* 窄屏防溢出：与 .duty-list 同款（brief P1-4 的教训 —— grid 项默认
+     min-width:auto，长 token 会把格子顶宽；break-word 不参与 min-content 计算） */
+  min-width: 0; overflow-wrap: anywhere;
+}
+.integrity li b { color: var(--txt); }
+.integrity .is-real  { color: var(--cyan);  font-weight: 700; }
+.integrity .is-drill { color: var(--amber); font-weight: 700; }
+.integrity .is-note  { color: var(--txt3);  font-weight: 700; }
+
 /* ==========================================================================
    作品区（18 模块）：统计条 / 筛选器 / 总览瓦片 / 作品卡片
    视觉对齐线上版：渐变统计数字、渐变编号方块、浅蓝 chip、绿色 metric
@@ -1401,20 +1428,15 @@ mark {
      判据用 **hero 底边 ≤ 视口高度**（只比高度会漏掉导航占位那几十像素）。
      逐项压缩，目标：首屏内能看到定位语 + 转型条 + 3 个 CTA。 */
   .hero { padding: 12px 0 8px; }
-  /* 胶囊在极简风格里本就突兀（brief P2 也提到），移动端降为普通小字 */
-  .hero .eyebrow {
-    padding: 0; border: 0; background: none;
-    font-size: 11.5px; color: var(--txt3);
-  }
+  /* 合作状态在桌面已降为普通小字（P2-3），移动端进一步压紧 */
+  .hero-note { font-size: 11.5px; margin-bottom: 8px; }
   .hero-title { line-height: 1.12; }
   .hero-name { font-size: clamp(29px, 8.2vw, 36px); }
   .hero-role { font-size: 15px; }
   .lede { font-size: 14.2px; line-height: 1.5; }
-  /* 指标卡在移动端权重过高（brief P2 同款判断）→ 压到紧凑 3×2 */
-  .metrics { grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
-  .metrics li { padding: 6px 8px; border-radius: 8px; gap: 0; }
-  .metrics b { font-size: 16px; letter-spacing: -.3px; }
-  .metrics span { font-size: 9.6px; }
+  /* 指标行移动端同样保持轻量（不再有卡片背景），只收字号与行距 */
+  .hero-nums { font-size: 12.4px; line-height: 1.7; margin-bottom: 12px; }
+  .hero-nums b { font-size: 13.6px; }
   .career-shift {
     padding: 9px 11px; font-size: 12.4px; line-height: 1.46; margin-bottom: 10px;
   }
@@ -1849,5 +1871,40 @@ body { line-height: 1.68; }
 }
 :root[data-theme="dark"] .bg-orb { opacity: .5; }
 :root[data-theme="dark"] .bg-grid-floor { opacity: .35; }
+
+/* ==========================================================================
+   触控目标尺寸（brief P2-9）
+   ==========================================================================
+   实测（CDP 真实 390px 视口，`artifacts/touch-probe.mjs`）：
+   导航/页脚/卡片操作的可点高度普遍只有 19-23px，中位数 21px，
+   远低于 WCAG 2.5.5（AAA）44×44 的推荐值，也踩到 2.5.8（AA）24×24 的线。
+
+   修法：触屏区间给**交互元素**统一加最小高度并垂直居中。
+   · 只加 min-height，不改字号、不改配色 —— 视觉几乎不变，热区翻倍。
+   · 正文段落里的行内链接按 WCAG 2.5.8 的 inline 例外**不强制加高**
+     （给 <p> 里的链接加 44px 会把段落撑散，反而更难读）。
+   · 页脚链接是纵向列表，44px 会把页脚拉长近一倍，故取 40px —— 仍远高于
+     AA 的 24px 线，且实测点得中。 */
+@media (max-width: 859.98px) {
+  .site-nav a,
+  .nav-brand,
+  .nav-toggle,
+  .footer-v2__list a,
+  .footer-in a,
+  .btn,
+  .cta-row a,
+  .btn-row a,
+  .w-go,
+  .w-expand,
+  .w-link,
+  .w-filters button,
+  .copy-mail {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .footer-v2__list a { min-height: 40px; }
+}
+
 
 

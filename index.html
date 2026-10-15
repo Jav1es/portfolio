@@ -26,6 +26,49 @@
 <meta name="twitter:image:alt" content="黄家辉个人作品集封面：三条能力主线与核心指标">
 <meta name="theme-color" content="#fbfbfa">
 <link rel="stylesheet" href="./styles.css">
+<!-- 结构化数据（brief P2-8）：Person + knowsAbout。
+     原则：只声明本页**已经公开可见**的事实，不引入任何新数字、新背书或新身份；
+     knowsAbout 与 about.html 技能矩阵的分组同源。
+     电话不做结构化投放（邮箱在页脚本就公开）。 -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "黄家辉",
+  "alternateName": "Jav1es",
+  "jobTitle": "企业级 AI Agent 开发工程师 / FDE 前线部署工程师",
+  "description": "6 年+ 企业科技服务（2021.04 至今），AI 工程实践 27 个月；RAG 检索 93.3% @3，9 个 MIT 开源仓库。",
+  "url": "https://jav1es.github.io/portfolio/",
+  "image": "https://jav1es.github.io/portfolio/og-image.jpg",
+  "email": "mailto:1459393754@qq.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "广州",
+    "addressCountry": "CN"
+  },
+  "sameAs": [
+    "https://github.com/Jav1es"
+  ],
+  "knowsAbout": [
+    "AI Agent 开发",
+    "LangGraph 多阶段编排",
+    "RAG 检索增强与评测",
+    "MCP 工具协议",
+    "Prompt 工程",
+    "OpenTelemetry 可观测性",
+    "Docker Compose 与 K8s 部署",
+    "Python",
+    "数据建模与数据分析",
+    "企业信息化规划",
+    "高企认定与项目申报合规"
+  ],
+  "knowsLanguage": ["zh-CN", "yue", "en"],
+  "hasOccupation": {
+    "@type": "Occupation",
+    "name": "AI 智能体开发工程师 / FDE 前线部署工程师"
+  }
+}
+</script>
 </head>
 <body>
   <!-- 3D 背景层：透视网格地面 + 地平线辉光 + 漂移光斑 -->
@@ -102,24 +145,22 @@
   <!-- ==================== 首屏：定位 + 指标条 + 三个 CTA ==================== -->
   <section class="hero">
     <div class="wrap">
-      <p class="eyebrow">开放合作 · 可远程 · 可现场演示</p>
+      <p class="hero-note">开放合作 · 可远程 · 可现场演示</p>
 
       <h1 class="hero-title">
         <span class="hero-name">Jav1es<span class="dot">·</span>黄家辉</span>
-        <span class="hero-role">企业级 AI Agent 开发工程师 / FDE</span>
+        <span class="hero-role">企业级 AI Agent 开发工程师 / FDE 前线部署工程师</span>
       </h1>
 
       <p class="lede" id="intro">6 年+ 企业科技服务，主导 300+ 项目、服务 100+ 企业（项目申报口径）。AI 工程实践 27 个月：把 AI Agent 从 Demo 推到能评测、能观测、能落地。</p>
 
-      <!-- 指标条：首屏最醒目的一行数字 -->
-      <ul class="metrics" aria-label="核心指标">
-        <li><b>6 年+</b><span>企业科技服务</span></li>
-        <li><b>27 个月</b><span>AI 工程实践</span></li>
-        <li><b>300+</b><span>主导项目</span></li>
-        <li><b>100+</b><span>服务企业</span></li>
-        <li><b>93.3%</b><span>RAG 准确率 @3</span></li>
-        <li><b>9</b><span>公开开源仓库（MIT）</span></li>
-      </ul>
+      <!-- 核心指标：brief P2-1 —— 原先 6 张卡片在桌面独占约 1/3 屏、视觉权重压过
+           核心项目，改为**一行轻量文字**。口径与 resume-data.js 的 metrics 同源，
+           改这里必须同步改那边（反之亦然）。
+           「CI 运行中」为唯一许可措辞，禁止写成「CI 全绿」。 -->
+      <p class="hero-nums" aria-label="核心指标">
+        RAG 检索 <b>93.3%</b> @3（30 题分层评测，报告可点开）· <b>9</b> 个 MIT 开源仓库（CI 运行中）· <b>35</b> pytest 用例通过
+      </p>
 
       <!-- 转型说明条（brief P0-4 / §5.2）：这是全站最重要的新增内容。
            HR 会问「申报咨询和 AI Agent 有什么关系」，技术面试官会问
@@ -130,11 +171,11 @@
         <p class="career-shift__note"><b>边界：</b>AI 部分为本人自建参考实现与开源项目，<b>非生产环境交付</b>；外部系统（ERP / CRM / OA / 钉钉 / 企微）为桩实现，可现场演示。</p>
       </aside>
 
-      <!-- 三个 CTA -->
+      <!-- 三个 CTA（文案对齐 brief §5.4）-->
       <div class="cta-row">
-        <a class="btn btn-primary" href="./resume.html">下载简历 →</a>
-        <a class="btn btn-ghost" href="#featured">看核心项目</a>
-        <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub ↗</a>
+        <a class="btn btn-primary" href="./resume.html">下载 PDF 简历（两版可选）</a>
+        <a class="btn btn-ghost" href="#works-featured">看 3 个核心项目</a>
+        <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub（9 仓库）↗</a>
       </div>
     </div>
   </section>
