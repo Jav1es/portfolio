@@ -650,6 +650,96 @@
   }
 
   // ==========================================================================
+  // 渲染：模块分布可视化（纯 CSS 条形，无图表库、无 canvas）
+  // 目的：让「21 个模块怎么分布」一眼可见，而不是让读者自己数。
+  // ==========================================================================
+  function vizHTML(items) {
+    var list = items || (DATA ? DATA.items : []);
+    var total = list.length || 1;
+
+    function row(label, n) {
+      var pct = Math.round(n / total * 1000) / 10;
+      return '<li class="viz-row">' +
+        '<span class="viz-k">' + esc(label) + '</span>' +
+        '<span class="viz-track"><i class="viz-fill" style="width:' + pct + '%"></i></span>' +
+        '<span class="viz-v">' + n + '</span>' +
+      '</li>';
+    }
+
+    // 维度一：四个组（按性质）
+    var byGroup = groupOrder().map(function (id) {
+      var n = list.filter(function (it) { return groupOf(it) === id; }).length;
+      return n ? row(groupMeta(id).name, n) : '';
+    }).join('');
+
+    // 维度二：三个岗位方向
+    var byRole = Object.keys(ROLES).map(function (rk) {
+      var n = list.filter(function (it) { return MODULE_ROLE[it.no] === rk; }).length;
+      return n ? row(ROLES[rk].short, n) : '';
+    }).join('');
+
+    return '<div class="works-viz">' +
+        '<div class="viz-block">' +
+          '<p class="viz-title">按性质分四组</p>' +
+          '<ul class="viz-bars">' + byGroup + '</ul>' +
+        '</div>' +
+        '<div class="viz-block">' +
+          '<p class="viz-title">按岗位方向</p>' +
+          '<ul class="viz-bars">' + byRole + '</ul>' +
+        '</div>' +
+      '</div>' +
+      '<p class="viz-note">共 ' + total + ' 个模块，条形长度按占比绘制</p>';
+  }
+
+  // ==========================================================================
+  // 交互：分组筛选（P2-8）
+  // 与 bindFilter 的区别：bindFilter 是「隐藏瓦片」，本函数是「重渲染分组」——
+  // 因为分组区里 core 组默认只铺 3 个、其余组折叠，单纯 hidden 无法表达筛选结果。
+  // ==========================================================================
+  function bindGroupFilter(filterRoot, groupsRoot, items, baseOpts) {
+    if (!filterRoot || !groupsRoot) return;
+    var buttons = filterRoot.querySelectorAll('[data-filter]');
+    if (!buttons.length) return;
+    var list = items || (DATA ? DATA.items : []);
+    baseOpts = baseOpts || {};
+
+    function apply(key) {
+      var sub = (key === 'all') ? list : list.filter(function (it) {
+        return MODULE_ROLE[it.no] === key;
+      });
+
+      var opts = {};
+      if (key === 'all') {
+        // 只有「全部」视图做首屏截断与折叠；筛选后必须完整展开，
+        // 否则用户点了 FDE 却仍只看到 3 个、其余被折叠，等于筛选没生效。
+        opts.coreNos = baseOpts.coreNos;
+        opts.collapsedGroups = baseOpts.collapsedGroups;
+      }
+      // 只渲染非空组：否则筛选后会出现没有卡片的空白区块
+      opts.only = groupOrder().filter(function (id) {
+        return sub.some(function (it) { return groupOf(it) === id; });
+      });
+
+      groupsRoot.innerHTML = sub.length
+        ? groupedHTML(sub, opts)
+        : '<p class="works-empty">该方向暂无归属模块。</p>';
+
+      buttons.forEach(function (b) {
+        var on = b.getAttribute('data-filter') === key;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', String(on));
+      });
+      var cnt = filterRoot.querySelector('[data-filter-count]');
+      if (cnt) cnt.textContent = sub.length + ' / ' + list.length + ' 个模块';
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () { apply(b.getAttribute('data-filter')); });
+    });
+    apply('all');   // 初始渲染与按钮状态由同一处产出，避免两套逻辑漂移
+  }
+
+  // ==========================================================================
   // 交互：卡片展开 / 收起
   // ==========================================================================
   function bindExpand(root) {
@@ -687,6 +777,8 @@
     groupSectionHTML: groupSectionHTML,
     groupedHTML: groupedHTML,
     renderGrouped: renderGrouped,
+    vizHTML: vizHTML,
+    bindGroupFilter: bindGroupFilter,
     loadData: loadData,
     cardHTML: cardHTML,
     tileHTML: tileHTML,

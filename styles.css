@@ -899,6 +899,53 @@ mark {
 .w-filters button.is-active { background: var(--blue); color: #fff; border-color: var(--blue); }
 .w-filter-count { margin-left: auto; font-size: 12.5px; color: var(--txt3); }
 
+/* ==========================================================================
+   P2-8 数据可视化：模块分布条形图（纯 CSS，无 canvas / 无图表库）
+   性能口径：只动 width（走布局但一次性），不加动画循环、不加 filter。
+   ========================================================================== */
+.works-viz {
+  display: grid; gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin: 0 0 8px;
+}
+.viz-block {
+  padding: 16px 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+.viz-title {
+  margin: 0 0 12px; font-size: 13px; font-weight: 800;
+  letter-spacing: .5px; color: var(--txt2);
+}
+.viz-bars { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+.viz-row { display: flex; align-items: center; gap: 10px; }
+.viz-k {
+  flex: 0 0 122px; font-size: 12.5px; color: var(--txt2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.viz-track {
+  flex: 1 1 auto; height: 8px; border-radius: 99px;
+  background: var(--blue-50); overflow: hidden;
+}
+.viz-fill {
+  display: block; height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+  min-width: 4px;
+}
+.viz-v {
+  flex: 0 0 auto; min-width: 20px; text-align: right;
+  font-size: 12.5px; font-weight: 800; color: var(--txt);
+  font-variant-numeric: tabular-nums;
+}
+.viz-note { margin: 10px 0 20px; font-size: 12.5px; color: var(--txt3); }
+
+@media (max-width: 599.98px) {
+  .viz-k { flex-basis: 76px; font-size: 12px; }
+  .viz-block { padding: 14px; }
+}
+
 /* ---- 总览瓦片（首页 18 模块全景） ---- */
 .w-tiles { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 .w-tile {
