@@ -21,7 +21,13 @@
       <button type="button" data-ver="agent" class="is-active" aria-pressed="true">AI Agent 版</button>
       <button type="button" data-ver="fde" aria-pressed="false">FDE 版</button>
     </div>
-    <button type="button" class="btn btn-primary" id="btn-print">下载 PDF 简历</button>
+    <!-- 真实 PDF 文件（由 tools/build-resume-pdf.mjs 用 Edge 无头打印生成）。
+         href 随版本切换由 resume.js 同步 —— 否则会出现「界面显示 FDE 版、
+         点下载却拿到 AI Agent 版」的错配。 -->
+    <a class="btn btn-primary" id="btn-download" href="./resume-ai-agent.pdf" download>下载 PDF 简历（AI Agent 版）</a>
+    <!-- 兜底路径：走打印对话框另存为 PDF。文案必须写「打印」，
+         不得与上面的「下载」混用（brief P0-1 明确要求）。 -->
+    <button type="button" class="btn btn-ghost" id="btn-print">打印为 PDF（Ctrl/Cmd + P）</button>
   </div>
 </div>
 
