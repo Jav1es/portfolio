@@ -37,7 +37,7 @@
     },
     fde: {
       title: 'FDE 前线部署工程师 / 解决方案交付',
-      summary: '5 年+ 乙方交付一线经验，累计主导政府/企业项目 300+、服务企业 100+，单年最高通过国家级高新技术企业认定 24 家，曾 1 周内完成从签单到申报的交付。习惯的工作方式是：进客户现场用 Discovery Brief 把模糊诉求翻译成可验证范围，现场把方案跑通，用 Eval Plan 定义验收口径，培训到一线会用为止。技术上能自己动手，遇到底层问题不需要层层转手。',
+      summary: '6 年乙方交付一线经验，累计主导政府/企业项目 300+、服务企业 100+，单年最高通过国家级高新技术企业认定 24 家，曾 1 周内完成从签单到申报的交付。习惯的工作方式是：进客户现场用 Discovery Brief 把模糊诉求翻译成可验证范围，现场把方案跑通，用 Eval Plan 定义验收口径，培训到一线会用为止。技术上能自己动手，遇到底层问题不需要层层转手。',
       // FDE 版：交付类项目优先，技术项目作为支撑能力
       projectNos: ['11', '04', '13', '16'],
       projectCount: 4,
@@ -183,6 +183,18 @@
   document.getElementById('btn-print').addEventListener('click', function () {
     window.print();
   });
+
+  // --------------------------------------------------- 返回作品集（兜底）
+  // 正常情况 <a href> 直接跳转即可；这里加一层 JS 兜底，
+  // 防止某些环境下 sticky 元素被遮挡导致点击不生效。
+  var back = document.querySelector('.resume-bar__back');
+  if (back) {
+    back.addEventListener('click', function (e) {
+      if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // 保留新窗口打开
+      e.preventDefault();
+      window.location.href = back.getAttribute('href') || './index.html';
+    });
+  }
 
   // 键盘：Ctrl/Cmd + P 走原生打印即可，无需额外处理
   setVersion('agent');

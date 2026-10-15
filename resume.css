@@ -13,19 +13,37 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* 顶部工具条（固定） */
+/* 关掉主站的全屏 fixed 装饰层：它铺满视口，极端情况下会吃掉点击 */
+.resume-page::before,
+.resume-page .bg-stage,
+.resume-page .progress-track { display: none !important; }
+
+/* 顶部工具条（固定）
+   注意：z-index 必须高于主站 styles.css 里的 .progress-track(120) 与 .site-nav(100)，
+   否则可能出现「按钮看得见但点不到」的遮挡问题。 */
 .resume-bar {
-  position: sticky; top: 0; z-index: 50;
+  position: sticky; top: 0; z-index: 300;
   display: flex; align-items: center; justify-content: space-between;
   gap: 16px; flex-wrap: wrap;
   padding: 12px 24px;
   background: rgba(255, 255, 255, .96);
   border-bottom: 1px solid #dfe3e6;
 }
-.resume-bar__back {
-  font-size: 13.5px; font-weight: 700; color: #2563eb; text-decoration: none;
+/* 状态栏与按钮显式可点击，防止被任何全局规则影响 */
+.resume-bar a, .resume-bar button {
+  position: relative;
+  pointer-events: auto;
+  cursor: pointer;
 }
-.resume-bar__back:hover { text-decoration: underline; }
+
+.resume-bar__back {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13.5px; font-weight: 700; color: #2563eb; text-decoration: none;
+  padding: 6px 10px; margin-left: -10px; border-radius: 7px;
+  transition: background-color .18s ease;
+}
+.resume-bar__back:hover { text-decoration: underline; background: #eff6ff; }
+.resume-bar__back:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
 .resume-bar__actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 
 .resume-switch { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
