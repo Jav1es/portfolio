@@ -187,7 +187,18 @@
         <p>每个模块含背景、做法、难点、量化指标与可点开的证明材料。点击任一模块直达对应岗位页。</p>
       </div>
 
-      <!-- ============ P0-2 分组呈现：首屏只放 3 个最强项目，其余折叠 ============ -->
+      <!-- ============ P2-8 数据可视化：21 个模块怎么分布，一眼可见 ============ -->
+      <div id="home-viz"></div>
+
+      <!-- ============ P2-8 项目筛选 + P0-2 分组呈现 ============ -->
+      <div id="home-filters" class="w-filters">
+        <button type="button" data-filter="all" class="is-active" aria-pressed="true">全部</button>
+        <button type="button" data-filter="fde" aria-pressed="false">FDE 前线交付</button>
+        <button type="button" data-filter="agent" aria-pressed="false">AI Agent 工程</button>
+        <button type="button" data-filter="vibe" aria-pressed="false">Vibe 工具创造</button>
+        <span class="w-filter-count" data-filter-count>21 / 21 个模块</span>
+      </div>
+
       <div id="home-groups" class="works-groups"></div>
 
       <!-- 技能与开源这两块明细在 about.html，首页此处按模块类别分流 -->
@@ -321,15 +332,19 @@
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
 
-    // P0-2：核心案例只铺 3 个最强项目，其余三组默认折叠。
-    // 用 coreNos 按编号点名（core 组 5 个模块全是 star，星标区分不出前 3 名）。
-    var groupsRoot = document.getElementById('home-groups');
-    if (groupsRoot) {
-      groupsRoot.innerHTML = WORKS.groupedHTML(data.items, {
-        coreNos: ['04', '13', '16'],
-        collapsedGroups: ['eng', 'oss', 'lab']
-      });
-    }
+    // P2-8：模块分布可视化（纯 CSS 条形，无图表库）
+    var vizRoot = document.getElementById('home-viz');
+    if (vizRoot) vizRoot.innerHTML = WORKS.vizHTML(data.items);
+
+    // P0-2 + P2-8：分组呈现 + 按岗位筛选。
+    // 初始渲染也走 bindGroupFilter，保证「按钮状态」与「渲染结果」只有一个来源，
+    // 不会出现两套逻辑各自漂移。
+    WORKS.bindGroupFilter(
+      document.getElementById('home-filters'),
+      document.getElementById('home-groups'),
+      data.items,
+      { coreNos: ['04', '13', '16'], collapsedGroups: ['eng', 'oss', 'lab'] }
+    );
 
     // 首屏指标条为静态文案（不依赖 JS，保证无 JS 时也可读），此处不再注入统计条
     // 入口卡片的模块清单由数据生成，避免手写编号与 works.js 不同步
