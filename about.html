@@ -311,9 +311,18 @@
         <a class="btn btn-ghost" href="./vibe-engineer.html">VibeCoding 工程师</a>
       </div>
 
-      <p class="sample-note" style="margin-top:26px;">
-        诚信说明：<b>真实项</b>——「企业级智能体系统 enterprise-agent」为本人本地开发工程（含完整开发文档，可现场演示，已开源至 GitHub）；高企认定与项目申报交付、自建项目信息数据库为本人客户服务真实经历。<b>演练项</b>——「高分子新材料行业信息化规划」是按真实招聘 JD 与行业公开资料编写的<b>能力演练稿，非客户委托、未涉及任何客户数据</b>，不构成客户案例。凡成效类数字均标注为「测算模型 / 示例口径」；客户名称与年度数据一律脱敏。
-      </p>
+      <!-- 诚信说明（brief P2-7）：原为 .sample-note 单行药丸 —— 那段文字含多处加粗、
+           是一整段长文，塞进 inline-flex 药丸后在窄屏折行严重、几乎不可读。
+           改为**分条列表**：每条一个断言，真实项 / 演练项 / 数字口径各占一行。 -->
+      <div class="integrity">
+        <p class="integrity__head">诚信说明 · 每条都可点开验证</p>
+        <ul>
+          <li><span class="is-real">真实项</span> · <b>企业级智能体系统 enterprise-agent</b>：本人本地开发工程，含完整开发文档，可现场演示，已开源至 GitHub。</li>
+          <li><span class="is-real">真实项</span> · <b>客户服务经历</b>：高企认定与项目申报交付、自建项目信息数据库，均为本人实际参与的客户服务。</li>
+          <li><span class="is-drill">演练项</span> · <b>高分子新材料行业信息化规划</b>：按真实招聘 JD 与行业公开资料编写的<b>能力演练稿，非客户委托、未涉及任何客户数据</b>，不构成客户案例。</li>
+          <li><span class="is-note">数字口径</span> · 凡成效类数字均标注为「测算模型 / 示例口径」；客户名称与年度数据一律脱敏。</li>
+        </ul>
+      </div>
     </div>
   </section>
 
