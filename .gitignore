@@ -19,3 +19,9 @@ _book/_edge_profile_*/
 .dsh-vision-router/
 .verify/
 
+
+# 独立的 skill 仓库（已推送到 Jav1es/dsh-skills）
+.dsh-skills/
+
+# 内部交接文档，不上公网
+.dsh-workspace/
