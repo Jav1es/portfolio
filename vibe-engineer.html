@@ -11,6 +11,17 @@
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <!-- 3D 背景层：透视网格地面 + 地平线辉光 + 漂移光斑 -->
+  <div class="bg-stage" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="bg-grid-floor"></div>
+    <div class="bg-horizon"></div>
+  </div>
+
+  <!-- 阅读进度条 -->
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" data-progress></div></div>
 
 <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -105,11 +116,16 @@
 
 <script src="./works-data.js"></script>
 <script src="./works.js"></script>
+<script src="./effects.js"></script>
 <script src="./menu.js" defer></script>
+<script>
+  // 渲染完成后初始化 3D 倾斜 / 进场动画 / 阅读进度条（卡片为动态插入）
+  function bootEffects() { if (window.EFFECTS) window.EFFECTS.init(document); }
 <script>
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     document.getElementById('vibe-works').innerHTML = WORKS.listByRole(data.items, 'vibe');
+    bootEffects();
   });
 </script>
 </body>

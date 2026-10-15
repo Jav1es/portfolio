@@ -273,7 +273,7 @@
     }
 
     return '' +
-      '<article class="w-card" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
+      '<article class="w-card tilt" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
         cover +
         '<div class="w-body">' +
           '<div class="w-top">' +
@@ -324,12 +324,18 @@
   // ==========================================================================
   function statHTML(items) {
     var n = items ? items.length : (DATA ? DATA.items.length : 21);
+    // 初始就写真实值：无 JS / 动画未触发时也能正确显示；
+    // effects.js 命中视口后会先归零再滚动。
+    function stat(v, suffix, label) {
+      return '<div class="w-stat"><b data-count="' + v + '" data-suffix="' + suffix + '">' +
+        v + suffix + '</b><span>' + label + '</span></div>';
+    }
     return '' +
       '<div class="w-stats">' +
-        '<div class="w-stat"><b>300+</b><span>项目可研 / 立项</span></div>' +
-        '<div class="w-stat"><b>100+</b><span>服务企业客户</span></div>' +
-        '<div class="w-stat"><b>' + n + '</b><span>深度作品模块</span></div>' +
-        '<div class="w-stat"><b>93.3%</b><span>RAG 检索准确率 @3</span></div>' +
+        stat('300', '+', '项目可研 / 立项') +
+        stat('100', '+', '服务企业客户') +
+        stat(String(n), '', '深度作品模块') +
+        stat('93.3', '%', 'RAG 检索准确率 @3') +
       '</div>';
   }
 

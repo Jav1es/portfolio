@@ -11,6 +11,17 @@
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
+  <!-- 3D 背景层：透视网格地面 + 地平线辉光 + 漂移光斑 -->
+  <div class="bg-stage" aria-hidden="true">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="bg-grid-floor"></div>
+    <div class="bg-horizon"></div>
+  </div>
+
+  <!-- 阅读进度条 -->
+  <div class="progress-track" aria-hidden="true"><div class="progress-bar" data-progress></div></div>
 
 <a class="skip-link" href="#main">跳到主要内容</a>
 
@@ -105,21 +116,21 @@
 
       <div class="entry-grid">
 
-        <a class="entry-card accent-blue" href="./fde.html">
+        <a class="entry-card tilt accent-blue" href="./fde.html">
           <span class="card-ico" aria-hidden="true">FDE</span>
           <h3>FDE 前线部署工程师</h3>
           <p>贴近业务现场做需求发现、方案落地与交付验收，对项目结果与项目管理全流程负责。<span data-owns="fde">承载 8 个模块</span>。</p>
           <span class="go" aria-hidden="true">进入岗位页 →</span>
         </a>
 
-        <a class="entry-card accent-teal" href="./ai-agent.html">
+        <a class="entry-card tilt accent-teal" href="./ai-agent.html">
           <span class="card-ico" aria-hidden="true">AI</span>
           <h3>AI 智能体开发工程师</h3>
           <p>独立设计并交付企业级智能体：六层架构、RAG、工具调用、评测与全链路可观测性。<span data-owns="agent">承载 5 个模块</span>。</p>
           <span class="go" aria-hidden="true">进入岗位页 →</span>
         </a>
 
-        <a class="entry-card accent-amber" href="./vibe-engineer.html">
+        <a class="entry-card tilt accent-amber" href="./vibe-engineer.html">
           <span class="card-ico" aria-hidden="true">VS</span>
           <h3>VibeCoding / VibeEngineering 工程师</h3>
           <p>用自然语言驱动编码，做创意编码、交互体验与视觉实验，把验证过的原型沉淀成可交付代码与开源工具。<span data-owns="vibe">承载 8 个模块</span>。</p>
@@ -174,8 +185,12 @@
 
 <script src="./works-data.js"></script>
 <script src="./works.js"></script>
+<script src="./effects.js"></script>
 <script src="./menu.js" defer></script>
 <script>
+  // 渲染完成后初始化 3D 倾斜 / 进场动画 / 阅读进度条（卡片为动态插入）
+  function bootEffects() { if (window.EFFECTS) window.EFFECTS.init(document); }
+
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     document.getElementById('home-stats').innerHTML = WORKS.statHTML(data.items);
@@ -187,6 +202,7 @@
     var root = document.getElementById('home-tiles');
     root.innerHTML = data.items.map(WORKS.tileHTML).join('');
     WORKS.bindFilter(document.getElementById('home-filters'), root);
+    bootEffects();
   });
 </script>
 </body>
