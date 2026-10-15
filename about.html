@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>关于我 · 黄家辉</title>
-<meta name="description" content="黄家辉的完整自我介绍、经历时间线与合作方式说明。">
+<meta name="description" content="黄家辉的完整自我介绍、经历时间线、六大能力类目与合作方式说明。">
 <meta name="author" content="黄家辉">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png">
@@ -17,15 +17,14 @@
 <header class="site-nav">
   <div class="wrap nav-inner">
     <a class="nav-brand" href="./index.html">黄家辉<span class="dot">.</span></a>
-
     <button class="nav-toggle" type="button" data-nav-toggle
             aria-expanded="false" aria-controls="nav-links" aria-label="展开或收起导航菜单">
       <span class="bars" aria-hidden="true"></span>
     </button>
-
     <nav class="nav-links" id="nav-links" aria-label="主导航">
       <a href="./index.html">首页</a>
-      <a href="./ai-fullstack.html">AI全栈开发工程师</a>
+      <a href="./fde.html">FDE 工程师</a>
+      <a href="./ai-agent.html">AI 智能体开发</a>
       <a href="./vibe-engineer.html">VibeCoding 工程师</a>
       <a href="./about.html" aria-current="page">关于我</a>
     </nav>
@@ -38,44 +37,61 @@
     <div class="wrap">
       <p class="eyebrow">补充页 · 关于我</p>
       <h1>关于我</h1>
-      <p class="sample-note">示例站点 · 本页经历与数据为占位示例，可直接替换</p>
-      <p class="lede">两条主线并行：一条是以 FDE 方式做 AI 全栈落地与项目管理，另一条是用 VibeCoding 做创意编码与视觉实验。两条线共享同一套交付标准——能跑、能演示、能验收。</p>
+      <p class="lede">三条主线并行：<b>FDE</b> 前线部署交付、<b>AI 智能体</b> 开发、<b>VibeCoding</b> 创意编码。三条线共享同一套交付标准——能跑、能演示、能验收。</p>
+      <div id="about-stats"></div>
     </div>
   </section>
 
+  <!-- ==================== 六大能力类目 ==================== -->
   <section class="section">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">经历时间线</p>
-        <h2>走过的一些阶段</h2>
-        <p>示例内容，用于展示页面结构。</p>
+        <p class="kicker">能力结构</p>
+        <h2>六大能力类目</h2>
+        <p>18 个作品模块归入六类，每类都有对应的代表作与能力说明。</p>
       </div>
 
-      <ul class="timeline">
-        <li>
-          <span class="t-when">示例阶段一</span>
-          <p class="t-what">企业科技服务</p>
-          <p class="t-note">面向企业与政府客户做数字化项目交付，覆盖方案规划与实施全流程。</p>
-        </li>
-        <li>
-          <span class="t-when">示例阶段二</span>
-          <p class="t-what">AI 工作流与智能体落地</p>
-          <p class="t-note">把重复流程沉淀为自动化工作流，并搭建企业级智能体链路与评测机制。</p>
-        </li>
-        <li>
-          <span class="t-when">示例阶段三</span>
-          <p class="t-what">FDE 前线交付</p>
-          <p class="t-note">以驻场方式推进需求发现、评测计划与上线验收，形成可复用交付模板。</p>
-        </li>
-        <li>
-          <span class="t-when">现在</span>
-          <p class="t-what">双线并行</p>
-          <p class="t-note">AI 全栈交付 + 创意编码实验，同时维护开源与知识库沉淀。</p>
-        </li>
+      <ul class="duty-list">
+        <li><b>① 规划与方案能力：</b>把模糊需求变成可执行方案——业务盘点、优先级排序、选型对比、路线图与 ROI 测算。<i>代表作：模块 01 AI 工具体系 0-1 规划包（8 大业务域 + ROI 测算 + 6 个月路线图）</i></li>
+        <li><b>② 工作流落地与交付：</b>把方案真正跑通并推到一线——「AI 先做 / 人只审」双层流程、异常兜底、SOP 与培训推广。<i>代表作：模块 03 财务/行政/外贸 RPA+AI 审核（已交付）· 模块 02 企业问答与文档 AIGC</i></li>
+        <li><b>③ 智能体与 AI 工程：</b>从架构到实现的完整工程能力——编排、RAG、工具调用、记忆、容错、部署、评测与可观测性。<i>代表作：模块 04 enterprise-agent（六层架构）· 模块 06 RAG 真实评测 93.3% · 模块 07 OTel/Jaeger 全链路追踪</i></li>
+        <li><b>④ 数据与量化复盘：</b>用数据证明价值——自建业务数据库、SQL 固化报表、前后对比基线与项目复盘体系。<i>代表作：模块 12 项目复盘与量化数据报告 · 模块 05 业务数据库与数据监测报告</i></li>
+        <li><b>⑤ 开源与工具链：</b>把能力沉淀成可复用、可验证的公共品——多个 MIT 开源仓库、CI 全绿、测试完备。<i>代表作：模块 13–18 六个开源仓库（MCP 三件套 / dsh-bridge / DSH 插件 / 运维工具箱 / 知识指南 / dsh-prompt-compiler）</i></li>
+        <li><b>⑥ 行业定制规划：</b>通用方法落到具体行业——为真实实体制造企业编制公司级信息化与 AI 规划蓝图。<i>代表作：某高分子新材料企业信息化总体规划（客户已脱敏）</i></li>
       </ul>
     </div>
   </section>
 
+  <!-- ==================== 行业定制样本 ==================== -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">行业定制规划</p>
+        <h2>已落地样本（客户已脱敏）</h2>
+        <p>通用方法要能落到具体行业才算真本事。</p>
+      </div>
+
+      <div class="project-card" style="padding:22px">
+        <div class="project-body" style="padding:0">
+          <h3>某高分子新材料上市企业 · 信息化总体规划与数字化转型方案（含 AI 赋能）</h3>
+          <p>面向建筑密封胶行业（国标起草单位）编制公司级信息化总体规划。以「入职后规划」视角，覆盖 ERP / SRM / PLM / MES / HR / LIMS 五大业务系统 + 数据中台 + AI 能力平台 + 基础设施安全，并深度融入 AIGC 与 AI Agent 落地场景。</p>
+
+          <ul class="tag-row" style="gap:8px;margin-top:6px">
+            <li class="tag"><b>体系化规划</b>：L1-L5 成熟度模型 + 总体蓝图 + 按系统完善程度推进的优先级矩阵</li>
+            <li class="tag"><b>行业深度适配</b>：配方研发 Copilot、多标准合规核查、批次质量追溯等 8 个专属 AI 场景</li>
+            <li class="tag"><b>财务方向强项</b>：业财一体化、研发费用归集与加计扣除，契合高新技术企业真实需求</li>
+            <li class="tag"><b>对应岗位</b>：AI 项目经理（规划主线）· FDE（现场诊断与交付）</li>
+          </ul>
+
+          <div class="project-links">
+            <span class="static">可提供脱敏版规划书，现场逐页讲解规划逻辑与优先级取舍</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 合作方式 ==================== -->
   <section class="section">
     <div class="wrap">
       <div class="section-head">
@@ -89,9 +105,15 @@
       </ul>
 
       <div class="btn-row">
-        <a class="btn btn-primary" href="./ai-fullstack.html">AI全栈开发工程师</a>
+        <a class="btn btn-primary" href="./index.html">回首页看 18 个模块</a>
+        <a class="btn btn-ghost" href="./fde.html">FDE 工程师</a>
+        <a class="btn btn-ghost" href="./ai-agent.html">AI 智能体开发</a>
         <a class="btn btn-ghost" href="./vibe-engineer.html">VibeCoding 工程师</a>
       </div>
+
+      <p class="sample-note" style="margin-top:26px;">
+        诚信说明：真实项——「企业级智能体系统 enterprise-agent」为本人本地开发工程（含完整开发文档，可现场演示，已开源至 GitHub）；某高分子新材料企业规划方案、高企认定与项目申报交付、自建项目信息数据库为本人客户服务真实经历。凡成效类数字均标注为「测算模型 / 示例口径」；客户名称与年度数据一律脱敏。
+      </p>
     </div>
   </section>
 
@@ -99,16 +121,24 @@
 
 <footer class="site-footer">
   <div class="wrap footer-in">
-    <span>© 2026 黄家辉 · 个人作品集（示例）</span>
+    <span>© 2026 黄家辉 · 个人作品集</span>
     <nav aria-label="页脚导航">
       <a href="./index.html">首页</a>
-      <a href="./ai-fullstack.html">AI全栈开发工程师</a>
+      <a href="./fde.html">FDE 工程师</a>
+      <a href="./ai-agent.html">AI 智能体开发</a>
       <a href="./vibe-engineer.html">VibeCoding 工程师</a>
       <a href="./about.html">关于我</a>
     </nav>
   </div>
 </footer>
 
+<script src="./works-data.js"></script>
+<script src="./works.js"></script>
 <script src="./menu.js" defer></script>
+<script>
+  WORKS.loadData(function () {
+    document.getElementById('about-stats').innerHTML = WORKS.statHTML();
+  });
+</script>
 </body>
 </html>

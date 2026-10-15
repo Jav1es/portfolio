@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 智能体开发工程师 · 黄家辉</title>
+<meta name="description" content="AI 智能体开发工程师岗位说明：六层架构、RAG、工具调用、评测与可观测性，附 5 个可追溯的作品模块。">
+<meta name="author" content="黄家辉">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="./favicon.png">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<header class="site-nav">
+  <div class="wrap nav-inner">
+    <a class="nav-brand" href="./index.html">黄家辉<span class="dot">.</span></a>
+    <button class="nav-toggle" type="button" data-nav-toggle
+            aria-expanded="false" aria-controls="nav-links" aria-label="展开或收起导航菜单">
+      <span class="bars" aria-hidden="true"></span>
+    </button>
+    <nav class="nav-links" id="nav-links" aria-label="主导航">
+      <a href="./index.html">首页</a>
+      <a href="./fde.html">FDE 工程师</a>
+      <a href="./ai-agent.html" aria-current="page">AI 智能体开发</a>
+      <a href="./vibe-engineer.html">VibeCoding 工程师</a>
+      <a href="./about.html">关于我</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">岗位方向 · AI 智能体开发工程师</p>
+      <h1>AI 智能体开发工程师</h1>
+      <p class="lede">独立设计并交付企业级 <mark>AI智能体</mark> 系统：不止会调 API，而是自建六层架构——编排、RAG、工具调用、双视野记忆、容错降级、评测与全链路可观测性，并附真实评测数据。</p>
+
+      <div class="role-banner accent-teal">
+        <span class="rb-ico" aria-hidden="true">🤖</span>
+        <div>
+          <b>本岗位承载 5 个作品模块</b>
+          <span>04 enterprise-agent 六层架构 · 06 RAG 评测 93.3% @3 · 07 OTel/Jaeger 全链路追踪 · 09 Prompt 工程与评测体系 · 11 技术底座与运维证据</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">岗位职责</p>
+        <h2>这个岗位具体做什么</h2>
+        <p>从架构设计到 CI 门禁的完整工程闭环，每一步都有可验证的证据。</p>
+      </div>
+
+      <ul class="duty-list">
+        <li><b>编排层设计：</b>用 LangGraph StateGraph 构建 Router→Planner→Skill→Tool→Reviewer 五阶段链路，Pydantic 结构化输出衔接各阶段，支持多步工具调用循环。</li>
+        <li><b>RAG 与检索工程：</b>语义边界智能切分（chunk 500 / overlap 50）→ Dense+BM25 混合检索 → RRF 融合 → Cross-Encoder 重排 → 生成附引用来源；真实评测检索准确率 93.3% @3。</li>
+        <li><b>工具层与接入：</b>Pydantic 严格 Schema 定义工具输入输出，UnifiedMessage 统一多平台消息模型，MCP 协议标准化工具发现。</li>
+        <li><b>记忆与容错：</b>双视野记忆（Redis 短期 + PostgreSQL 事实三元组）；错误分类重试 / 降级 / 熔断 / 调用次数限制，防死循环。</li>
+        <li><b>评测与可观测性：</b>评测集纳入 CI 每次 push 自动回归；OpenTelemetry + Jaeger 全链路 trace，一次会话 8 个 span 贯穿。</li>
+        <li><b>部署与工程化：</b>Docker Compose 本地一键起、K8s Helm（HPA CPU 70%）、pytest + GitHub Actions CI 门禁、敏感信息扫描。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="projects">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">作品清单</p>
+        <h2>智能体工程主线作品</h2>
+        <p>每个模块含背景、做法、量化指标与可点开的证明材料。模块编号与全站一致。</p>
+      </div>
+      <div id="agent-works" class="w-grid"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="btn-row">
+        <a class="btn btn-ghost" href="./fde.html">← 看 FDE 主线</a>
+        <a class="btn btn-ghost" href="./vibe-engineer.html">看 VibeCoding →</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-in">
+    <span>© 2026 黄家辉 · 个人作品集</span>
+    <nav aria-label="页脚导航">
+      <a href="./index.html">首页</a>
+      <a href="./fde.html">FDE 工程师</a>
+      <a href="./ai-agent.html">AI 智能体开发</a>
+      <a href="./vibe-engineer.html">VibeCoding 工程师</a>
+      <a href="./about.html">关于我</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="./works-data.js"></script>
+<script src="./works.js"></script>
+<script src="./menu.js" defer></script>
+<script>
+  WORKS.loadData(function (data) {
+    document.getElementById('agent-works').innerHTML = WORKS.listByRole(data.items, 'agent');
+  });
+</script>
+</body>
+</html>
