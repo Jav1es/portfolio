@@ -299,6 +299,49 @@ function applyTextFix(node) {
   console.log('口径修复：CI 全绿 %d 处 → %d 处；目标值 3 处已标注「验收目标」', before, after);
 }
 
+// ---------------------------------------------------------------------------
+// 5) 证据标称修正（brief P0-3）—— 标签必须与图/文件的实际内容一致
+//
+//    ⚠️ 只改 label，**绝不动 path**：`监控截图` 四个字在路径里也出现
+//    （`监控截图|./09-tech-ops/监控截图.png`），全局替换会把链接本身改坏。
+// ---------------------------------------------------------------------------
+const LINK_LABEL_FIX = {
+  '工作流运行截图': '工作流流程图',          // 模块 02：图内实为流程图，不是运行截图
+  '监控截图': '监控看板（设计稿）',          // 模块 09：实为 Grafana 风格设计稿，非真实运行截图
+};
+
+// 逐模块定点覆盖（status 之类不能用全局替换：「已交付」同时被多个模块使用）
+const ITEM_FIX = {
+  // 文件自述状态是「草稿（关键数据待客户现场核验）」，卡片却写「已交付」；
+  // 版本号以文件为准（文件：模板版本 1.0 / 版本与日期 v0.1），故这里不写版本号，
+  // 避免卡片与文件再次不一致。
+  '11': {
+    status: '模板 · 待客户现场核验',
+    boundary: '自编模板与演练稿，非客户委托交付；客户侧角色为占位，未经现场核验'
+  },
+  // 真实运行数据不在手上，只能给设计稿；必须显式标注
+  '09': {
+    boundary: '真实运行数据留在客户环境，可现场演示'
+  },
+};
+
+{
+  let labelFixed = 0, itemFixed = 0;
+  for (const it of data.items) {
+    for (let i = 0; i < (it.links || []).length; i++) {
+      const parts = String(it.links[i]).split('|');
+      if (parts.length !== 2) continue;
+      if (LINK_LABEL_FIX[parts[0]]) {
+        it.links[i] = LINK_LABEL_FIX[parts[0]] + '|' + parts[1];   // 只换 label
+        labelFixed++;
+      }
+    }
+    const fix = ITEM_FIX[it.no];
+    if (fix) { Object.assign(it, fix); itemFixed++; }
+  }
+  console.log('证据标称：链接标签修正 %d 处；模块定点覆盖 %d 个', labelFixed, itemFixed);
+}
+
 writeFileSync('works-data.json', JSON.stringify(data, null, 2), 'utf8');
 writeFileSync('works-data.js',
   '// 由 extract-works.mjs + patch-works.mjs 生成，请勿手改。\n' +

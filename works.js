@@ -423,6 +423,12 @@
       seg('方案', it.arch ? '<p>' + esc(it.arch) + '</p>' : '') +
       seg('结果', hl || (it.metric ? '<p>' + esc(it.metric) + '</p>' : ''));
 
+    // ---- 边界（brief §5.3 新增的第 5 行）：说明哪些是参考实现、哪些没接真实系统 ----
+    // 只在数据里有 boundary 时渲染 —— 没标注的模块不硬凑，避免又变成编造。
+    var boundary = it.boundary
+      ? '<p class="w-boundary"><b class="w-boundary-k">边界</b>' + esc(it.boundary) + '</p>'
+      : '';
+
     // ---- 可展开详情：完整作品情况（一行一个字段，横向铺满） ----
     var detail = '';
     if (it.role || it.arch || it.pain || (it.steps && it.steps.length) || it.hard || it.retro) {
@@ -469,6 +475,7 @@
           '<p class="w-pitch">' + esc(it.pitch) + '</p>' +
           meta +
           segs +
+          boundary +
           (tags ? '<div class="w-tags">' + tags + '</div>' : '') +
           '<div class="w-foot">' +
             '<a class="w-go" href="' + esc(rolePageOf(it)) + '#mod-' + esc(it.no) + '">在' +
