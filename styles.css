@@ -287,21 +287,67 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 
 .lede { font-size: 17px; color: var(--txt2); max-width: 760px; margin-bottom: 16px; }
 
-/* 姓名条（h1：页面唯一主标题，满足 a11y 标题层级） */
-.name-plate {
-  display: inline-flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  margin-bottom: 14px; font-size: inherit; font-weight: inherit; line-height: inherit;
+/* 入口卡片：主责 / 支撑 标签，明确区分主线与附属能力 */
+.entry-primary, .entry-secondary {
+  display: inline-block; vertical-align: middle;
+  font-size: 10.5px; font-weight: 800; letter-spacing: .5px;
+  padding: 2px 8px; border-radius: 99px; margin-left: 6px;
+  white-space: nowrap;
 }
-.name-plate .name {
-  font-size: clamp(28px, 4.6vw, 42px); font-weight: 800; letter-spacing: -0.5px;
+.entry-primary {
+  color: #fff; background: var(--blue);
 }
-.name-plate .name .grad {
+.entry-secondary {
+  color: var(--txt3); background: var(--bg2); border: 1px solid var(--line2);
+}
+/* 支撑类卡片视觉降一级：底色更淡、图标弱化 */
+.entry-card.is-secondary {
+  background: linear-gradient(160deg, var(--card), var(--bg2));
+  border-style: dashed;
+}
+.entry-card.is-secondary .card-ico {
+  background: var(--bg2); color: var(--txt3);
+}
+.entry-card.is-secondary h3 { font-size: 16.5px; color: var(--txt2); }
+.entry-card.is-secondary .go { color: var(--txt3); }
+
+/* 首屏主标题（h1：页面唯一主标题，满足 a11y 标题层级）
+   结构：姓名一行 + 岗位定位一行 —— 定位收拢到「AI Agent 开发 / FDE」 */
+.hero-title {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-bottom: 16px; font-weight: 800; line-height: 1.15;
+}
+.hero-name {
+  font-size: clamp(34px, 5vw, 52px); font-weight: 800;
+  letter-spacing: -1px; color: var(--txt);
+}
+.hero-name .dot { color: var(--blue); margin: 0 6px; }
+.hero-role {
+  font-size: clamp(17px, 2.2vw, 24px); font-weight: 700;
+  letter-spacing: -0.2px;
   background: var(--grad); -webkit-background-clip: text;
   background-clip: text; -webkit-text-fill-color: transparent;
 }
-.name-plate .role-tag {
-  font-size: 14px; color: var(--txt3); white-space: nowrap;
+
+/* 指标条：首屏最醒目的一行数字 */
+.metrics {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  list-style: none; margin: 0 0 24px;
 }
+.metrics li {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.metrics b {
+  font-size: clamp(19px, 2.4vw, 25px); font-weight: 800; letter-spacing: -0.6px;
+  color: var(--blue); font-variant-numeric: tabular-nums; line-height: 1.2;
+}
+.metrics span { font-size: 12.2px; color: var(--txt3); font-weight: 600; }
+
+/* 首屏 CTA 行 */
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* ==========================================================================
    区块通用

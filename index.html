@@ -53,20 +53,34 @@
 
 <main id="main">
 
-  <!-- ==================== 姓名 + 自我介绍 ==================== -->
+  <!-- ==================== 首屏：定位 + 指标条 + 三个 CTA ==================== -->
   <section class="hero">
     <div class="wrap">
       <p class="eyebrow">开放合作 · 可远程 · 可现场演示</p>
 
-      <h1 class="name-plate">
-        <span class="name"><span class="grad">黄家辉</span></span>
-        <span class="role-tag">FDE / AI Agent / Vibe</span>
+      <h1 class="hero-title">
+        <span class="hero-name">Jav1es<span class="dot">·</span>黄家辉</span>
+        <span class="hero-role">企业级 AI Agent 开发工程师 / FDE</span>
       </h1>
 
-      <p class="lede" id="intro">我是黄家辉，5 年+ 企业科技服务经验，主导 300+ 项目、服务 100+ 企业。三条主线：FDE 前线部署交付、AI 智能体开发、VibeCoding 创意编码——让技术真正落地到业务现场。</p>
+      <p class="lede" id="intro">5 年+ 企业科技服务，主导 300+ 项目、服务 100+ 企业。专注把 AI Agent 从 Demo 做到生产：RAG 检索 93.3% @3，OTel/Jaeger 全链路可观测，9 个公开开源仓库、CI 全绿。</p>
 
-      <div id="home-stats"></div>
-      <p class="hero-baseline"><span>5 年+ 企业服务与项目全流程管理</span><span>300+ 项目落地</span><span>服务 100+ 企业</span><span>单年 24 家高企认定通过</span></p>
+      <!-- 指标条：首屏最醒目的一行数字 -->
+      <ul class="metrics" aria-label="核心指标">
+        <li><b>5 年+</b><span>企业科技服务</span></li>
+        <li><b>300+</b><span>主导项目</span></li>
+        <li><b>100+</b><span>服务企业</span></li>
+        <li><b>93.3%</b><span>RAG 准确率 @3</span></li>
+        <li><b>9</b><span>公开开源仓库</span></li>
+        <li><b>CI 全绿</b><span>测试与构建</span></li>
+      </ul>
+
+      <!-- 三个 CTA -->
+      <div class="cta-row">
+        <a class="btn btn-primary" href="./resume.html">下载简历 →</a>
+        <a class="btn btn-ghost" href="#featured">看核心项目</a>
+        <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub ↗</a>
+      </div>
     </div>
   </section>
 
@@ -105,43 +119,43 @@
           <span class="num">04</span>
           <div>
             <b>造工具而非只用工具</b>
-            <span>6 个 MIT 开源仓库，CI 全绿</span>
+            <span>9 个公开开源仓库，CI 全绿</span>
           </div>
         </li>
       </ul>
     </div>
   </section>
 
-  <!-- ==================== 三个主入口（恰好 3 个） ==================== -->
+  <!-- ==================== 能力主线 ==================== -->
   <section class="section" id="entries">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">核心路径</p>
-        <h2>从这里选择一条路径</h2>
-        <p>三条岗位主线，各自独立成页，作品编号在全站一致。</p>
+        <p class="kicker">能力主线</p>
+        <h2>两条主责主线，外加一项工具创造能力</h2>
+        <p>主责是 AI Agent 开发与 FDE 交付；VibeCoding 是支撑前两者的动手能力，单列成页。</p>
       </div>
 
       <div class="entry-grid">
 
+        <a class="entry-card tilt accent-teal" href="./ai-agent.html">
+          <span class="card-ico" aria-hidden="true">AI</span>
+          <h3>AI 智能体开发工程师 <span class="entry-primary">主责</span></h3>
+          <p>独立设计并交付企业级智能体：六层架构、RAG 混合检索、工具调用、评测与全链路可观测性。<span data-owns="agent">承载 5 个模块</span>。</p>
+          <span class="go" aria-hidden="true">进入岗位页 →</span>
+        </a>
+
         <a class="entry-card tilt accent-blue" href="./fde.html">
           <span class="card-ico" aria-hidden="true">FDE</span>
-          <h3>FDE 前线部署工程师</h3>
+          <h3>FDE 前线部署工程师 <span class="entry-primary">主责</span></h3>
           <p>贴近业务现场做需求发现、方案落地与交付验收，对项目结果与项目管理全流程负责。<span data-owns="fde">承载 8 个模块</span>。</p>
           <span class="go" aria-hidden="true">进入岗位页 →</span>
         </a>
 
-        <a class="entry-card tilt accent-teal" href="./ai-agent.html">
-          <span class="card-ico" aria-hidden="true">AI</span>
-          <h3>AI 智能体开发工程师</h3>
-          <p>独立设计并交付企业级智能体：六层架构、RAG、工具调用、评测与全链路可观测性。<span data-owns="agent">承载 5 个模块</span>。</p>
-          <span class="go" aria-hidden="true">进入岗位页 →</span>
-        </a>
-
-        <a class="entry-card tilt accent-amber" href="./vibe-engineer.html">
+        <a class="entry-card tilt accent-amber is-secondary" href="./vibe-engineer.html">
           <span class="card-ico" aria-hidden="true">VS</span>
-          <h3>VibeCoding / VibeEngineering 工程师</h3>
-          <p>用自然语言驱动编码，做创意编码、交互体验与视觉实验，把验证过的原型沉淀成可交付代码与开源工具。<span data-owns="vibe">承载 8 个模块</span>。</p>
-          <span class="go" aria-hidden="true">进入岗位页 →</span>
+          <h3>VibeCoding 工具创造能力 <span class="entry-secondary">支撑</span></h3>
+          <p>用自然语言驱动编码，把验证过的原型沉淀成可复用的开源工具与自动化流程——它服务于上面两条主线，而不是并列的第三条。<span data-owns="vibe">承载 8 个模块</span>。</p>
+          <span class="go" aria-hidden="true">查看开源工具 →</span>
         </a>
 
       </div>
@@ -202,15 +216,17 @@
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
-    document.getElementById('home-stats').innerHTML = WORKS.statHTML(data.items);
+    // 首屏指标条为静态文案（不依赖 JS，保证无 JS 时也可读），此处不再注入统计条
     // 入口卡片的模块清单由数据生成，避免手写编号与 works.js 不同步
     document.querySelectorAll('[data-owns]').forEach(function (el) {
       var r = WORKS.ROLES[el.getAttribute('data-owns')];
       if (r) el.textContent = '承载 ' + r.owns.length + ' 个模块（' + r.owns.join(' / ') + '）';
     });
     var root = document.getElementById('home-tiles');
-    root.innerHTML = data.items.map(WORKS.tileHTML).join('');
-    WORKS.bindFilter(document.getElementById('home-filters'), root);
+    if (root) {
+      root.innerHTML = data.items.map(WORKS.tileHTML).join('');
+      WORKS.bindFilter(document.getElementById('home-filters'), root);
+    }
     bootEffects();
   });
 </script>
