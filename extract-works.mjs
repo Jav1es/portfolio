@@ -1,8 +1,15 @@
 // extract-works.mjs —— 从 legacy-singlepage.html 抽取 18 个模块为 works-data.json
 // 用法：node extract-works.mjs
+//
+// ⚠️ 源文件位置（2026-10-15 变更）：原在仓库根目录，但 GitHub Pages 带 .nojekyll
+//    会把仓库里**所有**文件原样发布 —— 那份旧单页含「5 年+」「CI 全绿」等已作废
+//    口径，线上可直接访问（实测 HTTP 200 / 146KB）。故移到发布区之外的
+//    .dsh-workspace/artifacts/（该目录已在 .gitignore 里）。
+//    代价：新克隆的仓库不自带此文件，需自行备一份才能重跑数据管线。
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const html = readFileSync('legacy-singlepage.html', 'utf8');
+const SRC = '.dsh-workspace/artifacts/legacy-singlepage.html';
+const html = readFileSync(SRC, 'utf8');
 
 // 截取 const ITEMS = [ ... ]; 之间的数组源码
 const start = html.indexOf('const ITEMS = [');
