@@ -114,7 +114,7 @@
         <li><b>RAG 与检索工程：</b>语义边界智能切分（chunk 500 / overlap 50）→ Dense+BM25 混合检索 → RRF 融合 → Cross-Encoder 重排 → 生成附引用来源；真实评测检索准确率 93.3% @3。</li>
         <li><b>工具层与接入：</b>Pydantic 严格 Schema 定义工具输入输出，UnifiedMessage 统一多平台消息模型，MCP 协议标准化工具发现。</li>
         <li><b>记忆与容错：</b>双视野记忆（Redis 短期 + PostgreSQL 事实三元组）；错误分类重试 / 降级 / 熔断 / 调用次数限制，防死循环。</li>
-        <li><b>评测与可观测性：</b>评测集纳入 CI 每次 push 自动回归；OpenTelemetry + Jaeger 全链路 trace，一次会话 8 个 span 贯穿。</li>
+        <li><b>评测与可观测性：</b>评测集纳入 CI 每次 push 自动回归；OpenTelemetry + Jaeger 全链路 trace，一次会话 7 个 span（root + router/planner/retrieve/tool_call/reviewer/respond）贯穿。</li>
         <li><b>部署与工程化：</b>Docker Compose 本地一键起、K8s Helm（HPA CPU 70%）、pytest + GitHub Actions CI 门禁、敏感信息扫描。</li>
       </ul>
     </div>
@@ -138,7 +138,7 @@
     <div class="footer-v2">
       <div class="footer-v2__brand">
         <span class="footer-v2__name">黄家辉<span class="dot">.</span></span>
-        <p class="footer-v2__tagline">企业级 AI Agent 开发工程师 / FDE<br>6 年企业科技服务 · 9 个公开开源仓库</p>
+        <p class="footer-v2__tagline">企业级 AI Agent 开发工程师 / FDE<br>6 年+ 企业科技服务（2021.04 至今）· 9 个公开开源仓库</p>
       </div>
 
       <div class="footer-v2__col">
@@ -173,7 +173,8 @@
       <div class="footer-v2__col">
         <span class="footer-v2__label">口径</span>
         <ul class="footer-v2__list">
-          <li><span>6 年企业科技服务 · 9 个公开开源仓库</span></li>
+          <li><span>6 年+ 企业科技服务（2021.04 至今）· AI 工程实践 27 个月</span></li>
+          <li><span>9 个公开开源仓库（全部 MIT）· CI 运行中</span></li>
           <li><span>成效数字按实测 / 测算模型 / 示例口径标注</span></li>
           <li><span>客户名称与年度数据已脱敏</span></li>
         </ul>
