@@ -61,19 +61,19 @@
     </ul>
   </div>
   <div class="nav-item has-menu">
-    <a href="#group-core">核心项目</a>
+    <a href="#works-featured">核心项目</a>
     <ul class="nav-menu" aria-label="核心项目">
-      <li><a href="#group-core">核心案例</a></li>
-      <li><a href="#group-eng">AI 工程化</a></li>
-      <li><a href="#group-oss">开源工具</a></li>
-      <li><a href="#group-lab">实验与 VibeCoding</a></li>
-      <li><a href="#all-works">全部 21 个模块</a></li>
+      <li><a href="./works.html#group-core">核心案例</a></li>
+      <li><a href="./works.html#group-eng">AI 工程化</a></li>
+      <li><a href="./works.html#group-oss">开源工具</a></li>
+      <li><a href="./works.html#group-lab">实验与 VibeCoding</a></li>
+      <li><a href="./works.html">全部 21 个模块</a></li>
     </ul>
   </div>
   <div class="nav-item has-menu">
     <a href="#experience">我的经历</a>
     <ul class="nav-menu" aria-label="我的经历">
-      <li><a href="#all-works">作品全景</a></li>
+      <li><a href="./works.html">作品全景</a></li>
       <li><a href="./about.html#experience">时间线与背景</a></li>
     </ul>
   </div>
@@ -87,7 +87,7 @@
   <div class="nav-item has-menu">
     <a href="#oss">开源</a>
     <ul class="nav-menu" aria-label="开源">
-      <li><a href="#group-oss">开源作品模块</a></li>
+      <li><a href="./works.html#group-oss">开源作品模块</a></li>
       <li><a href="https://github.com/Jav1es">GitHub 仓库（9 个，全部 MIT）</a></li>
     </ul>
   </div>
@@ -265,28 +265,24 @@
     </div>
   </section>
 
-  <!-- ==================== 21 模块全景总览（同时承载 #experience / #skills / #oss 锚点） ==================== -->
-  <section class="section" id="all-works">
+  <!-- ============ 精选作品（brief P1-1：首页只留 6 个，全部 21 个在 works.html）============
+       同时承载 #experience / #skills / #oss 三个导航锚点。
+       注意：分组渲染的 #group-* 锚点已随分组一起移到 works.html；
+       首页这里是**扁平**的精选网格（6 个，顺序由 pickHTML 的 nos 决定）。 -->
+  <section class="section" id="works-featured">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">作品全景</p>
-        <h2 id="experience">21 个深度作品模块</h2>
-        <p>每个模块含背景、做法、难点、量化指标与可点开的证明材料。点击任一模块直达对应岗位页。</p>
+        <p class="kicker">精选作品</p>
+        <h2 id="experience">6 个最能说明问题的模块</h2>
+        <p>先看最强的三个：企业级智能体、RAG 真实评测、MCP 三件套。完整 21 个模块（含四组分类）在<a href="./works.html">作品目录</a>。</p>
       </div>
 
-      <!-- ============ P2-8 数据可视化：21 个模块怎么分布，一眼可见 ============ -->
-      <div id="home-viz"></div>
+      <div id="home-featured" class="w-grid w-cards"></div>
 
-      <!-- ============ P2-8 项目筛选 + P0-2 分组呈现 ============ -->
-      <div id="home-filters" class="w-filters">
-        <button type="button" data-filter="all" class="is-active" aria-pressed="true">全部</button>
-        <button type="button" data-filter="fde" aria-pressed="false">FDE 前线交付</button>
-        <button type="button" data-filter="agent" aria-pressed="false">AI Agent 工程</button>
-        <button type="button" data-filter="vibe" aria-pressed="false">Vibe 工具创造</button>
-        <span class="w-filter-count" data-filter-count>21 / 21 个模块</span>
+      <div class="btn-row" style="margin-top:22px">
+        <a class="btn btn-primary" href="./works.html">查看全部 21 个模块 →</a>
+        <a class="btn btn-ghost" href="./about.html">看完整背景与时间线</a>
       </div>
-
-      <div id="home-groups" class="works-groups"></div>
 
       <!-- 技能与开源这两块明细在 about.html，首页此处按模块类别分流 -->
       <p class="sample-note" id="skills" style="margin-top:26px;">
@@ -298,7 +294,7 @@
 
       <div class="btn-row" id="oss">
         <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub 开源仓库（9 个，全部 MIT）↗</a>
-        <a class="btn btn-ghost" href="./about.html">看完整背景与时间线</a>
+        <a class="btn btn-ghost" href="./works.html#group-oss">看开源工具模块（5 个）</a>
       </div>
     </div>
   </section>
@@ -332,7 +328,8 @@
       <div class="footer-v2__col">
         <span class="footer-v2__label">导航</span>
         <ul class="footer-v2__list">
-          <li><a href="./index.html#group-core">核心项目</a></li>
+          <li><a href="./index.html#works-featured">核心项目</a></li>
+          <li><a href="./works.html">全部 21 个模块</a></li>
           <li><a href="./index.html#oss">开源作品</a></li>
           <li><a href="./about.html">关于我</a></li>
           <li><a href="./fde.html">FDE 工程师</a></li>
@@ -420,19 +417,12 @@
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
 
-    // P2-8：模块分布可视化（纯 CSS 条形，无图表库）
-    var vizRoot = document.getElementById('home-viz');
-    if (vizRoot) vizRoot.innerHTML = WORKS.vizHTML(data.items);
-
-    // P0-2 + P2-8：分组呈现 + 按岗位筛选。
-    // 初始渲染也走 bindGroupFilter，保证「按钮状态」与「渲染结果」只有一个来源，
-    // 不会出现两套逻辑各自漂移。
-    WORKS.bindGroupFilter(
-      document.getElementById('home-filters'),
-      document.getElementById('home-groups'),
-      data.items,
-      { coreNos: ['04', '13', '16'], collapsedGroups: ['eng', 'oss', 'lab'] }
-    );
+    // brief P1-1：首页只放**精选 6 个**（扁平网格，顺序由这里决定 —— 最强的 3 个在前）。
+    // 全部 21 个 + 四组分组 + 按岗位筛选 + 模块分布可视化都在 works.html。
+    // 信息架构上：首页回答「这个人最强的是什么」，works.html 才是可检索的完整目录。
+    var HOME_PICK = ['04', '13', '16', '11', '09', '01'];
+    var homeRoot = document.getElementById('home-featured');
+    if (homeRoot) homeRoot.innerHTML = WORKS.pickHTML(data.items, HOME_PICK);
 
     // 首屏指标条为静态文案（不依赖 JS，保证无 JS 时也可读），此处不再注入统计条
     // 入口卡片的模块清单由数据生成，避免手写编号与 works.js 不同步
