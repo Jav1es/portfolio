@@ -157,16 +157,34 @@
 
     // 底注
     html += '<p class="rv-foot">成效类数字均已标注口径（实测 / 测算模型 / 示例口径）；' +
-      '客户名称与年度数据一律脱敏。本页支持浏览器打印为 PDF（Ctrl / Cmd + P）。</p>';
+      '客户名称与年度数据一律脱敏。本页可直接下载 PDF，或按 Ctrl / Cmd + P 打印。</p>';
 
     document.getElementById('resume-root').innerHTML = html;
     document.title = '黄家辉 · 简历 | ' + V.title;
   }
 
   // ------------------------------------------------------------- 版本切换
+  // 两份 PDF 是真实文件，由 tools/build-resume-pdf.mjs 用 Edge 无头打印
+  // resume.html?ver=agent / ?ver=fde 生成。切换版本时必须同步换 href，
+  // 否则会出现「界面显示 FDE 版、点下载却拿到 AI Agent 版」的错配。
+  var PDF_BY_VER = {
+    agent: { href: './resume-ai-agent.pdf', label: '下载 PDF 简历（AI Agent 版）' },
+    fde: { href: './resume-fde.pdf', label: '下载 PDF 简历（FDE 版）' }
+  };
+
+  function syncDownload(v) {
+    var a = document.getElementById('btn-download');
+    if (!a) return;
+    var p = PDF_BY_VER[v] || PDF_BY_VER.agent;
+    a.setAttribute('href', p.href);
+    a.setAttribute('download', '');
+    a.textContent = p.label;
+  }
+
   function setVersion(v) {
     current = v;
     render(v);
+    syncDownload(v);
     document.querySelectorAll('.resume-switch button').forEach(function (b) {
       var on = b.getAttribute('data-ver') === v;
       b.classList.toggle('is-active', on);
@@ -178,8 +196,8 @@
     b.addEventListener('click', function () { setVersion(b.getAttribute('data-ver')); });
   });
 
-  // ------------------------------------------------------------- 下载 PDF
-  // 纯静态站无法真正生成 PDF，走浏览器打印（用户在打印对话框里选「另存为 PDF」）
+  // ------------------------------------------------------- 打印为 PDF（兜底）
+  // 主路径已是真实 PDF 下载；这里保留浏览器打印作为兜底，文案明确写「打印」。
   document.getElementById('btn-print').addEventListener('click', function () {
     window.print();
   });
@@ -196,6 +214,10 @@
     });
   }
 
-  // 键盘：Ctrl/Cmd + P 走原生打印即可，无需额外处理
-  setVersion('agent');
+  // 键盘：Ctrl/Cmd + P 走原生打印即可，无需额外处理。
+  // 支持 ?ver=agent / ?ver=fde —— 生成 PDF 的无头打印就是靠它选定版本。
+  var initial = 'agent';
+  var m = /[?&]ver=(agent|fde)(?:&|$)/.exec(window.location.search);
+  if (m) initial = m[1];
+  setVersion(initial);
 })();

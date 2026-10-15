@@ -15,9 +15,22 @@ _book/portfolio-book.print.html
 _book/_pass1.pdf
 _book/_edge_profile_*/
 
+# 🔴 _book 的**成品**一律不进仓库、不上 Pages：
+#    `黄家辉_AI数字化落地作品集.pdf` 按 brief §0 明确「禁止公开下载」。
+#    2026-10-15 实测它曾被 git 跟踪并可从线上直接下载（HTTP 200 / 1.6MB），
+#    且 portfolio-book.html 还带着「5 年+」「8 个 span」等旧口径。
+#    脚本（*.py）保留在仓库，成品输出忽略。
+_book/*.pdf
+_book/portfolio-book.html
+
+# Edge 无头打印 PDF 用的独立 profile（build-resume-pdf.mjs）
+.dsh-workspace/artifacts/edge-pdf-profile/
+
 # 视觉验证与工具产物
 .dsh-vision-router/
 .verify/
+# 评审会话留下的截图，不随站点发布
+browser-screenshots/
 
 
 # 独立的 skill 仓库（已推送到 Jav1es/dsh-skills）
