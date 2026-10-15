@@ -287,10 +287,10 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 
 .lede { font-size: 17px; color: var(--txt2); max-width: 760px; margin-bottom: 16px; }
 
-/* 姓名条 */
+/* 姓名条（h1：页面唯一主标题，满足 a11y 标题层级） */
 .name-plate {
   display: inline-flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  margin-bottom: 14px;
+  margin-bottom: 14px; font-size: inherit; font-weight: inherit; line-height: inherit;
 }
 .name-plate .name {
   font-size: clamp(28px, 4.6vw, 42px); font-weight: 800; letter-spacing: -0.5px;
@@ -557,6 +557,104 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 .btn-ghost:hover { background: var(--blue-50); color: var(--blue); border-color: var(--blue); transform: translateY(-2px); }
 
 .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+
+/* 首页职业锚点：履历关键数字一行排开，补足"这个人是谁"的叙事 */
+.hero-baseline {
+  display: flex; flex-wrap: wrap; gap: 8px 26px;
+  margin-top: 18px; padding-top: 16px;
+  border-top: 1px dashed var(--line2);
+}
+.hero-baseline span {
+  font-size: 12.8px; font-weight: 600; color: var(--txt3);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.hero-baseline span::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--blue); flex: none;
+}
+
+/* ==========================================================================
+   履历：时间线（取自 web-component-snippets 的时间线模式，token 已换成本站语义变量）
+   ========================================================================== */
+.timeline { list-style: none; margin: 0; padding: 0; }
+.timeline__item {
+  display: grid; grid-template-columns: 108px 1fr; gap: 22px;
+  padding-bottom: 34px; position: relative;
+}
+/* 左侧竖线用伪元素画，最后一条不画 */
+.timeline__item::before {
+  content: ""; position: absolute; left: 108px; top: 8px; bottom: -6px;
+  width: 1px; background: var(--line2);
+}
+.timeline__item:last-child { padding-bottom: 0; }
+.timeline__item:last-child::before { display: none; }
+.timeline__date {
+  font-size: 13px; font-weight: 700; color: var(--txt3);
+  font-variant-numeric: tabular-nums; line-height: 1.9;
+}
+.timeline__content h3 {
+  font-size: 16.5px; font-weight: 800; margin-bottom: 6px; color: var(--txt);
+}
+.timeline__content > p { font-size: 14px; color: var(--txt2); line-height: 1.75; }
+/* 经历里的成果 bullet */
+.cv-bullets { list-style: none; margin: 10px 0 0; padding: 0; }
+.cv-bullets li {
+  position: relative; padding-left: 15px;
+  font-size: 13.6px; color: var(--txt2); line-height: 1.72; margin-bottom: 5px;
+}
+.cv-bullets li::before {
+  content: ""; position: absolute; left: 0; top: .62em;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--blue);
+}
+.cv-bullets b { color: var(--txt); font-weight: 800; }
+
+/* ==========================================================================
+   技能矩阵：分组卡片 + 标签组
+   ========================================================================== */
+.skill-grid {
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  align-items: stretch;
+}
+.skill-group {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 18px 20px;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.skill-group:hover { border-color: var(--line2); box-shadow: var(--shadow); }
+.skill-group h3 {
+  font-size: 12.5px; font-weight: 800; letter-spacing: .4px;
+  color: var(--cyan); margin-bottom: 12px;
+  padding-bottom: 9px; border-bottom: 1px solid var(--line);
+}
+.tag-list { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; margin: 0; padding: 0; }
+.tag-list .tag {
+  font-size: 12.2px; font-weight: 600;
+  color: var(--txt2); background: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  padding: 3px 10px; border-radius: 99px; white-space: nowrap;
+}
+
+/* 证书行：与技能矩阵同一视觉语言 */
+.cert-row {
+  display: flex; flex-wrap: wrap; gap: 8px 22px;
+  list-style: none; margin: 18px 0 0; padding: 16px 0 0;
+  border-top: 1px dashed var(--line2);
+}
+.cert-row li {
+  font-size: 12.8px; color: var(--txt3); font-weight: 600;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.cert-row li::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--line2); flex: none;
+}
+
+@media (max-width: 599.98px) {
+  .timeline__item { grid-template-columns: 1fr; gap: 4px; }
+  .timeline__item::before { display: none; }
+  .timeline__date { margin-bottom: 2px; }
+}
 
 /* ==========================================================================
    项目卡片（等距对齐）

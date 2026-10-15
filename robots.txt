@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://jav1es.github.io/portfolio/sitemap.xml
