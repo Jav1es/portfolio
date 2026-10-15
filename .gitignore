@@ -23,6 +23,14 @@ _book/_edge_profile_*/
 _book/*.pdf
 _book/portfolio-book.html
 
+# 🔴 临时探针页一律用 *-probe.html / _old-*.html 命名，并在根目录忽略：
+#    GitHub Pages + .nojekyll 会把仓库里所有文件发布出去，探针页留在根目录
+#    就等于挂到公网上（2026-10-16 差点把 p14-probe.html 提交上去）。
+#    探针脚本本体放 .dsh-workspace/artifacts/，生成的临时页用完即删。
+*-probe.html
+_old-*.html
+_old-*.js
+
 # Edge 无头打印 PDF 用的独立 profile（build-resume-pdf.mjs）
 .dsh-workspace/artifacts/edge-pdf-profile/
 

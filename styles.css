@@ -908,6 +908,14 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
   background: linear-gradient(160deg, var(--card), var(--card2));
   border: 1px solid var(--line); border-left: 3px solid var(--cyan);
   border-radius: 12px; padding: 15px 18px; font-size: 14.6px; color: var(--txt2);
+  /* ⚠️ 窄屏防溢出（brief P1-4 同类问题，2026-10-16 实测复现）：
+     grid 项默认 min-width:auto = 「不许窄于自己的 min-content」。
+     只要正文里有一个不可断行的长 token（如 router/planner/retrieve/… 这类
+     斜杠串），整列就会被顶宽到 408px，在 390px 视口下横向溢出 42px。
+     min-width:0 让格子能收缩；overflow-wrap:anywhere 才会把长 token 一起
+     计入 min-content 计算并允许在任意处断行（break-word 不改 min-content，
+     对这种场景无效）。 */
+  min-width: 0; overflow-wrap: anywhere;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 .duty-list li:hover { border-left-color: var(--blue); transform: translateX(3px); box-shadow: var(--shadow); }
@@ -958,6 +966,11 @@ mark {
 /* 示例内容提示条（琥珀虚线，沿用线上版 .ph 风格） */
 .sample-note {
   display: inline-flex; align-items: center; gap: 7px;
+  /* ⚠️ 窄屏防溢出（brief P1-4）：inline-flex 按 max-content 撑开，
+     长句在 390px 视口下顶出 32px 横向滚动。
+     三件套缺一不可：max-width 限制容器、flex-wrap 允许内部换行、
+     overflow-wrap:anywhere 允许长串在任意处断开（默认只按空格断）。 */
+  max-width: 100%; flex-wrap: wrap; overflow-wrap: anywhere;
   font-size: 12.5px; color: var(--amber);
   background: var(--amber-bg); border: 1px dashed var(--amber-line);
   padding: 4px 11px; border-radius: 7px; margin-bottom: 16px;
