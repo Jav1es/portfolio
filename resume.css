@@ -1,0 +1,212 @@
+/* ==========================================================================
+   resume.css — 简历页专用样式（白底 / A4 / 可打印）
+   只在 resume.html 引入，不影响主站其他页面。
+   设计目标：屏幕上看像一张 A4 纸，Ctrl+P 直接得到干净的 PDF。
+   ========================================================================== */
+
+/* ---------------- 屏幕端容器 ---------------- */
+.resume-page {
+  background: #eef0f2;          /* 屏幕底色，突出"纸张" */
+  color: #111;
+  font-size: 14px;
+  line-height: 1.62;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 顶部工具条（固定） */
+.resume-bar {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid #dfe3e6;
+}
+.resume-bar__back {
+  font-size: 13.5px; font-weight: 700; color: #2563eb; text-decoration: none;
+}
+.resume-bar__back:hover { text-decoration: underline; }
+.resume-bar__actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.resume-switch { display: inline-flex; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; }
+.resume-switch button {
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 7px 14px; border: 0; background: #fff; color: #475569;
+  cursor: pointer; transition: background-color .18s ease, color .18s ease;
+}
+.resume-switch button + button { border-left: 1px solid #cbd5e1; }
+.resume-switch button:hover { background: #eff6ff; color: #2563eb; }
+.resume-switch button.is-active { background: #2563eb; color: #fff; }
+
+/* ---------------- A4 纸张 ---------------- */
+.a4 {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 24px auto 56px;
+  padding: 16mm 15mm;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .08), 0 12px 32px rgba(0, 0, 0, .10);
+  box-sizing: border-box;
+}
+
+/* ---------------- 简历内容排版 ---------------- */
+.rv-head { border-bottom: 2px solid #111; padding-bottom: 10px; margin-bottom: 14px; }
+.rv-name { font-size: 26px; font-weight: 800; letter-spacing: -.4px; line-height: 1.2; }
+.rv-title {
+  font-size: 14.5px; font-weight: 700; color: #2563eb;
+  margin-top: 3px; letter-spacing: .2px;
+}
+.rv-contact {
+  margin-top: 8px; font-size: 12.4px; color: #444;
+  display: flex; flex-wrap: wrap; gap: 4px 16px;
+}
+.rv-contact a { color: #2563eb; text-decoration: none; }
+.rv-contact a:hover { text-decoration: underline; }
+
+/* 一句话摘要 */
+.rv-summary {
+  font-size: 13.4px; color: #222; line-height: 1.68;
+  padding: 10px 12px; background: #f6f8fb;
+  border-left: 3px solid #2563eb; margin-bottom: 14px;
+}
+
+/* 核心指标条：简历里做成一排小格 */
+.rv-metrics {
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  gap: 0; border: 1px solid #dfe3e6; border-radius: 6px;
+  overflow: hidden; margin-bottom: 16px;
+}
+.rv-metrics div {
+  padding: 8px 6px; text-align: center; border-right: 1px solid #dfe3e6;
+}
+.rv-metrics div:last-child { border-right: 0; }
+.rv-metrics b { display: block; font-size: 15px; font-weight: 800; color: #111; line-height: 1.25; }
+.rv-metrics span { display: block; font-size: 10.6px; color: #667; margin-top: 1px; }
+
+/* 段落标题 */
+.rv-sec { margin-bottom: 15px; }
+.rv-sec > h2 {
+  font-size: 13.6px; font-weight: 800; color: #111;
+  letter-spacing: .6px; text-transform: uppercase;
+  padding-bottom: 5px; margin-bottom: 9px;
+  border-bottom: 1px solid #111;
+}
+
+/* 技能矩阵：两列 */
+.rv-skills { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 22px; }
+.rv-skill-row { display: grid; grid-template-columns: 118px 1fr; gap: 8px; }
+.rv-skill-row dt { font-size: 12.4px; font-weight: 800; color: #111; }
+.rv-skill-row dd { font-size: 12.4px; color: #333; margin: 0; }
+
+/* 经历时间线 */
+.rv-exp { margin-bottom: 12px; }
+.rv-exp:last-child { margin-bottom: 0; }
+.rv-exp-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 3px;
+}
+.rv-exp-head b { font-size: 13.6px; font-weight: 800; color: #111; }
+.rv-exp-head time { font-size: 12.2px; color: #667; font-variant-numeric: tabular-nums; }
+.rv-exp-role { font-size: 12.8px; color: #2563eb; font-weight: 700; margin-bottom: 5px; }
+.rv-exp ul { margin: 0; padding-left: 17px; }
+.rv-exp li { font-size: 12.6px; color: #222; line-height: 1.64; margin-bottom: 3px; }
+
+/* 项目：每条 bullet 前用短横 */
+.rv-proj { margin-bottom: 13px; page-break-inside: avoid; }
+.rv-proj:last-child { margin-bottom: 0; }
+.rv-proj-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap; margin-bottom: 4px;
+}
+.rv-proj-head b { font-size: 13.4px; font-weight: 800; color: #111; }
+.rv-proj-head span { font-size: 12px; color: #667; }
+.rv-proj ul { margin: 0 0 5px; padding-left: 17px; }
+.rv-proj li { font-size: 12.6px; color: #222; line-height: 1.64; margin-bottom: 3px; }
+.rv-proj-tags { font-size: 11.6px; color: #667; }
+.rv-proj-links { font-size: 12px; margin-top: 3px; }
+.rv-proj-links a { color: #2563eb; text-decoration: none; margin-right: 12px; }
+.rv-proj-links a:hover { text-decoration: underline; }
+
+/* 开源仓库列表 */
+.rv-oss { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 22px; }
+.rv-oss div { font-size: 12.3px; color: #333; line-height: 1.6; }
+.rv-oss b { font-weight: 800; color: #111; }
+.rv-oss em { font-style: normal; color: #667; font-size: 11.4px; }
+
+/* 教育 / 证书 */
+.rv-edu { margin-bottom: 8px; }
+.rv-edu:last-child { margin-bottom: 0; }
+.rv-edu b { font-size: 13px; font-weight: 800; }
+.rv-edu span { font-size: 12.4px; color: #333; }
+.rv-edu time { font-size: 12px; color: #667; float: right; font-variant-numeric: tabular-nums; }
+.rv-cert { font-size: 12.4px; color: #333; line-height: 1.68; }
+.rv-cert b { font-weight: 800; color: #111; }
+
+/* 底注 */
+.rv-foot {
+  margin-top: 14px; padding-top: 8px; border-top: 1px solid #dfe3e6;
+  font-size: 11px; color: #778; line-height: 1.6;
+}
+
+/* ---------------- 窄屏：A4 改为自适应宽度 ---------------- */
+@media (max-width: 820px) {
+  .a4 { width: auto; min-height: 0; margin: 12px; padding: 20px 16px; }
+  .rv-metrics { grid-template-columns: repeat(3, 1fr); }
+  .rv-metrics div:nth-child(3n) { border-right: 0; }
+  .rv-metrics div:nth-child(-n+3) { border-bottom: 1px solid #dfe3e6; }
+  .rv-skills, .rv-oss { grid-template-columns: 1fr; }
+  .rv-skill-row { grid-template-columns: 1fr; gap: 0; }
+  .rv-skill-row dt { margin-top: 4px; }
+  .resume-bar { padding: 10px 14px; }
+}
+
+/* ==========================================================================
+   打印：隐藏工具条与交互，展开链接为文字，保证黑白可读
+   ========================================================================== */
+@media print {
+  /* 页面设置：A4 + 合理页边距 */
+  @page { size: A4; margin: 14mm 14mm; }
+
+  /* 隐藏一切非内容元素 */
+  .no-print,
+  .resume-bar,
+  .progress-track,
+  .bg-stage { display: none !important; }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 12pt;
+  }
+  body::before { display: none !important; }   /* 去掉主站背景柔光层 */
+
+  .a4 {
+    width: auto; min-height: 0; margin: 0; padding: 0;
+    box-shadow: none; border: 0;
+  }
+
+  /* 链接展开成「文字 (URL)」，纸面上也能追溯到地址 */
+  .rv-contact a[href^="http"]::after,
+  .rv-proj-links a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt; color: #555; word-break: break-all;
+  }
+  /* 站内相对链接不展开 URL（纸面上无意义），只保留文字 */
+  .rv-proj-links a[href^="./"]::after { content: ""; }
+
+  /* 打印时不要背景色块（省墨且更清晰），改用描边 */
+  .rv-summary { background: none !important; border-left: 2pt solid #000; padding-left: 8pt; }
+  .rv-metrics { border-color: #999; }
+  .rv-metrics div { border-color: #999; }
+  .rv-metrics b { color: #000; }
+
+  /* 避免在小标题后断页、条目被拆开 */
+  .rv-sec > h2 { page-break-after: avoid; break-after: avoid; }
+  .rv-exp, .rv-proj, .rv-edu { page-break-inside: avoid; break-inside: avoid; }
+
+  /* 黑白友好：主色压成深灰 */
+  .rv-title, .rv-exp-role, .rv-contact a, .rv-proj-links a { color: #000 !important; }
+
+  /* 关掉所有动画与阴影 */
+  * { animation: none !important; transition: none !important; box-shadow: none !important; }
+}
