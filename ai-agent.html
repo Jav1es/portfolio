@@ -130,6 +130,91 @@
     </div>
   </section>
 
+  <section class="section" id="bench">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="kicker">实测数据</p>
+        <h2>跑出来的容量曲线，和两次自我纠错</h2>
+        <p>下面每个数字都来自仓库 <code>bench/</code> 的实测脚本，<b>全程零计费</b>：用自写的极简 RESP 服务替代 Redis、用离线 StubLLM 替代真实模型，所以这套压测可以随时重跑，不必先充钱。压测对象是单实例、本机回环。</p>
+      </div>
+
+      <figure class="arch-fig">
+        <img src="04-enterprise-agent/enterprise-agents/assets/architecture.svg"
+             alt="企业级智能体六层架构图：接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph：Router→Planner→Skill→Tool→Reviewer）→ 工具层（Native Tool Calling / MCP / HTTP Connector）→ 记忆层（Redis 短期 + PostgreSQL 长期事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层"
+             width="960" height="690" loading="lazy" decoding="async">
+        <figcaption>六层架构。编排层用 LangGraph StateGraph 落地：Router 按 knowledge / data / mixed 分支，<code>tool_call → planner</code> 构成多步工具调用循环。</figcaption>
+      </figure>
+
+      <h3 class="bench-h">完整编排的真实容量（每级 20 秒，全程 0 失败）</h3>
+      <div class="table-scroll">
+        <table class="bench-table">
+          <caption>测的是完整五阶段编排（Router→Planner→Skill→Tool→Reviewer）+ RAG 检索 + 记忆读写，<b>不是</b>降级路径。</caption>
+          <thead>
+            <tr><th>并发</th><th>吞吐</th><th>P50</th><th>P95</th><th>P99</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>10</td><td>13.19 req/s</td><td>75 ms</td><td>790 ms</td><td>1500 ms</td></tr>
+            <tr class="is-peak"><td>20 <b>饱和点</b></td><td>19.31 req/s</td><td>130 ms</td><td>1700 ms</td><td>1900 ms</td></tr>
+            <tr><td>50</td><td>15.42 req/s</td><td>470 ms</td><td>4200 ms</td><td>5200 ms</td></tr>
+            <tr><td>100</td><td>15.28 req/s</td><td>640 ms</td><td>7900 ms</td><td>8600 ms</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="bench-note">并发从 20 翻到 50（2.5 倍），<b>吞吐不升反降 20.1%</b>，P95 从 1.7 s 涨到 4.2 s；再加到 100 并发吞吐完全持平、P95 达 7.9 s。⇒ 单实例舒适区 = <b>20 并发 / 约 19 req/s</b>，据此把 K8s 的 <code>maxReplicas</code> 定在 ≥ 5（100 ÷ 20）。</p>
+
+      <h3 class="bench-h">同为 20 并发，分端点：长任务该走流式</h3>
+      <div class="table-scroll">
+        <table class="bench-table">
+          <thead>
+            <tr><th>端点</th><th>请求数</th><th>失败</th><th>平均</th><th>P95</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>GET /health</code></td><td>260</td><td>0</td><td>114 ms</td><td>320 ms</td></tr>
+            <tr><td><code>POST /v1/chat</code></td><td>184</td><td>0</td><td>942 ms</td><td>1600 ms</td></tr>
+            <tr class="is-peak"><td><code>POST /v1/chat/stream</code>（SSE）</td><td>88</td><td>0</td><td><b>119 ms</b></td><td><b>300 ms</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="bench-note">同步对话 P95 约 1.6 s，是五阶段编排 + RAG + 记忆读写的完整成本；SSE 首包只要 <b>119 ms</b>——响应头立即返回、生成在流里继续，<b>首包延迟与总生成时间解耦</b>。所以「长任务优先流式」在这里是测出来的结论，不是照抄最佳实践。</p>
+
+      <h3 class="bench-h">真实模型延迟（小样本，只作参考）</h3>
+      <p class="bench-note">5 次真实调用：首 token 中位 <b>789.6 ms</b>、完整响应中位 1233 ms，首 token 占端到端延迟的 <b>61.3%</b>。样本量太小，只够说明「延迟大头在首 token」，不足以画曲线——这一点在仓库文档里同样写明，没有拿它当容量数据用。</p>
+
+      <h3 class="bench-h">编排图怎么写的（20 行）</h3>
+      <pre class="code-block"><code>def _build_graph(self) -&gt; Any:
+    graph = StateGraph(AgentState)
+    graph.add_node("router", router_node)
+    graph.add_node("planner", planner_node)
+    graph.add_node("retrieve", functools.partial(retrieve_node, retriever=self.retriever))
+    graph.add_node("tool_call", tool_call_node)
+    graph.add_node("reviewer", reviewer_node)
+    graph.add_node("respond", functools.partial(respond_node, llm=self.llm))
+
+    graph.set_entry_point("router")
+    graph.add_conditional_edges(
+        "router", self._route_decision,
+        {"knowledge": "retrieve", "data": "planner", "mixed": "retrieve"},
+    )
+    graph.add_edge("retrieve", "planner")
+    graph.add_conditional_edges(
+        "planner", self._should_call_tool,
+        {"tool": "tool_call", "respond": "reviewer"},
+    )
+    graph.add_edge("tool_call", "planner")   # 多步工具调用循环
+    graph.add_edge("reviewer", "respond")
+    graph.add_edge("respond", END)
+    return graph.compile()</code></pre>
+      <p class="bench-note">取自仓库 <code>src/enterprise_agent/orchestration/graph.py</code>。六层架构里最容易被讲成概念图的编排层，落到代码上就是这张状态图。</p>
+
+      <h3 class="bench-h">过程中被我自己推翻的两件事</h3>
+      <ul class="duty-list">
+        <li><b>第一版容量数字全部作废。</b>上一版给出的 112.93 req/s 是在「无 LLM Key、无 Redis」的降级路径上测的——那时 <code>/v1/chat</code> 直接返回 503，测的其实是「路由 + 降级」的容量，编排根本没执行。拿这组数字当系统容量对外说是不诚实的，所以整版重测：补齐两个零成本依赖后，真实吞吐只有 19.31 req/s，<b>相差 2 倍吞吐、1700 倍延迟</b>。</li>
+        <li><b>Locust 曾报出约 50% 的假失败率。</b>离线降级时 <code>/v1/chat</code> 返回 503 是<b>预期行为</b>，但压测脚本把它算作失败，反而掩盖了真实吞吐。更隐蔽的是：Locust 里「不调用 <code>failure()</code>」并不等于成功，响应码非 2xx 且未显式 <code>r.success()</code> 一样计为失败。修正口径后，9410 请求 0 失败。</li>
+        <li><b>评测侧同样推翻过自己的结论。</b>把评测集从 6 题扩到 30 题分层（@3 准确率 93.3%）后实跑对照，发现 Cross-Encoder 重排在当前规模下<b>增量为 0</b>——混合检索已把答案放进 Top-3，而重排只能重排、不能召回，于是改为可开关并写明启用条件；同时发现 <b>RRF 分数不可用作拒答阈值</b>（答得上与答不上的题分数完全重叠），改用强制带条款引用来防幻觉。</li>
+      </ul>
+    </div>
+  </section>
+
   <section class="section" id="projects">
     <div class="wrap">
       <div class="section-head">

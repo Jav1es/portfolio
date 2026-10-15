@@ -1906,5 +1906,72 @@ body { line-height: 1.68; }
   .footer-v2__list a { min-height: 40px; }
 }
 
+/* ==========================================================================
+   实测数据区（brief P2-4 / P2-5 / P2-6，落在 ai-agent.html）
+   ==========================================================================
+   三块内容都是**已有真实产出**的搬运，不是新写的营销文案：
+   · 架构图 = 仓库 assets/architecture.svg（随 Pages 一起发布，非外链）
+   · 容量/分端点数字 = 仓库 bench/CAPACITY_BASELINE.md 的实测表
+   · 代码 = src/enterprise_agent/orchestration/graph.py 的 _build_graph
+   数字口径一旦与仓库脱节，就会变成「第二个过期分享图」，故正文注明出处。 */
+.arch-fig {
+  margin: 22px 0 8px; padding: 14px;
+  background: var(--card2); border: 1px solid var(--line); border-radius: var(--radius);
+}
+.arch-fig img { display: block; width: 100%; height: auto; max-width: 960px; margin: 0 auto; }
+.arch-fig figcaption {
+  margin-top: 10px; font-size: 12.4px; line-height: 1.6; color: var(--txt3); text-align: center;
+}
+
+.bench-h {
+  margin: 30px 0 10px; padding-left: 10px;
+  font-size: 16.5px; font-weight: 700; color: var(--txt);
+  border-left: 3px solid var(--blue);
+}
+
+/* 表格交给容器横向滚动：否则 390px 视口必然溢出（mobile-probe 会报） */
+.table-scroll {
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+}
+.bench-table { width: 100%; min-width: 420px; border-collapse: collapse; font-size: 13.4px; }
+.bench-table caption {
+  padding: 11px 13px; font-size: 12.4px; line-height: 1.6; color: var(--txt3);
+  text-align: left; border-bottom: 1px solid var(--line);
+}
+.bench-table th, .bench-table td {
+  padding: 9px 13px; text-align: left; white-space: nowrap;
+  border-bottom: 1px solid var(--line);
+}
+.bench-table thead th { font-size: 12.2px; font-weight: 600; color: var(--txt3); background: var(--bg2); }
+.bench-table tbody tr:last-child td { border-bottom: 0; }
+.bench-table td:first-child { font-weight: 600; color: var(--txt); }
+/* 饱和点 / 最优行：用半透明蓝而非 --blue-50，暗色主题下同样可读 */
+.bench-table .is-peak { background: var(--blue-soft); }
+.bench-table .is-peak b { color: var(--blue); }
+
+.bench-note { margin: 10px 0 0; font-size: 13px; line-height: 1.75; color: var(--txt2); }
+.bench-note b { color: var(--txt); }
+.bench-note code, .bench-table code, .arch-fig code {
+  padding: 1px 5px; font-size: .92em; color: var(--txt2);
+  background: var(--bg2); border: 1px solid var(--line); border-radius: 5px;
+}
+
+.code-block {
+  margin: 12px 0 0; padding: 15px 17px; overflow-x: auto;
+  font-size: 12.6px; line-height: 1.72; color: #cbd5e1;
+  background: #0f172a; border: 1px solid #1e293b; border-radius: 12px;
+}
+.code-block code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Cascadia Mono", monospace;
+  white-space: pre;
+}
+
+@media (max-width: 599.98px) {
+  .bench-h { margin-top: 24px; font-size: 15.5px; }
+  .arch-fig { padding: 10px; }
+  .code-block { padding: 12px 13px; font-size: 11.6px; }
+}
+
 
 
