@@ -63,10 +63,10 @@
         <span class="role-tag">FDE / AI Agent / Vibe</span>
       </h1>
 
-      <p class="lede" id="intro">我是黄家辉，6 年+ 企业科技服务经验，主导 300+ 项目、服务 100+ 企业。三条主线：FDE 前线部署交付、AI 智能体开发、VibeCoding 创意编码——让技术真正落地到业务现场。</p>
+      <p class="lede" id="intro">我是黄家辉，5 年+ 企业科技服务经验，主导 300+ 项目、服务 100+ 企业。三条主线：FDE 前线部署交付、AI 智能体开发、VibeCoding 创意编码——让技术真正落地到业务现场。</p>
 
       <div id="home-stats"></div>
-      <p class="hero-baseline"><span>6 年企业服务与项目全流程管理</span><span>300+ 项目落地</span><span>服务 100+ 企业</span><span>单年 24 家高企认定通过</span></p>
+      <p class="hero-baseline"><span>5 年+ 企业服务与项目全流程管理</span><span>300+ 项目落地</span><span>服务 100+ 企业</span><span>单年 24 家高企认定通过</span></p>
     </div>
   </section>
 
@@ -191,6 +191,7 @@
 </footer>
 
 <script src="./works-data.js"></script>
+<script src="./works-previews-index.js"></script>
 <script src="./works.js"></script>
 <script src="./effects.js"></script>
 <script src="./menu.js" defer></script>
@@ -200,6 +201,7 @@
 
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
+    WORKS.bindPreview(document);
     document.getElementById('home-stats').innerHTML = WORKS.statHTML(data.items);
     // 入口卡片的模块清单由数据生成，避免手写编号与 works.js 不同步
     document.querySelectorAll('[data-owns]').forEach(function (el) {

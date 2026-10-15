@@ -112,6 +112,7 @@
 </footer>
 
 <script src="./works-data.js"></script>
+<script src="./works-previews-index.js"></script>
 <script src="./works.js"></script>
 <script src="./effects.js"></script>
 <script src="./menu.js" defer></script>
@@ -120,6 +121,7 @@
   function bootEffects() { if (window.EFFECTS) window.EFFECTS.init(document); }
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
+    WORKS.bindPreview(document);
     document.getElementById('agent-works').innerHTML = WORKS.listByRole(data.items, 'agent');
     bootEffects();
   });
