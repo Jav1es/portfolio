@@ -1394,7 +1394,37 @@ mark {
     border-style: dashed; border-radius: 8px;
   }
 
-  .hero { padding: 40px 0 26px; }
+  /* ---- 首屏压缩（brief P1-5 + P0-4 冲突的解法）----
+     实测 390px 视口（高 844）下 hero 高 1102（131%），后果不只是「偏满」：
+     转型说明条底部与整条 CTA 行**都掉到了首屏之外**，等于 P0-4
+     「不滚动即可读到转型叙事」在手机上并未真正达成。
+     判据用 **hero 底边 ≤ 视口高度**（只比高度会漏掉导航占位那几十像素）。
+     逐项压缩，目标：首屏内能看到定位语 + 转型条 + 3 个 CTA。 */
+  .hero { padding: 12px 0 8px; }
+  /* 胶囊在极简风格里本就突兀（brief P2 也提到），移动端降为普通小字 */
+  .hero .eyebrow {
+    padding: 0; border: 0; background: none;
+    font-size: 11.5px; color: var(--txt3);
+  }
+  .hero-title { line-height: 1.12; }
+  .hero-name { font-size: clamp(29px, 8.2vw, 36px); }
+  .hero-role { font-size: 15px; }
+  .lede { font-size: 14.2px; line-height: 1.5; }
+  /* 指标卡在移动端权重过高（brief P2 同款判断）→ 压到紧凑 3×2 */
+  .metrics { grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 10px; }
+  .metrics li { padding: 6px 8px; border-radius: 8px; gap: 0; }
+  .metrics b { font-size: 16px; letter-spacing: -.3px; }
+  .metrics span { font-size: 9.6px; }
+  .career-shift {
+    padding: 9px 11px; font-size: 12.4px; line-height: 1.46; margin-bottom: 10px;
+  }
+  .career-shift__lead { font-size: 12.8px; }
+  .career-shift p + p { margin-top: 3px; }
+  .career-shift__note { font-size: 11.6px; }
+  /* CTA 仍是满宽按钮（移动端点触面积优先），只压内边距与间距 */
+  .cta-row { gap: 7px; }
+  .cta-row .btn { padding: 10px 14px; }
+
   .section { padding: 30px 0; }
   .project-grid { grid-template-columns: 1fr; }
   .entry-grid { grid-template-columns: 1fr; }
