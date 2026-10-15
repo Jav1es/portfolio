@@ -767,6 +767,16 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 }
 .trajectory b { font-size: 15px; }
 .trajectory li > span:last-child { font-size: 13.6px; line-height: 1.62; color: var(--txt3); }
+
+/* 演练案例的性质标注（brief P0-5）：必须显眼，防止读者把它当客户案例。
+   用琥珀底 + 左侧竖线，与「诚信说明」同一套语义（=需要特别提示的边界）。 */
+.case-nature {
+  margin: 6px 0 10px; padding: 8px 12px;
+  border-left: 3px solid var(--amber);
+  border-radius: 0 8px 8px 0;
+  background: var(--amber-bg);
+  font-size: 13.4px; line-height: 1.6; color: var(--txt2);
+}
 .timeline__item {
   display: grid; grid-template-columns: 108px 1fr; gap: 22px;
   padding-bottom: 34px; position: relative;
