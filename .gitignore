@@ -25,3 +25,4 @@ _book/_edge_profile_*/
 
 # 内部交接文档，不上公网
 .dsh-workspace/
+*.bak-*

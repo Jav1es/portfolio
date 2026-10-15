@@ -99,8 +99,8 @@ window.__RESUME__ = {
   // ---- 开源 ----
   opensource: {
     total: 9,
-    mit: 8,
-    note: '9 个公开仓库（8 个 MIT），覆盖 MCP 协议桥接、宿主插件、运维工具链、离线 PWA 与检索规程',
+    mit: 9,
+    note: '9 个公开仓库（全部 MIT 许可），覆盖 MCP 协议桥接、宿主插件、运维工具链、离线 PWA 与检索规程',
     repos: [
       { name: 'enterprise-agents', desc: '企业级智能体系统：六层架构 + RAG 混合检索（30 题评测 93.3%@3）+ Helm + 压测', lang: 'Python' },
       { name: 'dsh-bridge', desc: '让腾讯 Marvis 调用本机 DeepSeek Harness：Skill + MCP 两种接入', lang: 'JavaScript' },
