@@ -42,7 +42,7 @@
       <p class="eyebrow">开放合作 · 可远程 · 可现场演示</p>
 
       <div class="name-plate">
-        <span class="name">黄家辉</span>
+        <span class="name"><span class="grad">黄家辉</span></span>
         <span class="role-tag">FDE / AI Agent / Vibe</span>
       </div>
 
@@ -180,7 +180,7 @@
     document.getElementById('home-stats').innerHTML = WORKS.statHTML();
     var root = document.getElementById('home-tiles');
     root.innerHTML = data.items.map(WORKS.tileHTML).join('');
-    WORKS.bindFilter(document.getElementById('home-filters'), { root: root });
+    WORKS.bindFilter(document.getElementById('home-filters'), root);
   });
 </script>
 </body>
