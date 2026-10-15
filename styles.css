@@ -393,6 +393,23 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 }
 .metrics span { font-size: 12.2px; color: var(--txt3); font-weight: 600; }
 
+/* 转型说明条（brief P0-4 / §5.2）—— 首屏内答完「申报咨询和 AI 什么关系」
+   与「这些是生产交付还是自建」两个必问项。刻意做得紧凑、低视觉权重，
+   不跟核心指标抢注意力，但要能一眼读到。 */
+.career-shift {
+  margin: 0 0 22px; padding: 13px 16px;
+  border-left: 3px solid var(--blue);
+  border-radius: 0 10px 10px 0;
+  background: var(--blue-50);
+  font-size: 14.2px; line-height: 1.68; color: var(--txt2);
+}
+.career-shift p { margin: 0; }
+.career-shift p + p { margin-top: 5px; }
+.career-shift__lead {
+  font-weight: 800; color: var(--txt); font-size: 14.8px;
+}
+.career-shift__note { color: var(--txt3); font-size: 13.4px; }
+
 /* 首屏 CTA 行 */
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
 
@@ -724,6 +741,32 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
    履历：时间线（取自 web-component-snippets 的时间线模式，token 已换成本站语义变量）
    ========================================================================== */
 .timeline { list-style: none; margin: 0; padding: 0; }
+
+/* 职业轨迹 3 节点（brief P0-4）：横向三格，第一屏读过就不必再翻详细履历。
+   与下面纵向 .timeline 区分开 —— 这里是「路径」，那里是「在职记录」。 */
+.trajectory {
+  list-style: none; margin: 0 0 30px; padding: 0;
+  display: grid; gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.trajectory li {
+  position: relative;
+  background: linear-gradient(160deg, var(--card), var(--card2));
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px 15px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+/* 顶部一条主色进度线，暗示「三段连续」而不是三个孤立卡片 */
+.trajectory li::before {
+  content: ""; position: absolute; top: 0; left: 16px; right: 16px; height: 2px;
+  background: var(--grad); border-radius: 2px;
+}
+.trajectory__when {
+  font-size: 12px; font-weight: 800; letter-spacing: .3px;
+  color: var(--blue); font-variant-numeric: tabular-nums;
+}
+.trajectory b { font-size: 15px; }
+.trajectory li > span:last-child { font-size: 13.6px; line-height: 1.62; color: var(--txt3); }
 .timeline__item {
   display: grid; grid-template-columns: 108px 1fr; gap: 22px;
   padding-bottom: 34px; position: relative;
