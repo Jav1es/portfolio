@@ -982,42 +982,52 @@ mark {
 @keyframes wReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 /* ---- 展开时卡片横跨整行 ----
-   为什么：单列只有 ~330px 宽，七段详情竖着堆会拉得极长。
-   展开即占满整行 → 详情有宽幅可用，改为多栏并排，一眼看全。 */
+   为什么：单列只有 ~330px 宽，详情挤在窄列里只能竖着堆、拉得极长。
+   展开即占满整行 → 详情每个字段独占一行横条，一眼看全。 */
 .w-card.is-expanded {
   grid-column: 1 / -1;
   scroll-margin-top: 90px;
 }
-/* 展开态：封面临时压扁，避免 16:9 在整行宽度下变成巨幅头图占满一屏 */
+/* 展开态封面压扁，避免整行宽度下变成巨幅头图 */
 .w-card.is-expanded .w-thumb {
   aspect-ratio: auto;
-  height: 132px;
+  height: 150px;
 }
+/* 展开态正文左右留白加大，横条读起来更舒展 */
+.w-card.is-expanded .w-body { padding: 20px 32px 24px; }
+/* 展开态：摘要与要点限制行宽，避免超长行影响可读性 */
+.w-card.is-expanded .w-pitch { max-width: 92ch; }
 
-/* ---- 完整作品情况：标签在上、内容在下，横向分栏 ---- */
-.d-cols {
-  display: grid; gap: 0 32px;
-  grid-template-columns: 1fr 1fr;
-}
+/* ---- 完整作品情况：一行一个字段，横向铺满整行 ----
+   用户要求「一行一行的效果」：每个字段独占一整行横条，
+   标签固定宽度在左，内容占满剩余宽度 —— 不再分栏、不再竖着堆。
+   （展开时卡片已 grid-column: 1/-1 占满整行，单行宽度充裕） */
+.d-cols { display: block; }          /* 取消两栏，回归单列横条 */
 .d-col { min-width: 0; }
+.d-col + .d-col .d-row:first-child { border-top: 1px solid var(--line); }
 
-.d-row { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.d-row {
+  display: grid; grid-template-columns: 96px 1fr; gap: 20px;
+  align-items: start;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+}
 .d-row:last-child { border-bottom: 0; }
 .d-label {
-  display: block; margin-bottom: 3px;
-  font-size: 11.5px; font-weight: 700; color: var(--txt3); letter-spacing: .3px;
+  font-size: 12px; font-weight: 700; color: var(--txt3);
+  letter-spacing: .3px; line-height: 1.72; padding-top: 1px;
 }
-.d-val { display: block; font-size: 13.2px; color: var(--txt); line-height: 1.72; }
+.d-val { font-size: 13.4px; color: var(--txt); line-height: 1.72; display: block; }
 /* 实施步骤：有序列表 */
-.d-steps { margin: 0; padding-left: 19px; }
+.d-steps { margin: 0; padding-left: 20px; }
 .d-steps li {
-  font-size: 13.2px; color: var(--txt); line-height: 1.68; margin-bottom: 4px;
+  font-size: 13.4px; color: var(--txt); line-height: 1.7; margin-bottom: 5px;
 }
-.d-steps li::marker { color: var(--blue); font-weight: 700; font-size: 12px; }
+.d-steps li:last-child { margin-bottom: 0; }
+.d-steps li::marker { color: var(--blue); font-weight: 700; font-size: 12.5px; }
 
-/* 窄屏回退单栏（此时卡片宽度不足以并排两栏） */
-@media (max-width: 899px) {
-  .d-cols { grid-template-columns: 1fr; gap: 0; }
+/* 窄屏：标签折到内容上方，避免挤压正文 */
+@media (max-width: 599.98px) {
+  .d-row { grid-template-columns: 1fr; gap: 2px; }
 }
 
 /* ---- 站内文件预览 ---- */
