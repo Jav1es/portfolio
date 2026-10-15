@@ -258,6 +258,47 @@ for (const id of GROUP_ORDER) {
   data.groups[id] = { id: m.id, no: m.no, icon: m.icon, name: m.name, desc: m.desc };
 }
 
+// ---------------------------------------------------------------------------
+// 4) 口径修复（brief P0-2 / §0.2）—— 只改表述，不新增任何数字
+//
+//    为什么在这里改而不是改 legacy-singlepage.html：legacy 是**历史源文件**，
+//    内容是当时的事实快照；口径是后来才裁决的，属于「表述层」修订，放在补丁层
+//    最合适，也让改动可审计（一处表格看全）。管线每步都要重跑，这样也免疫覆盖。
+//
+//    幂等性：字符串 replace 命中即替换，未命中保持原样；跑 N 遍结果一致。
+// ---------------------------------------------------------------------------
+const TEXT_FIX = [
+  // 用户已裁决：措辞统一为「CI 运行中」，禁止再写「CI 全绿」
+  ['CI 全绿', 'CI 运行中'],
+  // §0.2 红线：目标值不得冒充「结果」。补「验收目标」后缀，与实测数字区分开
+  ['审核通过率目标（示例口径）', '审核通过率（验收目标 · 示例口径）'],
+  ['准确率目标（示例口径）', '准确率（验收目标 · 示例口径）'],
+  ['自助解决率目标', '自助解决率（验收目标）'],
+];
+
+function applyTextFix(node) {
+  if (typeof node === 'string') {
+    let s = node;
+    for (const [from, to] of TEXT_FIX) s = s.split(from).join(to);
+    return s;
+  }
+  if (Array.isArray(node)) return node.map(applyTextFix);
+  if (node && typeof node === 'object') {
+    const out = {};
+    for (const k of Object.keys(node)) out[k] = applyTextFix(node[k]);
+    return out;
+  }
+  return node;
+}
+
+{
+  const before = JSON.stringify(data).split('CI 全绿').length - 1;
+  const fixed = applyTextFix(data);
+  for (const k of Object.keys(fixed)) data[k] = fixed[k];
+  const after = JSON.stringify(data).split('CI 全绿').length - 1;
+  console.log('口径修复：CI 全绿 %d 处 → %d 处；目标值 3 处已标注「验收目标」', before, after);
+}
+
 writeFileSync('works-data.json', JSON.stringify(data, null, 2), 'utf8');
 writeFileSync('works-data.js',
   '// 由 extract-works.mjs + patch-works.mjs 生成，请勿手改。\n' +

@@ -114,7 +114,7 @@
 |---|---|---|---|
 | 04 | 企业级智能体系统（本地开发工程 enterprise-agent）★代表作 | 🧩 个人开源 | 6 层企业级智能体架构 · 70% HPA 扩缩容 CPU 阈值 · 5 次熔断器连续失败阈值 |
 | 06 | RAG 知识库 Demo（enterprise-agent 真实带数据演示）★代表作 | 🔧 自建 Demo | 93.3% 检索准确率@3（30 题分层评测） · 73.3%@1 · 重排增量实测 0% · 40 条示例制度文档 |
-| 07 | AI 评测与可观测性（评测集纳入 CI 回归 + OTel/Jaeger 全链路追踪）★代表作 | 🔧 自建 Demo | 8 个单会话 Jaeger trace span · 6 条 CI 每次 push 自动评测 · ≥60% CI 断言阈值 |
+| 07 | AI 评测与可观测性（评测集纳入 CI 回归 + OTel/Jaeger 全链路追踪）★代表作 | 🔧 自建 Demo | 7 个单会话 Jaeger trace span（root + 6 节点） · 6 条 CI 每次 push 自动评测 · 检索/引用准确率与拒答率均有断言 |
 | 09 | Prompt 工程与评测体系 | 🔧 自建 Demo | A/B 对比测试驱动优化 · JSON Schema 输出强校验 · Prompt 结构化模板化 |
 | 11 | 技术底座与运维证据 | 🔧 自建 Demo | Docker Compose 一键起服务 · 容错/重试/降级/熔断高可用 · 日志+告警+压测监控 |
 
@@ -183,7 +183,7 @@
 | 内容 | 说明 | 状态 |
 |---|---|---|
 | RAG 知识库真实演示 | 上传制度文档→提问→返回条款引用；真实评测 93.3% @3（30 题分层） | 可现场演示 |
-| OTel + Jaeger 全链路追踪 | 一次会话 8 个 span，trace_id 贯穿 Router→Planner→Tool→Reviewer | 可现场演示 |
+| OTel + Jaeger 全链路追踪 | 一次会话 7 个 span（root + router/planner/retrieve/tool_call/reviewer/respond），trace_id 贯穿 | 可现场演示 |
 | MCP Server 三件套 | 3 个 MCP Server，35 个 pytest 用例全通过 | 可现场演示（仓库公开） |
 | dsh-bridge / DSH 插件 / 运维工具箱 | 四个独立开源项目，含 CI 与测试 | 可现场演示（仓库公开） |
 | knowledge-guide 检索规程 | SKILL.md 单文件规程，装进 `~/.dsh/skills/` 即被 skill 工具装载 | 可现场演示（纯 Markdown，本仓库存有副本） |
