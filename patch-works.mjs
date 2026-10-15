@@ -133,7 +133,78 @@ const EXTRA = [
 const all = [...items, ...EXTRA].sort((a, b) => a.no.localeCompare(b.no));
 
 // ---------------------------------------------------------------------------
-// 3) 示意图：按类目分配几何母题（works.js 据此生成内联 SVG，不依赖任何外部图片）
+// 3) 分组（P0-2）：21 个模块按「读者关心什么」分成四组，供首页/作品页分区呈现
+//    core 核心案例   —— 直接决定能不能约到面试的硬证据
+//    eng  AI 工程化  —— 证明不是只会调 API，有体系化的工程方法与数据口径
+//    oss  开源工具   —— 证明能造工具、能被别人用（9 个公开仓库，全 MIT）
+//    lab  实验与 VibeCoding —— 广度与动手速度
+//
+//    选谁进 core 的判断依据（题面要求写明理由）：
+//    只收「最强 + 证据最硬」——即同时满足 ①有可点开的真实产物/仓库链接，
+//    ②有可复算的量化指标，③能独立复现「从问题到上线」全链路。
+//    据此 04 enterprise-agent、13 RAG、16 MCP 三件套、14 评测与可观测性、
+//    11 FDE 交付物模板 入选：前三个是同一套企业级智能体从架构 → 检索 → 工具协议
+//    的完整证据链，14 补上「怎么验证它是对的」，11 补上「怎么把交付做成可复用标准件」。
+//    09 技术底座、10 复盘报告虽然也是强证据，但更偏支撑材料，放在 eng。
+// ---------------------------------------------------------------------------
+const GROUPS = [
+  { id: 'core', min: 3, max: 5 },
+  { id: 'eng',  min: 4, max: 6 },
+  { id: 'oss',  min: 3, max: 5 },
+  { id: 'lab',  min: 0, max: 21 }
+];
+
+const GROUP_OF_NO = {
+  // core 核心案例（5）：企业级智能体的完整证据链 + 交付标准件
+  '04': 'core',   // 企业级智能体系统 enterprise-agent（六层架构，本地工程）
+  '13': 'core',   // RAG 知识库 Demo（真实带数据）
+  '16': 'core',   // 企业级智能体 MCP Server 三件套（开源）
+  '14': 'core',   // AI 评测与可观测性（评测集进 CI + OTel/Jaeger）
+  '11': 'core',   // FDE 交付物模板 Discovery Brief × Eval Plan
+
+  // eng AI 工程化（5）：Prompt 工程、工具链、业务落地、数据口径
+  '07': 'eng',    // Prompt 工程与评测体系
+  '01': 'eng',    // AI 工具体系 0-1 搭建规划包
+  '02': 'eng',    // 企业智能问答与申报文档 AIGC
+  '03': 'eng',    // 财务 / 行政 / 外贸跟单
+  '05': 'eng',    // 业务数据库与数据监测报告（SQL + BI/ChatBI）
+
+  // oss 开源工具（5）：能造工具、能被别人用
+  '12': 'oss',    // dsh-bridge（开源）
+  '17': 'oss',    // 知识指南（开源）
+  '18': 'oss',    // dsh-prompt-compiler（开源）
+  '19': 'oss',    // DSH 运维工具箱（开源）
+  '15': 'oss',    // DeepSeek Harness 本机插件三件套（开源）
+
+  // lab 实验与 VibeCoding（余下 6 个）：内部提效、复盘沉淀与快速实验
+  '06': 'lab',    // 办公流程自动化（Open Claw + Python 脚本）
+  '08': 'lab',    // 培训 / SOP / 推广运营包
+  '09': 'lab',    // 技术底座与运维证据
+  '10': 'lab',    // 项目复盘与量化数据报告
+  '20': 'lab',    // 高企认定评分自评系统（离线 PWA）
+  '21': 'lab'     // workbuddy-bridge（开源）
+};
+
+for (const it of all) {
+  const g = GROUP_OF_NO[it.no];
+  if (!g) throw new Error('模块未分组：' + it.no + ' ' + it.t);
+  it.group = g;
+}
+
+// 断言：覆盖 01..21 全部 21 个，且每组数量落在题面区间内
+const groupCount = all.reduce((a, i) => (a[i.group] = (a[i.group] || 0) + 1, a), {});
+for (const g of GROUPS) {
+  const n = groupCount[g.id] || 0;
+  if (n < g.min || n > g.max) {
+    throw new Error(`分组 ${g.id} 数量 ${n} 超出区间 [${g.min}, ${g.max}]`);
+  }
+}
+if (new Set(all.map(i => i.no)).size !== 21) {
+  throw new Error('模块编号不是 21 个唯一值');
+}
+
+// ---------------------------------------------------------------------------
+// 4) 示意图：按类目分配几何母题（works.js 据此生成内联 SVG，不依赖任何外部图片）
 // ---------------------------------------------------------------------------
 const MOTIF = {
   plan:     'roadmap',   // 路线图 / 步骤链
@@ -149,17 +220,64 @@ for (const it of all) {
   if (it.legacyNo) delete it.legacyNo;
 }
 
+// 类目描述同步（模块数变了）
+// 注意：这一步必须在写文件之前 —— 之前它写在 writeFileSync 之后，
+// 改的只是内存对象，落到磁盘上的 works-data.json 永远拿不到这段描述。
+data.cats.find(c => c.id === 'oss').star =
+  '不只会用工具，还能造工具——9 个独立开源仓库，从 MCP Server 到宿主插件、离线 PWA、运维工具链与检索规程，全部带测试与文档。';
+
+// 分组元数据：写进 data，让 works-data.json 自解释；
+// works.js 优先读这里，读不到才回退到自带常量（避免两处硬编码各写一份）。
+// key 顺序固定为 GROUP_ORDER，保证每次序列化逐字节一致（幂等的前提）。
+const GROUP_META = {
+  core: {
+    id: 'core', no: '①', icon: '🎯', name: '核心案例',
+    desc: '从架构到检索到工具协议，再到评测门禁与交付标准件——一条完整、可点开验证的企业级智能体证据链。'
+  },
+  eng: {
+    id: 'eng', no: '②', icon: '🔧', name: 'AI 工程化',
+    desc: '不是只会调 API：规划选型、Prompt 与评测、业务系统落地、数据口径与复盘，都有方法可循。'
+  },
+  oss: {
+    id: 'oss', no: '③', icon: '🧩', name: '开源工具',
+    desc: '不只会用工具，还能造工具——9 个公开仓库全部 MIT，从 MCP Server 到宿主插件、离线 PWA 与运维工具链。'
+  },
+  lab: {
+    id: 'lab', no: '④', icon: '✨', name: '实验与 VibeCoding',
+    desc: '用自然语言驱动编码做快速实验与内部提效，验证过的东西再沉淀成上面那些可交付的模块。'
+  }
+};
+
+const GROUP_ORDER = ['core', 'eng', 'oss', 'lab'];
+
 data.items = all;
+data.groupOrder = GROUP_ORDER.slice();
+data.groups = {};
+for (const id of GROUP_ORDER) {
+  const m = GROUP_META[id];
+  data.groups[id] = { id: m.id, no: m.no, icon: m.icon, name: m.name, desc: m.desc };
+}
+
 writeFileSync('works-data.json', JSON.stringify(data, null, 2), 'utf8');
 writeFileSync('works-data.js',
   '// 由 extract-works.mjs + patch-works.mjs 生成，请勿手改。\n' +
   'window.__WORKS_DATA__ = ' + JSON.stringify(data) + ';\n', 'utf8');
 
-// 类目描述同步（模块数变了）
-data.cats.find(c => c.id === 'oss').star =
-  '不只会用工具，还能造工具——9 个独立开源仓库，从 MCP Server 到宿主插件、离线 PWA、运维工具链与检索规程，全部带测试与文档。';
-
 console.log('模块总数：%d', all.length);
 console.log('编号：%s', all.map(i => i.no).join(' '));
 console.log('分类：%s', JSON.stringify(all.reduce((a, i) => (a[i.cat] = (a[i.cat] || 0) + 1, a), {})));
 console.log('本地目录引用：%d 条', all.flatMap(i => i.links).filter(l => /\.\/\d\d-/.test(l)).length);
+
+console.log('');
+console.log('分组（P0-2）：');
+for (const id of GROUP_ORDER) {
+  const meta = GROUP_META[id];
+  const nos = all.filter(i => i.group === id).map(i => i.no).join(' ');
+  console.log('  %s %s %s：%d 个 → %s', meta.no, meta.icon, meta.name, groupCount[id], nos);
+}
+console.log('  合计：%d 个（应为 21）', all.length);
+console.log('  core 入选理由：只收「最强 + 证据最硬」——同时具备可点开的真实产物链接、');
+console.log('    可复算的量化指标、可独立复现的端到端链路。04/13/16 是同一套企业级智能体');
+console.log('    从架构 → 检索 → 工具协议的完整证据链，14 补「怎么证明它是对的」，');
+console.log('    11 补「怎么把交付做成可复用标准件」；其余强证据（09 技术底座、10 复盘报告）');
+console.log('    属支撑性材料，未进 core；20/21 已有独立开源仓库，归入 oss/lab。');

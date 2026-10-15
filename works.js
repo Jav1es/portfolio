@@ -333,19 +333,59 @@
   }
 
   // ==========================================================================
-  // 渲染：作品卡片（列表页用）
+  // 分组定义（P0-2）
+  // 元数据权威来源是 works-data.json 的 data.groups / data.groupOrder
+  // （由 patch-works.mjs 写入，保证数据侧自解释）；这里只是 fallback ——
+  // data 里读不到时才用，避免同一份文案在两个文件里各硬编码一份。
   // ==========================================================================
+  var GROUPS_FALLBACK = {
+    core: { id: 'core', no: '①', icon: '🎯', name: '核心案例', desc: '' },
+    eng:  { id: 'eng',  no: '②', icon: '🔧', name: 'AI 工程化', desc: '' },
+    oss:  { id: 'oss',  no: '③', icon: '🧩', name: '开源工具', desc: '' },
+    lab:  { id: 'lab',  no: '④', icon: '✨', name: '实验与 VibeCoding', desc: '' }
+  };
+  var GROUP_ORDER_FALLBACK = ['core', 'eng', 'oss', 'lab'];
+
+  // 延迟求值：works-data.js 与 works.js 的加载顺序不保证，取用时再读 DATA。
+  function groupsTable() { return (DATA && DATA.groups) || GROUPS_FALLBACK; }
+  function groupOrder() { return (DATA && DATA.groupOrder) || GROUP_ORDER_FALLBACK; }
+
+  // 模块 → 群组：以 item.group 为准；缺失时按编号段兜底（保证分组永远有值）。
+  function groupOf(it) {
+    if (it && it.group) return it.group;
+    var n = parseInt(it && it.no, 10);
+    if (n >= 4 && n <= 16 && [4, 11, 13, 14, 16].indexOf(n) >= 0) return 'core';
+    if ([1, 2, 3, 5, 7].indexOf(n) >= 0) return 'eng';
+    if ([12, 15, 17, 18, 19].indexOf(n) >= 0) return 'oss';
+    return 'lab';
+  }
+
+  function groupMeta(id) { return groupsTable()[id] || GROUPS_FALLBACK[id] || { id: id, no: '', icon: '📁', name: id, desc: '' }; }
+
+  // ==========================================================================
+  // 渲染：作品卡片（列表页用）
+  // 六段结构：① 标题 ② 角色·职责 ③ 问题 ④ 方案 ⑤ 结果 ⑥ 链接
+  // ==========================================================================
+  var TAG_MAX = 5;   // 标签最多显示 5 个，超出折叠为 +N
+
   function cardHTML(it, opts) {
     opts = opts || {};
     var c = catOf(it);
 
+    // ---- ⑤ 结果：量化指标（保留 .w-hl 数字块） ----
     var hl = (it.highlights || []).map(function (h) {
       return '<div class="w-hl"><b>' + esc(h.num) + '</b><span>' + esc(h.label) + '</span></div>';
     }).join('');
 
-    var tags = (it.tags || []).map(function (t) {
-      return '<span class="w-tag">' + esc(t) + '</span>';
-    }).join('');
+    // ---- 标签：最多 TAG_MAX 个，超出显示 +N；被留下的都带 title 承载全文 ----
+    var allTags = it.tags || [];
+    var shown = allTags.slice(0, TAG_MAX);
+    var rest = allTags.slice(TAG_MAX);
+    var tags = shown.map(function (t) {
+      return '<span class="w-tag" title="' + esc(t) + '">' + esc(t) + '</span>';
+    }).join('') + (rest.length
+      ? '<span class="w-tag w-tag-more" title="' + esc(rest.join('、')) + '">+' + rest.length + '</span>'
+      : '');
 
     var links = (it.links || []).map(function (l) {
       var p = l.split('|');
@@ -360,6 +400,28 @@
           '<span class="w-cover-tag">' + esc(c.icon) + ' MODULE ' + esc(it.no) + '</span>' +
           coverSVG(it) +
         '</div>';
+
+    // ---- ② 角色·职责（不写死工作年限：全局口径归属 resume-data.js / 首页 hero，
+    //         21 张卡片各写一遍会变成 21 个将来必定不一致的真源） ----
+    var roleText = it.role ? String(it.role) : '';
+    var roleShort = roleText.length > 120 ? roleText.slice(0, 120) + '…' : roleText;
+    var meta = (it.jd || roleShort)
+      ? '<p class="w-meta">' +
+          (it.jd ? '<span class="w-meta-jd">' + esc(it.jd) + '</span>' : '') +
+          (roleShort ? '<span class="w-meta-role" title="' + esc(roleText) + '">' + esc(roleShort) + '</span>' : '') +
+        '</p>'
+      : '';
+
+    // ---- ③④⑤ 三段：问题 / 方案 / 结果 ----
+    function seg(key, body) {
+      if (!body) return '';
+      return '<div class="w-seg"><b class="w-seg-k">' + esc(key) + '</b>' +
+        '<div class="w-seg-v">' + body + '</div></div>';
+    }
+    var segs =
+      seg('问题', it.pain ? '<p>' + esc(it.pain) + '</p>' : '') +
+      seg('方案', it.arch ? '<p>' + esc(it.arch) + '</p>' : '') +
+      seg('结果', hl || (it.metric ? '<p>' + esc(it.metric) + '</p>' : ''));
 
     // ---- 可展开详情：完整作品情况（一行一个字段，横向铺满） ----
     var detail = '';
@@ -389,8 +451,9 @@
 
     // 注意：不加 .tilt —— 3D 倾斜会让长文本重新光栅化导致模糊（见 styles.css 说明）。
     // 作品卡片改用 2D 微动（封面 scale + 阴影抬升）保持文字锐利。
+    // .w-body 是 flex 列，⑥ 链接区靠 margin-top:auto 贴底 —— 等高由 CSS 完成，不用固定高度。
     return '' +
-      '<article class="w-card" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
+      '<article class="w-card" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-group="' + esc(groupOf(it)) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
         cover +
         '<div class="w-body">' +
           '<div class="w-top">' +
@@ -401,7 +464,8 @@
           '</div>' +
           '<h3 class="w-title">' + esc(it.t) + '</h3>' +
           '<p class="w-pitch">' + esc(it.pitch) + '</p>' +
-          (hl ? '<div class="w-hls">' + hl + '</div>' : '') +
+          meta +
+          segs +
           (tags ? '<div class="w-tags">' + tags + '</div>' : '') +
           '<div class="w-foot">' +
             '<a class="w-go" href="' + esc(rolePageOf(it)) + '#mod-' + esc(it.no) + '">在' +
@@ -411,6 +475,102 @@
           detail +
         '</div>' +
       '</article>';
+  }
+
+  // ==========================================================================
+  // 渲染：分组区块（P0-2）
+  // 纯函数：只返回 HTML 字符串，不碰 DOM（挂载点由调用方决定）。
+  // opts:
+  //   collapsed  整组包进 <details>（首页「核心案例铺开 + 其余折叠」用），默认 false
+  //   starOnly   只保留 star 的模块（首页「3 个最强」用），默认 false
+  //   limit      最多渲染几张卡片（在 starOnly 之后生效），默认不限
+  //   countTotal 计数徽标是否显示该组真实总数而非本次渲染数（被 starOnly/limit
+  //              截断时，避免组标题谎报「3 个模块」）
+  // ==========================================================================
+  function groupSectionHTML(groupId, items, opts) {
+    opts = opts || {};
+    var meta = groupMeta(groupId);
+    var all = (items || []).filter(function (it) { return groupOf(it) === groupId; });
+    if (!all.length) return '';
+
+    var list = opts.starOnly ? all.filter(function (it) { return it.star; }) : all.slice();
+    if (opts.limit > 0) list = list.slice(0, opts.limit);
+    if (!list.length) return '';
+
+    var total = (opts.countTotal === false ? list.length : all.length);
+    var count = total + ' 个模块' + (total !== list.length ? '（本区展示 ' + list.length + ' 个）' : '');
+    var head = '<div class="works-group-head">' +
+        '<p class="kicker">' + esc(meta.no) + ' ' + esc(meta.name) + '</p>' +
+        '<h2>' + esc(meta.name) + '</h2>' +
+        (meta.desc ? '<p>' + esc(meta.desc) + '</p>' : '') +
+        '<span class="works-group-count">' + esc(count) + '</span>' +
+      '</div>';
+    // 组内容器用双类名：复用 .w-grid 的网格样式，同时让分组网格可被 .w-cards
+    // 单独选中 —— 否则 .w-grid 批量选择器会把 4 个分组网格和首页总网格混在一起。
+    // 注意：传给 cardHTML 的必须是「卡片自己的 opts」，不能是分组级 opts ——
+    // 否则 starOnly/limit/collapsed 这些分组参数会渗进卡片渲染（且嵌套时不可预测）。
+    var cardOpts = opts.cardOpts || {};
+    var grid = '<div class="w-grid w-cards">' +
+      list.map(function (it) { return cardHTML(it, cardOpts); }).join('') +
+      '</div>';
+
+    if (opts.collapsed) {
+      return '<details class="works-group works-group-fold" id="group-' + esc(groupId) +
+        '" data-group="' + esc(groupId) + '">' +
+        '<summary class="works-group-summary">' + head + '</summary>' + grid + '</details>';
+    }
+    return '<section class="works-group" id="group-' + esc(groupId) +
+      '" data-group="' + esc(groupId) + '">' + head + grid + '</section>';
+  }
+
+  // 按 GROUP_ORDER 依次产出全部分组，一次拼成字符串后由调用方整体挂载。
+  // opts.only            只渲染指定的组 id 数组（默认全部，顺序取 data.groupOrder）
+  // opts.collapsedGroups 需要折叠的组 id 数组
+  // opts.collapsed       true = 全部折叠（与 only 可同时用，不是二选一）
+  // opts.starOnly/limit       对「每个」组生效
+  // opts.coreStarOnly/coreLimit 只对 core 组生效（其余组不受影响）
+  //
+  // 首页「3 个最强铺开 + 其余折叠」的推荐调用（一次成型）：
+  //   WORKS.renderGrouped(root, data.items, {
+  //     collapsedGroups: ['eng', 'oss', 'lab'],
+  //     coreNos: ['04', '13', '16']      // 或 coreStarOnly:true + coreLimit:3
+  //   })
+  // coreNos 直接按编号指定首屏那 3 个，最精确、不依赖 star 标记。
+  function groupedHTML(items, opts) {
+    opts = opts || {};
+    var order = opts.only || groupOrder();
+    var folded = opts.collapsedGroups || [];
+    return order.map(function (id) {
+      var mine = (items || []).filter(function (it) { return groupOf(it) === id; });
+      var isCore = id === 'core';
+      // 三档互斥：coreNos（按编号点名） > starOnly/limit > 不截断。
+      // 注意 core 专属项与全局项要分开判断，否则 coreLimit 会泄漏到其它组。
+      var nos = isCore ? opts.coreNos : null;
+      var starOnly = (opts.starOnly === true) || (isCore && opts.coreStarOnly === true);
+      var limit = opts.limit > 0 ? opts.limit : (isCore && opts.coreLimit > 0 ? opts.coreLimit : 0);
+      if (nos && nos.length) {
+        mine = nos.map(function (no) {
+          return (items || []).filter(function (it) { return it.no === no; })[0];
+        }).filter(Boolean);
+        starOnly = false;
+        limit = 0;
+      }
+      // 被截断的组：计数徽标显示真实总数，避免标题谎报
+      var truncated = !!(nos && nos.length) || starOnly || limit > 0;
+      return groupSectionHTML(id, mine, {
+        collapsed: folded.indexOf(id) >= 0 || opts.collapsed === true,
+        starOnly: starOnly,
+        limit: limit,
+        countTotal: truncated ? true : opts.countTotal
+      });
+    }).join('');
+  }
+
+  function renderGrouped(rootEl, items, opts) {
+    if (!rootEl) return '';
+    var html = groupedHTML(items || (DATA ? DATA.items : []), opts);
+    rootEl.innerHTML = html;   // 一次性写入，避免逐组 append 触发多次重排
+    return html;
   }
 
   // ==========================================================================
@@ -520,6 +680,13 @@
     CATS: CATS,
     CAT_MAP: CAT_MAP,
     MODULE_ROLE: MODULE_ROLE,
+    GROUPS: GROUPS_FALLBACK,
+    GROUP_ORDER: GROUP_ORDER_FALLBACK,
+    groupOf: groupOf,
+    groupMeta: groupMeta,
+    groupSectionHTML: groupSectionHTML,
+    groupedHTML: groupedHTML,
+    renderGrouped: renderGrouped,
     loadData: loadData,
     cardHTML: cardHTML,
     tileHTML: tileHTML,
