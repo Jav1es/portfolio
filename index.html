@@ -53,14 +53,47 @@
     </button>
 
     <nav class="nav-links" id="nav-links" aria-label="主导航">
-      <a href="#about">关于</a>
-      <a href="#featured">核心项目</a>
-      <a href="#experience">经历</a>
-      <a href="#skills">技能</a>
-      <a href="#oss">开源</a>
-      <a href="#contact">联系</a>
-      <a class="nav-cta" href="./resume.html">下载简历</a>
-    </nav>
+  <div class="nav-item has-menu">
+    <a href="#about">关于</a>
+    <ul class="nav-menu" aria-label="关于">
+      <li><a href="#about">个人优势</a></li>
+      <li><a href="#entries">能力结构</a></li>
+    </ul>
+  </div>
+  <div class="nav-item has-menu">
+    <a href="#featured">核心项目</a>
+    <ul class="nav-menu" aria-label="核心项目">
+      <li><a href="#group-core">核心案例</a></li>
+      <li><a href="#group-eng">AI 工程化</a></li>
+      <li><a href="#group-oss">开源工具</a></li>
+      <li><a href="#group-lab">实验与 VibeCoding</a></li>
+      <li><a href="#all-works">全部 21 个模块</a></li>
+    </ul>
+  </div>
+  <div class="nav-item has-menu">
+    <a href="#experience">我的经历</a>
+    <ul class="nav-menu" aria-label="我的经历">
+      <li><a href="#all-works">作品全景</a></li>
+      <li><a href="./about.html#experience">时间线与背景</a></li>
+    </ul>
+  </div>
+  <div class="nav-item has-menu">
+    <a href="#skills">技能</a>
+    <ul class="nav-menu" aria-label="技能">
+      <li><a href="#skills">能力类目</a></li>
+      <li><a href="./about.html#skills">完整技能矩阵</a></li>
+    </ul>
+  </div>
+  <div class="nav-item has-menu">
+    <a href="#oss">开源</a>
+    <ul class="nav-menu" aria-label="开源">
+      <li><a href="#group-oss">开源作品模块</a></li>
+      <li><a href="https://github.com/Jav1es">GitHub 仓库（9 个，全部 MIT）</a></li>
+    </ul>
+  </div>
+  <a href="#contact">联系</a>
+  <a class="nav-cta" href="./resume.html">下载简历</a>
+</nav>
   </div>
 </header>
 
@@ -108,31 +141,76 @@
 
       <ul class="strength-grid">
         <li>
-          <span class="num">01</span>
-          <div>
-            <b>交付即验收</b>
-            <span>每份方案都绑定可量化验收口径</span>
+          <span class="s-fig">
+            <svg viewBox="0 0 220 80" role="img" aria-label="示意图：交付文档与验收对勾">
+              <rect x="28" y="18" width="60" height="46" rx="7" fill="var(--blue-50)" stroke="var(--blue)" stroke-width="1.6"/>
+              <path d="M44 34h28M44 44h18" stroke="var(--blue)" stroke-width="2.4" stroke-linecap="round" opacity=".55"/>
+              <path d="M104 42l10 10 22-26" fill="none" stroke="var(--cyan)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="178" cy="41" r="17" fill="none" stroke="var(--line2)" stroke-width="4"/>
+              <path d="M178 24a17 17 0 0 1 12 29" fill="none" stroke="var(--blue)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div class="s-body">
+            <span class="num">01</span>
+            <div>
+              <b>交付即验收</b>
+              <span>每份方案都绑定可量化验收口径</span>
+            </div>
           </div>
         </li>
         <li>
-          <span class="num">02</span>
-          <div>
-            <b>AI 工作流落地</b>
-            <span>把重复流程沉淀成可复用自动化</span>
+          <span class="s-fig">
+            <svg viewBox="0 0 220 80" role="img" aria-label="示意图：三个节点串成一条自动化流程">
+              <rect x="20" y="26" width="44" height="28" rx="8" fill="var(--blue-50)" stroke="var(--blue)" stroke-width="1.6"/>
+              <circle cx="42" cy="40" r="5" fill="var(--blue)"/>
+              <rect x="88" y="26" width="44" height="28" rx="8" fill="var(--blue-50)" stroke="var(--blue)" stroke-width="1.6"/>
+              <circle cx="110" cy="40" r="5" fill="var(--blue)"/>
+              <rect x="156" y="26" width="44" height="28" rx="8" fill="var(--cyan-soft)" stroke="var(--cyan)" stroke-width="1.6"/>
+              <circle cx="178" cy="40" r="5" fill="var(--cyan)"/>
+              <path d="M70 40h12M138 40h12" stroke="var(--line2)" stroke-width="2.6" stroke-linecap="round"/>
+              <path d="M78 35l5 5-5 5M146 35l5 5-5 5" fill="none" stroke="var(--line2)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div class="s-body">
+            <span class="num">02</span>
+            <div>
+              <b>AI 工作流落地</b>
+              <span>把重复流程沉淀成可复用自动化</span>
+            </div>
           </div>
         </li>
         <li>
-          <span class="num">03</span>
-          <div>
-            <b>企业级智能体</b>
-            <span>检索、编排、评测三段式落地</span>
+          <span class="s-fig">
+            <svg viewBox="0 0 220 80" role="img" aria-label="示意图：检索、编排、评测三层堆叠">
+              <path d="M110 42L172 60L110 78L48 60Z" fill="var(--blue-50)" opacity=".5" stroke="var(--line2)" stroke-width="1.4" stroke-linejoin="round"/>
+              <path d="M110 22L172 40L110 58L48 40Z" fill="var(--blue-50)" opacity=".75" stroke="var(--line2)" stroke-width="1.4" stroke-linejoin="round"/>
+              <path d="M110 2L172 20L110 38L48 20Z" fill="var(--blue-50)" stroke="var(--blue)" stroke-width="1.6" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div class="s-body">
+            <span class="num">03</span>
+            <div>
+              <b>企业级智能体</b>
+              <span>检索、编排、评测三段式落地</span>
+            </div>
           </div>
         </li>
         <li>
-          <span class="num">04</span>
-          <div>
-            <b>造工具而非只用工具</b>
-            <span>9 个公开开源仓库，CI 全绿</span>
+          <span class="s-fig">
+            <svg viewBox="0 0 220 80" role="img" aria-label="示意图：代码括号与工具链">
+              <path d="M76 26L56 44l20 18" fill="none" stroke="var(--blue)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M144 26l20 18-20 18" fill="none" stroke="var(--blue)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M119 22l-18 40" fill="none" stroke="var(--cyan)" stroke-width="4.2" stroke-linecap="round"/>
+              <circle cx="42" cy="40" r="4" fill="var(--cyan)"/>
+              <circle cx="178" cy="40" r="4" fill="var(--cyan)"/>
+            </svg>
+          </span>
+          <div class="s-body">
+            <span class="num">04</span>
+            <div>
+              <b>造工具而非只用工具</b>
+              <span>9 个公开开源仓库，CI 全绿</span>
+            </div>
           </div>
         </li>
       </ul>

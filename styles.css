@@ -92,7 +92,10 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 /* --- 层 1：透视网格地面（地平线在页面上部，向下呈扇形展开）
    黑白高对比：网格线用近黑，靠明度而非色相制造纵深 --- */
 .bg-grid-floor {
-  position: absolute; left: -30%; right: -30%; top: 16%; height: 90%;
+  /* 上移 40px 并加高 40px：给下方的 transform 位移动画留出余量，
+     否则网格下移时会露出顶部空隙（顶部的 mask 渐隐挡不住 40px 的真空） */
+  position: absolute; left: -30%; right: -30%;
+  top: calc(16% - 40px); height: calc(90% + 40px);
   background-image:
     repeating-linear-gradient(90deg,
       var(--grid-line) 0 1px, transparent 1px 74px),
@@ -102,12 +105,15 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   transform-origin: 50% 0%;
   mask-image: linear-gradient(to bottom, transparent 0%, #000 11%, #000 52%, transparent 90%);
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 11%, #000 52%, transparent 90%);
+  /* ⚠️ 性能红线：只动 transform（可合成，不触发布局/重绘）。
+     绝不要改回 background-position —— 该属性无法合成，会让这个 fixed 的全屏
+     遮罩层每帧整层重绘，是首屏与滚动卡顿的主因（2026-10-15 实测定位）。 */
   animation: floorDrift 30s linear infinite;
-  will-change: background-position;
+  will-change: transform;
 }
 @keyframes floorDrift {
-  from { background-position: 0 0, 0 0; }
-  to   { background-position: 0 0, 0 40px; }
+  from { transform: perspective(520px) rotateX(72deg) translate3d(0, 0, 0); }
+  to   { transform: perspective(520px) rotateX(72deg) translate3d(0, 40px, 0); }
 }
 
 /* --- 层 2：地平线辉光 --- */
@@ -414,11 +420,36 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 .strength-grid li {
   background: linear-gradient(160deg, var(--card), var(--card2));
   border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 18px 20px; position: relative;
-  display: flex; gap: 12px; align-items: flex-start;
+  padding: 0; position: relative;
+  display: flex; flex-direction: column;
   transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
 .strength-grid li:hover { transform: translateY(-3px); border-color: var(--line2); box-shadow: var(--shadow-hov); }
+
+/* 优势插图（内联 SVG，无外部图片请求）。
+   ⚠️ 3D 变换只加在 .s-fig / svg 这一层 —— 它们不含文字。
+   卡片本身仍走 2D 微动：3D 倾斜会让长文本重新光栅化而发虚（已踩过的坑）。
+   这里刻意不用 overflow:hidden 裁圆角：overflow 会压平子元素的 3D 变换，
+   改用给插图自己设上圆角。 */
+.strength-grid .s-fig {
+  display: block; padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--line);
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+  background: linear-gradient(160deg, var(--blue-50), transparent 72%);
+  perspective: 460px;
+}
+.strength-grid .s-fig svg {
+  display: block; width: 100%; height: auto;
+  /* 倾斜幅度调到肉眼可感的程度：太小等于没有 3D（用户明确要求「多放点 3D」） */
+  transform: rotateX(18deg) rotateY(-10deg);
+  transform-origin: 50% 62%;
+  transition: transform .38s cubic-bezier(.2, .7, .3, 1);
+}
+.strength-grid li:hover .s-fig svg { transform: rotateX(5deg) rotateY(6deg) scale(1.05); }
+.strength-grid .s-body {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 14px 20px 18px; flex: 1;
+}
 .strength-grid .num {
   flex: none; width: 26px; height: 26px; border-radius: 8px;
   background: rgba(59, 130, 246, 0.15); color: var(--blue);
@@ -468,22 +499,35 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
   content: ""; position: absolute; top: 0; bottom: 0; left: -60%;
   width: 45%;
   background: linear-gradient(100deg, transparent, rgba(255, 255, 255, .85), transparent);
-  transform: skewX(-18deg);
+  /* 性能：用 transform 位移代替 left。left 是布局属性，每帧触发布局；
+     transform 可合成。396% 是相对元素自身宽度，≈ 原 left 从 -60% 走到 118%。 */
+  transform: skewX(-18deg) translateX(0);
   animation: sweep 4.5s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform;
 }
 @keyframes sweep {
-  0%, 62%  { left: -60%; }
-  86%, 100% { left: 118%; }
+  0%, 62%   { transform: skewX(-18deg) translateX(0); }
+  86%, 100% { transform: skewX(-18deg) translateX(396%); }
 }
 
-/* 序号方块：轻微的持续脉冲，给静态卡片一点生命感 */
+/* 序号方块：轻微的持续脉冲，给静态卡片一点生命感。
+   性能：不要直接动画 box-shadow —— 那是每帧重绘，而首页同时有 19 个徽标。
+   改为让一层预栅格化的阴影伪元素动 opacity：opacity 可合成，不触发重绘。 */
 .w-no, .w-tile-no {
+  position: relative;
+}
+.w-no::after, .w-tile-no::after {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit;
+  box-shadow: 0 4px 22px rgba(37, 99, 235, .55);
+  opacity: 0;
   animation: pulseGlow 3.6s ease-in-out infinite;
+  pointer-events: none;
 }
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 4px 12px rgba(37, 99, 235, .28); }
-  50%      { box-shadow: 0 4px 20px rgba(37, 99, 235, .52); }
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
 }
 
 /* 统计条数字：渐变流光（背景位移，不动文字本身，性能友好） */
@@ -524,7 +568,12 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 .w-links a:hover::after { transform: scaleX(1); }
 
 @media (prefers-reduced-motion: reduce) {
-  .sec-tag::after, .kicker::after, .w-no, .w-tile-no, .w-stat b { animation: none !important; }
+  .sec-tag::after, .kicker::after,
+  .w-no::after, .w-tile-no::after, .w-stat b { animation: none !important; }
+  /* 背景漂移与光斑是持续占用 GPU 的来源，也要一并停掉 */
+  .bg-grid-floor, .bg-orb-1, .bg-orb-2, .bg-orb-3 { animation: none !important; }
+  .bg-grid-floor, .bg-orb { will-change: auto; }
+  html { scroll-behavior: auto; }
   .w-card, .entry-card, .strength-grid li, .duty-list li {
     opacity: 1 !important; transform: none !important;
   }
@@ -982,7 +1031,10 @@ mark {
 /* ---- 作品卡片 ---- */
 .w-grid {
   display: grid; gap: 20px;
-  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  /* auto-fit 而非 auto-fill：auto-fill 会保留空轨道 —— 筛选后只剩 1 张卡时
+     它仍只占 1/3 宽、右侧空出 2/3（2026-10-15 用户实测反馈）。
+     auto-fit 折叠空轨道，单张卡即撑满整行。 */
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
   list-style: none; align-items: stretch;
 }
 .w-card {
@@ -1096,12 +1148,14 @@ mark {
 }
 .w-go:hover { gap: 9px; color: var(--blue); }
 
+/* 「展开详情」固定到卡片右上角（锚 .w-card 的 position:relative）。
+   用 badge 底色而非透明，保证压在封面图上仍可读；圆角与左上的 MODULE 标签一致。 */
 .w-expand {
-  margin-left: auto;
-  font-family: var(--font); font-size: 12.5px; font-weight: 600;
-  color: var(--txt2); background: var(--card);
-  border: 1px solid var(--line2); border-radius: 7px;
-  padding: 5px 12px; cursor: pointer;
+  position: absolute; top: 10px; right: 12px; z-index: 3;
+  font-family: var(--font); font-size: 11.5px; font-weight: 700;
+  color: var(--txt2); background: var(--badge-bg);
+  border: 1px solid var(--line); border-radius: 99px;
+  padding: 3px 11px; cursor: pointer;
   transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 .w-expand:hover { background: var(--blue-50); color: var(--blue); border-color: var(--blue); }
@@ -1131,6 +1185,13 @@ mark {
 .w-card.is-expanded .w-body { padding: 20px 32px 24px; }
 /* 展开态：摘要与要点限制行宽，避免超长行影响可读性 */
 .w-card.is-expanded .w-pitch { max-width: 92ch; }
+
+/* 筛选后组内只剩 1 张卡时，auto-fit 会折叠空轨道让它撑满整行。
+   但封面若仍按 16/9 等比放大，会变成 1180x664 的巨图把卡片整个压垮，
+   正文也会被拉成难读的超长行 —— 所以复用「展开态」已有的做法：
+   去掉宽高比、把封面收到 150px，并限制正文行宽。 */
+.w-cards .w-card:only-child .w-thumb { aspect-ratio: auto; height: 150px; }
+.w-cards .w-card:only-child .w-pitch { max-width: 92ch; }
 
 /* ---- 完整作品情况：一行一个字段，横向铺满整行 ----
    用户要求「一行一行的效果」：每个字段独占一整行横条，
@@ -1255,7 +1316,9 @@ mark {
     transition: max-height 0.26s ease, padding 0.26s ease, border-color 0.26s ease;
   }
   .nav-links.is-open {
-    max-height: 420px; padding: 8px 0 12px;
+    /* 加上下拉子项后面板显著变高（7 个主项 + 13 个子项），
+       原 420px 会把后面的项裁掉 —— 这里放到足够容纳全部内容的高度。 */
+    max-height: 1040px; padding: 8px 0 12px;
     border-top-color: var(--line);
   }
   .nav-links a { padding: 11px 12px; font-size: 15.5px; }
@@ -1291,6 +1354,53 @@ mark {
   transition: background-color .18s ease, border-color .18s ease;
 }
 .nav-cta:hover { background: var(--blue-700); border-color: var(--blue-700); }
+
+/* ==========================================================================
+   P1-6b 导航下拉子菜单（第 4 条反馈）
+   纯 CSS 展开：桌面 hover 与键盘 focus-within 都能打开，不新增 JS。
+   用 visibility + pointer-events 而不是 display:none —— 前者仍可被键盘 Tab 到，
+   后者会把子项从 Tab 序列里彻底移除（键盘用户直接够不着）。
+   ========================================================================== */
+.nav-item { position: relative; display: flex; align-items: center; }
+.nav-item.has-menu > a::after {
+  content: "▾"; margin-left: 4px; font-size: 9px; opacity: .5;
+}
+.nav-menu {
+  position: absolute; top: 100%; left: 0; z-index: 130;
+  min-width: 200px; margin: 6px 0 0; padding: 6px;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-hov);
+  opacity: 0; visibility: hidden; transform: translateY(-5px);
+  pointer-events: none;
+  transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+}
+.nav-item:hover .nav-menu,
+.nav-item:focus-within .nav-menu {
+  opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+}
+.nav-menu a {
+  display: block; padding: 8px 11px; border-radius: 8px;
+  font-size: 13.5px; line-height: 1.45; color: var(--txt2);
+  white-space: nowrap;
+}
+.nav-menu a:hover { background: var(--blue-50); color: var(--blue); }
+
+@media (max-width: 599.98px) {
+  /* 汉堡面板内改成内联列表：触摸设备没有 hover，靠 :hover 展开等于不可用。
+     放在这里而不是上面的断点块里，是为了在源码顺序上压过基础 .nav-menu 规则。 */
+  .nav-item { display: block; }
+  .nav-item.has-menu > a::after { content: ""; }
+  .nav-menu {
+    position: static; min-width: 0; margin: 0 0 6px 12px; padding: 0 0 0 10px;
+    background: none; border: 0; border-left: 2px solid var(--line);
+    border-radius: 0; box-shadow: none;
+    opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+  }
+  .nav-menu a { font-size: 14px; padding: 9px 10px; white-space: normal; }
+}
 
 /* ==========================================================================
    P1-6 页脚 v2：四栏信息块（品牌 / 联系 / 导航 / 口径）
