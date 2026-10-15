@@ -13,10 +13,10 @@
 <body>
   <!-- 3D 背景层：透视网格地面 + 地平线辉光 + 漂移光斑 -->
   <div class="bg-stage" aria-hidden="true">
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-1" data-parallax="0.06"></div>
+    <div class="bg-orb bg-orb-2" data-parallax="-0.04"></div>
     <div class="bg-orb bg-orb-3"></div>
-    <div class="bg-grid-floor"></div>
+    <div class="bg-grid-floor" data-parallax="0.10"></div>
     <div class="bg-horizon"></div>
   </div>
 
@@ -90,16 +90,7 @@
     </div>
   </section>
 
-  <section class="section">
-    <div class="wrap">
-      <div class="btn-row">
-        <a class="btn btn-ghost" href="./fde.html">← 看 FDE 主线</a>
-        <a class="btn btn-ghost" href="./ai-agent.html">看 AI 智能体开发 →</a>
-      </div>
-    </div>
-  </section>
-
-</main>
+  </main>
 
 <footer class="site-footer">
   <div class="wrap footer-in">
@@ -121,7 +112,6 @@
 <script>
   // 渲染完成后初始化 3D 倾斜 / 进场动画 / 阅读进度条（卡片为动态插入）
   function bootEffects() { if (window.EFFECTS) window.EFFECTS.init(document); }
-<script>
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     document.getElementById('vibe-works').innerHTML = WORKS.listByRole(data.items, 'vibe');

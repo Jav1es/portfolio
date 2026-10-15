@@ -58,14 +58,16 @@
     var targets = scope.querySelectorAll('.w-card, .entry-card, .strength-grid li, .duty-list li');
     if (!targets.length) return;
 
-    function show(el, i) {
-      el.style.transitionDelay = Math.min(i * 40, 240) + 'ms';
+    var list = Array.prototype.slice.call(targets);
+
+    function show(el, delay) {
+      el.style.transitionDelay = delay + 'ms';
       el.classList.add('is-revealed');
+      el.classList.remove('reveal-armed');
     }
 
-    // 无 IntersectionObserver：直接全部显示（内容永不可被动画锁死）
     if (reduceMotion || !global.IntersectionObserver) {
-      Array.prototype.forEach.call(targets, function (el, i) { show(el, i); });
+      list.forEach(function (el) { show(el, 0); });
       return;
     }
 
@@ -75,20 +77,26 @@
         show(entry.target, 0);
         io.unobserve(entry.target);
       });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+    }, { rootMargin: '150px 0px', threshold: 0.01 });
 
-    Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
+    // 只给"还没进视口"的元素加隐藏态；视口内的立即可见，避免首屏空白
+    list.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      var inView = r.top < global.innerHeight + 150 && r.bottom > -150;
+      if (!inView) el.classList.add('reveal-armed');
+      io.observe(el);
+    });
 
-    // 兜底：2.5 秒后仍未显示的（无头浏览器 / IO 未回调等），强制显示
+    // 兜底：3 秒后仍未显示的强制显示，任何异常路径都不留空白
     setTimeout(function () {
-      Array.prototype.forEach.call(targets, function (el) {
+      list.forEach(function (el) {
         if (!el.classList.contains('is-revealed')) {
           el.style.transitionDelay = '0ms';
-          el.classList.add('is-revealed');
+          show(el, 0);
           io.unobserve(el);
         }
       });
-    }, 2500);
+    }, 3000);
   }
 
   /* ------------------------------------------------------------ 数字滚动 */
@@ -140,6 +148,43 @@
     update();
   }
 
+  /* ---------------------------------------------------------- 滚动视差
+     背景层随滚动缓慢位移，制造"往深处走"的纵深。
+     用 rAF 节流 + 只写 transform，避免 scroll 事件里直接改样式导致掉帧。 */
+  function bindParallax() {
+    if (reduceMotion) return;
+    var layers = document.querySelectorAll('[data-parallax]');
+    if (!layers.length) return;
+
+    var ticking = false;
+    function update() {
+      var y = global.scrollY || 0;
+      Array.prototype.forEach.call(layers, function (el) {
+        var speed = parseFloat(el.getAttribute('data-parallax')) || 0.1;
+        el.style.transform = 'translate3d(0,' + (y * speed).toFixed(1) + 'px,0)';
+      });
+      ticking = false;
+    }
+    global.addEventListener('scroll', function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    }, { passive: true });
+  }
+
+  /* --------------------------------------------------- 文字逐字/分段揭示
+     给 .sec-tag、.kicker 之类的标签加一条扫光，强化科技感。
+     用 CSS 伪元素 + overflow:hidden，不触碰 JS 逐字切分（性能与可读性都更好）。 */
+  function bindSweep() {
+    if (reduceMotion) return;
+    var tags = document.querySelectorAll('.sec-tag:not(.swept)');
+    if (!tags.length || !global.IntersectionObserver) return;
+
+    Array.prototype.forEach.call(tags, function (el) {
+      el.classList.add('swept');
+    });
+  }
+
   global.EFFECTS = {
     bindTilt: bindTilt,
     bindReveal: bindReveal,
@@ -150,6 +195,8 @@
       bindReveal(root);
       bindCounters(root);
       bindScrollProgress();
+      bindParallax();
+      bindSweep();
     }
   };
 })(window);
