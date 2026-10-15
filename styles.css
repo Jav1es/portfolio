@@ -1562,6 +1562,17 @@ mark {
 .w-seg--result .w-seg-k { color: var(--green); }
 .w-seg--result .w-hls { margin-top: 2px; }
 
+/* 边界说明（brief §5.3 新增第 5 行）：哪些是参考实现、哪些没接真实系统。
+   用琥珀色与「结果」区分开 —— 结果是可以兑现的数字，边界是必须说清的限制。 */
+.w-boundary {
+  margin: 0; padding: 9px 12px;
+  border-radius: 10px;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-line);
+  font-size: 13px; line-height: 1.62; color: var(--txt2);
+}
+.w-boundary-k { color: var(--amber); font-weight: 800; margin-right: 7px; }
+
 /* 标签：最多 5 个 + 「+N」，其余收进 title 提示 */
 .w-tag--more {
   color: var(--txt3); background: var(--bg2); border-color: var(--line2);
