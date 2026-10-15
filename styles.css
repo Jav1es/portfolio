@@ -1973,5 +1973,13 @@ body { line-height: 1.68; }
   .code-block { padding: 12px 13px; font-size: 11.6px; }
 }
 
+/* brief P1-6：可点开核对的行为数据。
+   这类数字（提交次数）**会随时间变化**，所以必须带日期锚点 ——
+   不写日期就会变成第二个「过期分享图」（P1-7 的教训）。 */
+.oss-verify {
+  display: block; margin: 9px 0 6px;
+  font-size: 12.6px; line-height: 1.7; color: var(--txt3);
+}
+
 
 
