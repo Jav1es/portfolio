@@ -455,6 +455,9 @@
     return '' +
       '<article class="w-card" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-group="' + esc(groupOf(it)) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
         cover +
+        // 「展开详情」放卡片右上角：与封面左上角的 MODULE 标签左右呼应，
+        // 不再挤占底部链接行。绝对定位锚到 .w-card（position:relative）。
+        (detail ? '<button class="w-expand" type="button" aria-expanded="false">展开详情</button>' : '') +
         '<div class="w-body">' +
           '<div class="w-top">' +
             '<span class="w-no">' + esc(it.no) + '</span>' +
@@ -470,7 +473,6 @@
           '<div class="w-foot">' +
             '<a class="w-go" href="' + esc(rolePageOf(it)) + '#mod-' + esc(it.no) + '">在' +
               esc(ROLES[MODULE_ROLE[it.no]] ? ROLES[MODULE_ROLE[it.no]].short : '岗位页') + '查看 →</a>' +
-            (detail ? '<button class="w-expand" type="button" aria-expanded="false">展开详情</button>' : '') +
           '</div>' +
           detail +
         '</div>' +
