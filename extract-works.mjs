@@ -18,7 +18,9 @@ const cstart = html.indexOf('const CATS = [');
 const cEnd = html.indexOf('\n];', cstart);
 const CATS = new Function('return ' + html.slice(cstart, cEnd + 2).replace('const CATS = ', ''))();
 
-// 按页面需要抽取字段（去掉 steps/hard/retro 等超长字段，另存到详情页数据）
+// 按页面需要抽取字段。
+// 富字段（role/arch/steps/hard/retro/pain）原被裁掉，现完整保留：
+// 作品卡片的「展开详情」要展示完整作品情况，没有这些就只有一句 pitch。
 const slim = ITEMS.map((it, i) => ({
   no: String(i + 1).padStart(2, '0'),
   t: it.t,
@@ -31,7 +33,14 @@ const slim = ITEMS.map((it, i) => ({
   tags: (it.tools || []).slice(0, 5),
   links: it.links || [],
   shot: it.shot || it.archImg || '',
-  metric: (it.metrics || [])[0] || ''
+  metric: (it.metrics || [])[0] || '',
+  // ---- 展开详情用的富字段 ----
+  role: it.role || '',      // 我负责什么
+  arch: it.arch || '',      // 架构 / 方案要点
+  pain: it.pain || '',      // 解决的痛点
+  steps: it.steps || [],    // 实施步骤
+  hard: it.hard || '',      // 难点与取舍
+  retro: it.retro || ''     // 复盘
 }));
 
 // 仅 slim（首页总览 + 岗位页卡片用），体积可控

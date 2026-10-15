@@ -463,19 +463,30 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
    由 effects.js 写入 --rx / --ry / --mx / --my（--mx/--my 供高光跟随）
    未启用 JS 时全部回退为静态样式，不会破版
    ========================================================================== */
+/* ==========================================================================
+   3D 交互：卡片跟随鼠标倾斜
+   由 effects.js 写入 --rx / --ry / --mx / --my（--mx/--my 供高光跟随）
+
+   ⚠️ 文字清晰度优先（用户实测反馈文字模糊）：
+   倾斜会让含文字的平面进入 3D 渲染上下文，文字被重新光栅化 → 发虚。
+   因此 3D 倾斜只用于**文字少的外壳类卡片**（首页三张入口卡），
+   作品卡片（.w-card，长文本 + 密集信息）改用 2D 微动：封面视差 + 阴影抬升。
+   未启用 JS 时全部回退为静态样式，不会破版。
+   ========================================================================== */
 .tilt {
   transform: perspective(1000px)
              rotateX(var(--rx, 0deg))
-             rotateY(var(--ry, 0deg))
-             translate3d(0, var(--ty, 0), 0);
+             rotateY(var(--ry, 0deg));
   transform-style: preserve-3d;
   will-change: transform;
   transition: transform 0.18s cubic-bezier(.2, .7, .3, 1);
 }
 .tilt.is-tilting { transition: transform 0.06s linear; }
+.tilt .w-thumb { transform: translateZ(14px); }
 
-/* 卡片内元素的立体位移（跟随父卡片的 Z 轴） */
-.tilt .w-body, .tilt .w-foot { transform: translateZ(18px); transform-style: preserve-3d; }
+/* 作品卡片：2D 微动（封面视差），文字层始终平面光栅化 → 保持锐利 */
+.w-card .w-thumb { transition: transform .3s cubic-bezier(.2, .7, .3, 1); }
+.w-card:hover .w-thumb { transform: scale(1.03); }
 
 /* 跟随鼠标的高光（冷光扫过表面，强化"物理材质"观感）
    性能：不用 box-shadow 跟随（会重绘），而是移动一个独立的渐变层，
@@ -904,7 +915,11 @@ mark {
 .w-badge.is-demo { color: var(--amber); background: var(--amber-bg); border-color: var(--amber-line); }
 
 .w-title { font-size: 17px; font-weight: 700; line-height: 1.42; }
-.w-pitch { font-size: 13.5px; color: var(--txt2); flex: 1; }
+.w-pitch {
+  font-size: 13.5px; color: var(--txt); flex: 1; line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
 
 /* 量化指标用绿色 metric 样式（对齐线上版 .metric） */
 .w-hls { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -965,6 +980,78 @@ mark {
 }
 .w-more[hidden] { display: none; }
 @keyframes wReveal { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* ---- 完整作品情况：标签 + 内容两列 ---- */
+.d-row {
+  display: grid; grid-template-columns: 92px 1fr; gap: 12px;
+  padding: 7px 0; border-bottom: 1px solid var(--line);
+}
+.d-row:last-of-type { border-bottom: 0; }
+.d-label {
+  font-size: 11.5px; font-weight: 700; color: var(--txt3);
+  line-height: 1.7; padding-top: 1px;
+}
+.d-val { font-size: 13.2px; color: var(--txt); line-height: 1.72; }
+/* 实施步骤：有序列表 */
+.d-steps { margin: 0; padding-left: 19px; }
+.d-steps li {
+  font-size: 13.2px; color: var(--txt); line-height: 1.68; margin-bottom: 4px;
+}
+.d-steps li::marker { color: var(--blue); font-weight: 700; font-size: 12px; }
+
+/* ---- 站内文件预览 ---- */
+.w-preview-box {
+  margin-top: 12px; border: 1px solid var(--line);
+  border-radius: 10px; overflow: hidden; background: var(--card);
+}
+.w-preview-box[hidden] { display: none; }
+.w-pv-loading {
+  padding: 14px 16px; font-size: 12.5px; color: var(--txt3); margin: 0;
+}
+.w-pv-loading a { color: var(--blue); text-decoration: underline; }
+/* md / json / py 文本预览：限高 + 滚动，避免把卡片撑爆 */
+.w-pv-pre {
+  margin: 0; padding: 14px 16px; max-height: 340px; overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Courier New", monospace;
+  font-size: 12px; line-height: 1.72; color: var(--txt2);
+  white-space: pre-wrap; word-break: break-word;
+  background: var(--bg2);
+}
+/* 预览框头部：文件名 + 字符数 */
+.w-pv-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+  padding: 8px 14px; background: var(--blue-50);
+  border-bottom: 1px solid var(--line);
+}
+.w-pv-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px; font-weight: 700; color: var(--txt);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.w-pv-meta { font-size: 11px; color: var(--txt3); white-space: nowrap; flex: none; }
+.w-pv-foot {
+  padding: 8px 14px; margin: 0; font-size: 11.5px; color: var(--txt3);
+  border-top: 1px solid var(--line); background: var(--card);
+}
+/* html 用 iframe 沙箱承载 */
+.w-pv-frame {
+  display: block; width: 100%; height: 380px; border: 0;
+  background: #fff;
+}
+
+/* 链接块里的「预览」小按钮 */
+.w-link { display: inline-flex; align-items: center; gap: 0; }
+.w-preview {
+  font-family: var(--font); font-size: 11.5px; font-weight: 700;
+  color: var(--blue); background: var(--blue-50);
+  border: 1px solid var(--blue-200); border-left: 0;
+  padding: 3px 9px; border-radius: 0 7px 7px 0; cursor: pointer;
+  transition: background-color .18s ease, color .18s ease;
+}
+.w-preview:hover { background: var(--blue-100); }
+.w-preview[aria-expanded="true"] { background: var(--blue); color: #fff; border-color: var(--blue); }
+/* 有预览按钮时，左侧链接改右圆角，两者拼成一个整体 */
+.w-link a:has(+ .w-preview) { border-radius: 7px 0 0 7px; }
 
 .w-note { font-size: 13px; color: var(--txt3); line-height: 1.65; margin-bottom: 7px; }
 .w-note b {

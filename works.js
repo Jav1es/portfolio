@@ -88,11 +88,110 @@
 
   function isLocal(href) { return !/^https?:\/\//i.test(href); }
 
-  function renderLink(label, href) {
-    if (isLocal(href)) {
-      return '<a href="' + esc(href.replace(/^\.\//, '')) + '">' + esc(label) + '</a>';
+  // 链接：本地相对路径去掉 "./"；外链加 target/rel
+  // md / json / py 附加「预览」按钮：可在站内直接看内容，不必跳转或下载
+  // 预览内容来自 works-previews.js（独立懒加载），不用 fetch ——
+  // file:// 协议下浏览器会拦掉本地 fetch，但 <script> 引入的 JS 不受限。
+  function previewBtn(it, label, href) {
+    var clean = href.replace(/^\.\//, '');
+    var idx = pvIndexOf(it.no, clean);
+    if (idx < 0) return '';
+    return '<button class="w-preview" type="button" data-preview="' + esc(it.no) + ':' + idx + '" ' +
+      'aria-expanded="false" aria-label="在网页中预览 ' + esc(label) + '">预览</button>';
+  }
+
+  // 预览索引里查该文件的下标；索引来自 works-previews-index.js（小体积）
+  function pvIndexOf(no, file) {
+    var idx = global.__WORKS_PREVIEW_INDEX__ || {};
+    var list = idx[no] || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].file === file) return i;
     }
-    return '<a href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(label) + ' ↗</a>';
+    return -1;
+  }
+
+  function renderLink(it, label, href) {
+    if (isLocal(href)) {
+      return '<span class="w-link"><a href="' + esc(href.replace(/^\.\//, '')) + '">' +
+        esc(label) + '</a>' + previewBtn(it, label, href) + '</span>';
+    }
+    return '<span class="w-link"><a href="' + esc(href) + '" target="_blank" rel="noopener">' +
+      esc(label) + ' ↗</a></span>';
+  }
+
+  /* ------------------------------------------------------------ 文件预览 */
+  // 正文来自 works-previews.js（128KB）：首次点击预览时才动态注入，不进首屏。
+  // 为什么不用 fetch 读原文件：file:// 协议下浏览器会 CORS 拦掉本地 fetch，
+  // 而动态插入的 <script> 在 file:// 下照样能加载。
+  var pvLoading = false, pvQueue = [];
+
+  function loadPreviews(done) {
+    if (global.__WORKS_PREVIEWS__) return done(true);
+    pvQueue.push(done);
+    if (pvLoading) return;
+    pvLoading = true;
+    var s = document.createElement('script');
+    s.src = './works-previews.js';
+    s.onload = function () {
+      pvLoading = false;
+      pvQueue.splice(0).forEach(function (cb) { cb(true); });
+    };
+    s.onerror = function () {
+      pvLoading = false;
+      pvQueue.splice(0).forEach(function (cb) { cb(false); });
+    };
+    document.head.appendChild(s);
+  }
+
+  function bindPreview(root) {
+    var scope = root || document;
+    scope.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.w-preview') : null;
+      if (!btn) return;
+      var box = btn.closest('.w-card').querySelector('.w-preview-box');
+      if (!box) return;
+
+      // 再点一次 = 收起
+      if (btn.getAttribute('aria-expanded') === 'true') {
+        btn.setAttribute('aria-expanded', 'false');
+        btn.textContent = '预览';
+        box.hidden = true;
+        return;
+      }
+      btn.setAttribute('aria-expanded', 'true');
+      btn.textContent = '收起';
+      box.hidden = false;
+      if (box.getAttribute('data-loaded') === '1') return;
+
+      var parts = btn.getAttribute('data-preview').split(':');  // "模块号:索引"
+      var idx = parseInt(parts[1], 10);
+      box.innerHTML = '<p class="w-pv-loading">正在载入预览内容…</p>';
+
+      loadPreviews(function (ok) {
+        var all = (global.__WORKS_PREVIEWS__ || {})[parts[0]] || [];
+        var pv = all[idx];
+
+        if (!ok || !pv) {
+          box.innerHTML = '<p class="w-pv-loading">预览内容载入失败，' +
+            '请点左侧链接直接查看原文。</p>';
+          box.setAttribute('data-loaded', '0');
+          return;
+        }
+
+        var head = '<div class="w-pv-head"><span class="w-pv-name">' + esc(pv.file) + '</span>' +
+          '<span class="w-pv-meta">' + pv.fullLength.toLocaleString() + ' 字符' +
+          (pv.truncated ? ' · 预览前 ' + pv.body.length.toLocaleString() + ' 字符' : '') +
+          '</span></div>';
+
+        box.innerHTML = head + '<pre class="w-pv-pre"><code>' + esc(pv.body) + '</code></pre>';
+
+        if (pv.truncated) {
+          box.innerHTML += '<p class="w-pv-foot">以上为前 ' + pv.body.length.toLocaleString() +
+            ' 字符预览。查看全文请点左侧「' + esc(pv.label) + '」链接。</p>';
+        }
+        box.setAttribute('data-loaded', '1');
+      });
+    });
   }
 
   function statusBadge(it) {
@@ -250,7 +349,7 @@
 
     var links = (it.links || []).map(function (l) {
       var p = l.split('|');
-      return p.length === 2 ? renderLink(p[0], p[1]) : '';
+      return p.length === 2 ? renderLink(it, p[0], p[1]) : '';
     }).join('');
 
     // 有真实截图用截图，否则用内联 SVG 示意图（保证每张都有语义化描述）
@@ -262,18 +361,37 @@
           coverSVG(it) +
         '</div>';
 
-    // 可展开详情：量化口径 / 归属岗位 / 全部证明链接
+    // ---- 可展开详情：完整作品情况 ----
     var detail = '';
-    if (it.metric || links) {
-      detail = '<div class="w-more" hidden>' +
-        (it.metric ? '<p class="w-note"><b>量化口径</b>' + esc(it.metric) + '</p>' : '') +
-        '<p class="w-note"><b>归属岗位</b>' + esc(ROLES[MODULE_ROLE[it.no]] ? ROLES[MODULE_ROLE[it.no]].name : '—') + '</p>' +
+    if (it.role || it.arch || it.pain || (it.steps && it.steps.length) || it.hard || it.retro) {
+      var rows = '';
+      function row(label, val) {
+        if (!val) return '';
+        return '<div class="d-row"><span class="d-label">' + esc(label) + '</span>' +
+               '<span class="d-val">' + esc(val) + '</span></div>';
+      }
+      rows += row('我负责什么', it.role);
+      rows += row('解决的痛点', it.pain);
+      rows += row('架构 / 方案', it.arch);
+      if (it.steps && it.steps.length) {
+        rows += '<div class="d-row"><span class="d-label">实施步骤</span><ol class="d-steps">' +
+          it.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') +
+          '</ol></div>';
+      }
+      rows += row('难点与取舍', it.hard);
+      rows += row('复盘', it.retro);
+      rows += row('量化口径', it.metric);
+
+      detail = '<div class="w-more" hidden>' + rows +
+        '<div class="w-preview-box" hidden></div>' +
         (links ? '<div class="w-links is-all">' + links + '</div>' : '') +
         '</div>';
     }
 
+    // 注意：不加 .tilt —— 3D 倾斜会让长文本重新光栅化导致模糊（见 styles.css 说明）。
+    // 作品卡片改用 2D 微动（封面 scale + 阴影抬升）保持文字锐利。
     return '' +
-      '<article class="w-card tilt" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
+      '<article class="w-card" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
         cover +
         '<div class="w-body">' +
           '<div class="w-top">' +
@@ -405,6 +523,7 @@
     statHTML: statHTML,
     bindFilter: bindFilter,
     bindExpand: bindExpand,
+    bindPreview: bindPreview,
     esc: esc
   };
 })(window);
