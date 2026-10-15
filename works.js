@@ -1,13 +1,13 @@
 /* ==========================================================================
-   works.js — 作品数据渲染层（纯原生 JS，无框架、无构建）
-   数据来源：works-data.json（由 extract-works.mjs 从 legacy-singlepage.html 抽取）
-   三个岗位页 + 首页总览共用同一套数据，保证编号一致、可交叉引用。
+   works.js — 作品数据渲染层（纯原生 JS，无框架、无构建、无外部依赖）
+   数据来源：works-data.json / works-data.js（由 extract-works.mjs + patch-works.mjs 生成）
+   首页总览 + 三个岗位页共用同一套数据，保证编号一致、可交叉锚点跳转。
    ========================================================================== */
 (function (global) {
   'use strict';
 
   // ==========================================================================
-  // 岗位定义：18 个模块按岗位归属
+  // 岗位定义：21 个模块按岗位归属（编号对齐真实目录/仓库，见 patch-works.mjs）
   // ==========================================================================
   var ROLES = {
     fde: {
@@ -17,8 +17,8 @@
       short: 'FDE',
       icon: '🚧',
       desc: '贴近业务现场做需求发现、方案落地与交付验收，对项目结果全流程负责。',
-      // 模块归属：规划 / 工作流 / 数据 / 行业定制
-      owns: ['01', '02', '03', '05', '08', '10', '12']
+      // 规划 / 工作流 / 数据
+      owns: ['01', '02', '03', '05', '06', '08', '10', '11']
     },
     agent: {
       key: 'agent',
@@ -27,7 +27,7 @@
       short: 'AI Agent',
       icon: '🤖',
       desc: '独立设计并交付企业级智能体：六层架构、RAG、工具调用、评测与可观测性。',
-      owns: ['04', '06', '07', '09', '11']
+      owns: ['04', '07', '09', '13', '14']
     },
     vibe: {
       key: 'vibe',
@@ -36,30 +36,30 @@
       short: 'Vibe',
       icon: '✨',
       desc: '用自然语言驱动编码，做创意编码、交互体验与视觉实验，并把实验沉淀成可交付代码。',
-      owns: ['13', '14', '15', '16', '17', '18']
+      owns: ['12', '15', '16', '17', '18', '19', '20', '21']
     }
   };
 
-  // 首页总览：模块 → 所属岗位页，供卡片跳转
+  // 模块 → 所属岗位，供首页瓦片交叉跳转
   var MODULE_ROLE = {};
   Object.keys(ROLES).forEach(function (k) {
     ROLES[k].owns.forEach(function (no) { MODULE_ROLE[no] = k; });
   });
 
   var CATS = [
-    { id: 'plan',     no: '①', icon: '📐', name: '规划与方案',     role: 'fde'   },
-    { id: 'flow',     no: '②', icon: '🔧', name: '工作流落地',     role: 'fde'   },
-    { id: 'data',     no: '④', icon: '📊', name: '数据与复盘',     role: 'fde'   },
-    { id: 'industry', no: '⑥', icon: '🏭', name: '行业定制规划',   role: 'fde'   },
-    { id: 'agent',    no: '③', icon: '🤖', name: '智能体与 AI 工程', role: 'agent' },
-    { id: 'oss',      no: '⑤', icon: '🧩', name: '开源与工具链',   role: 'vibe'  }
+    { id: 'plan',     no: '①', icon: '📐', name: '规划与方案'       },
+    { id: 'flow',     no: '②', icon: '🔧', name: '工作流落地'       },
+    { id: 'agent',    no: '③', icon: '🤖', name: '智能体与 AI 工程' },
+    { id: 'data',     no: '④', icon: '📊', name: '数据与量化复盘'   },
+    { id: 'oss',      no: '⑤', icon: '🧩', name: '开源与工具链'     },
+    { id: 'industry', no: '⑥', icon: '🏭', name: '行业定制规划'     }
   ];
 
   var CAT_MAP = {};
   CATS.forEach(function (c) { CAT_MAP[c.id] = c; });
 
   // ==========================================================================
-  // 数据加载：优先内联数据（避免 file:// 下 fetch 被 CORS 拦截）
+  // 数据加载：优先内联数据（file:// 双击打开时 fetch 会被 CORS 拦截）
   // ==========================================================================
   var DATA = global.__WORKS_DATA__ || null;
 
@@ -70,7 +70,10 @@
       .then(cb)
       .catch(function () {
         var el = document.getElementById('works-root');
-        if (el) el.innerHTML = '<p class="works-error">作品数据加载失败：请通过本地 HTTP 服务打开（如 <code>python -m http.server</code>），或直接双击 index.html 使用内联数据版本。</p>';
+        if (el) {
+          el.innerHTML = '<p class="works-error">作品数据加载失败：请通过本地 HTTP 服务打开' +
+            '（如 <code>python -m http.server</code>），或确认 <code>works-data.js</code> 与本页在同一目录。</p>';
+        }
       });
   }
 
@@ -85,7 +88,6 @@
 
   function isLocal(href) { return !/^https?:\/\//i.test(href); }
 
-  // 链接：本地相对路径去掉 "./"；外链加 target/rel
   function renderLink(label, href) {
     if (isLocal(href)) {
       return '<a href="' + esc(href.replace(/^\.\//, '')) + '">' + esc(label) + '</a>';
@@ -99,11 +101,136 @@
     return '<span class="w-badge ' + cls + '">' + esc(it.status) + '</span>';
   }
 
-  function catOf(it) { return CAT_MAP[it.cat] || { icon: '📁', name: '其他', role: 'fde' }; }
+  function catOf(it) { return CAT_MAP[it.cat] || { icon: '📁', name: '其他' }; }
 
   function rolePageOf(it) {
-    var r = ROLES[MODULE_ROLE[it.no] || catOf(it).role];
+    var r = ROLES[MODULE_ROLE[it.no]];
     return r ? r.page : 'fde.html';
+  }
+
+  // ==========================================================================
+  // 内联 SVG 示意图：按类目生成几何母题，无需任何外部图片资源
+  // （保证离线可用、首屏零图片请求，且每张都有语义化 <title>/aria-label>）
+  // ==========================================================================
+  var W = 400, H = 225; // 16:9
+
+  var MOTIFS = {
+    // ① 规划：阶段路线图（节点 + 连接线 + 里程碑）
+    roadmap: function (id, hue) {
+      var pts = [[38, 168], [104, 128], [170, 150], [236, 96], [302, 118], [368, 62]];
+      var d = pts.map(function (p, i) { return (i ? 'L' : 'M') + p[0] + ' ' + p[1]; }).join(' ');
+      var dots = pts.map(function (p, i) {
+        return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + (i === pts.length - 1 ? 8 : 5) + '" fill="' + (i === pts.length - 1 ? hue : '#94a3b8') + '"/>';
+      }).join('');
+      var bars = pts.map(function (p, i) {
+        return '<rect x="' + (p[0] - 13) + '" y="' + (p[1] + 16) + '" width="26" height="3" rx="1.5" fill="#cbd5e1"/>';
+      }).join('');
+      return '<path d="' + d + '" stroke="' + hue + '" stroke-width="2" fill="none" stroke-dasharray="5 4"/>' + dots + bars;
+    },
+    // ② 工作流：管道（输入 → 处理 → 审核 → 输出）
+    pipeline: function (id, hue) {
+      var boxes = [[26, 78], [118, 78], [210, 78], [302, 78]];
+      var rects = boxes.map(function (b, i) {
+        return '<rect x="' + b[0] + '" y="' + b[1] + '" width="72" height="68" rx="10" fill="' +
+          (i === 2 ? hue : '#e2e8f0') + '" opacity="' + (i === 2 ? '.16' : '1') + '"/>' +
+          '<rect x="' + (b[0] + 14) + '" y="' + (b[1] + 22) + '" width="44" height="4" rx="2" fill="' +
+          (i === 2 ? hue : '#94a3b8') + '"/>' +
+          '<rect x="' + (b[0] + 14) + '" y="' + (b[1] + 36) + '" width="30" height="4" rx="2" fill="#cbd5e1"/>';
+      }).join('');
+      var arrows = [0, 1, 2].map(function (i) {
+        return '<path d="M' + (boxes[i][0] + 76) + ' 112 L' + (boxes[i + 1][0] - 12) + ' 112" stroke="' + hue +
+          '" stroke-width="2" marker-end="url(#ar' + id + ')"/>';
+      }).join('');
+      return '<defs><marker id="ar' + id + '" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">' +
+        '<path d="M0 0 L7 3.5 L0 7 z" fill="' + hue + '"/></marker></defs>' + rects + arrows;
+    },
+    // ③ 智能体：神经网络节点图
+    neural: function (id, hue) {
+      var layers = [[54, 4], [140, 5], [226, 5], [312, 4], [372, 2]];
+      var nodes = [], edges = [];
+      layers.forEach(function (col, li) {
+        var gap = 150 / (col.length + 1);
+        col.forEach(function (_, ni) {
+          var x = col[0], y = 38 + gap * (ni + 1);
+          nodes.push('<circle cx="' + x + '" cy="' + y + '" r="5.5" fill="' + (li === 3 ? hue : '#94a3b8') + '"/>');
+          if (li < layers.length - 1) {
+            var nextGap = 150 / (layers[li + 1].length + 1);
+            layers[li + 1].forEach(function (_, mi) {
+              var nx = layers[li + 1][0], ny = 38 + nextGap * (mi + 1);
+              edges.push('<line x1="' + x + '" y1="' + y + '" x2="' + nx + '" y2="' + ny +
+                '" stroke="#cbd5e1" stroke-width="1" opacity=".65"/>');
+            });
+          }
+        });
+      });
+      return edges.join('') + nodes.join('');
+    },
+    // ④ 数据：柱状 + 折线趋势
+    metrics: function (id, hue) {
+      var hs = [38, 62, 46, 84, 58, 100, 74];
+      var bw = 26, gap = 18, x0 = 40;
+      var bars = hs.map(function (h, i) {
+        return '<rect x="' + (x0 + i * (bw + gap)) + '" y="' + (170 - h) + '" width="' + bw +
+          '" height="' + h + '" rx="5" fill="' + (i === 5 ? hue : '#cbd5e1') + '"/>';
+      }).join('');
+      var pts = hs.map(function (h, i) { return (x0 + i * (bw + gap) + bw / 2) + ' ' + (170 - h - 12); });
+      var path = pts.map(function (p, i) { return (i ? 'L' : 'M') + p; }).join(' ');
+      return '<line x1="30" y1="172" x2="372" y2="172" stroke="#e2e8f0" stroke-width="1.5"/>' + bars +
+        '<path d="' + path + '" stroke="' + hue + '" stroke-width="2" fill="none" stroke-linejoin="round"/>' +
+        pts.map(function (p) {
+          var xy = p.split(' ');
+          return '<circle cx="' + xy[0] + '" cy="' + xy[1] + '" r="3" fill="' + hue + '"/>';
+        }).join('');
+    },
+    // ⑤ 开源：终端窗口（命令行 + 输出）
+    terminal: function (id, hue) {
+      // [x, y, 行宽, 颜色]
+      var lines = [
+        [56, 84,  128, hue],
+        [56, 100, 108, '#4ade80'],
+        [56, 116, 132, '#4ade80'],
+        [56, 132, 92,  '#4ade80'],
+        [56, 154, 118, '#94a3b8'],
+        [56, 172, 74,  hue]
+      ];
+      return '<rect x="30" y="42" width="340" height="146" rx="12" fill="#0f172a"/>' +
+        '<rect x="30" y="42" width="340" height="26" rx="12" fill="#1e293b"/>' +
+        '<rect x="30" y="60" width="340" height="8" fill="#1e293b"/>' +
+        '<circle cx="48" cy="55" r="4" fill="#ef4444"/><circle cx="64" cy="55" r="4" fill="#f59e0b"/>' +
+        '<circle cx="80" cy="55" r="4" fill="#22c55e"/>' +
+        lines.map(function (l) {
+          return '<rect x="' + l[0] + '" y="' + l[1] + '" width="' + l[2] +
+            '" height="7" rx="3.5" fill="' + l[3] + '"/>';
+        }).join('') +
+        '<rect x="136" y="168" width="8" height="12" fill="' + hue + '"/>';
+    },
+    // ⑥ 行业：蓝图网格
+    grid: function (id, hue) {
+      var cells = '';
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 5; c++) {
+          var on = (r * 5 + c) % 4 === 0 || (r === 1 && c === 2);
+          cells += '<rect x="' + (46 + c * 62) + '" y="' + (66 + r * 40) + '" width="52" height="30" rx="6" fill="' +
+            (on ? hue : '#e2e8f0') + '" opacity="' + (on ? '.18' : '1') + '"/>';
+        }
+      }
+      return cells + '<line x1="46" y1="196" x2="356" y2="196" stroke="#cbd5e1" stroke-width="1.5"/>';
+    }
+  };
+
+  // 每种母题配一个主色（仍属 ≤3 主色体系内的蓝/青两族 + 中性）
+  var MOTIF_HUE = {
+    roadmap: '#2563eb', pipeline: '#0e7490', neural: '#2563eb',
+    metrics: '#0e7490', terminal: '#2563eb', grid: '#0e7490'
+  };
+
+  function coverSVG(it) {
+    var motif = (MOTIFS[it.motif] || MOTIFS.grid)('c' + it.no, MOTIF_HUE[it.motif] || '#2563eb');
+    return '<svg class="w-cover" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' +
+      esc(it.t + ' 的示意图：' + it.pitch.slice(0, 46) + '…') + '" preserveAspectRatio="xMidYMid meet">' +
+      '<rect width="' + W + '" height="' + H + '" fill="#f8fafc"/>' +
+      '<g>' + motif + '</g>' +
+      '</svg>';
   }
 
   // ==========================================================================
@@ -112,28 +239,42 @@
   function cardHTML(it, opts) {
     opts = opts || {};
     var c = catOf(it);
+
     var hl = (it.highlights || []).map(function (h) {
       return '<div class="w-hl"><b>' + esc(h.num) + '</b><span>' + esc(h.label) + '</span></div>';
-    }).join('');
-
-    var links = (it.links || []).slice(0, opts.maxLinks || 3).map(function (l) {
-      var p = l.split('|');
-      return p.length === 2 ? renderLink(p[0], p[1]) : '';
     }).join('');
 
     var tags = (it.tags || []).map(function (t) {
       return '<span class="w-tag">' + esc(t) + '</span>';
     }).join('');
 
-    var thumb = it.shot
+    var links = (it.links || []).map(function (l) {
+      var p = l.split('|');
+      return p.length === 2 ? renderLink(p[0], p[1]) : '';
+    }).join('');
+
+    // 有真实截图用截图，否则用内联 SVG 示意图（保证每张都有语义化描述）
+    var cover = it.shot
       ? '<div class="w-thumb"><img src="' + esc(it.shot.replace(/^\.\//, '')) + '" alt="' +
-        esc(it.t + ' 的项目截图：' + (it.metric || it.pitch.slice(0, 40))) +
-        '" loading="lazy"></div>'
-      : '';
+        esc(it.t + ' 的运行截图：' + (it.metric || it.pitch.slice(0, 40))) + '" loading="lazy"></div>'
+      : '<div class="w-thumb">' +
+          '<span class="w-cover-tag">' + esc(c.icon) + ' MODULE ' + esc(it.no) + '</span>' +
+          coverSVG(it) +
+        '</div>';
+
+    // 可展开详情：量化口径 / 归属岗位 / 全部证明链接
+    var detail = '';
+    if (it.metric || links) {
+      detail = '<div class="w-more" hidden>' +
+        (it.metric ? '<p class="w-note"><b>量化口径</b>' + esc(it.metric) + '</p>' : '') +
+        '<p class="w-note"><b>归属岗位</b>' + esc(ROLES[MODULE_ROLE[it.no]] ? ROLES[MODULE_ROLE[it.no]].name : '—') + '</p>' +
+        (links ? '<div class="w-links is-all">' + links + '</div>' : '') +
+        '</div>';
+    }
 
     return '' +
       '<article class="w-card" id="mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(MODULE_ROLE[it.no] || '') + '">' +
-        thumb +
+        cover +
         '<div class="w-body">' +
           '<div class="w-top">' +
             '<span class="w-no">' + esc(it.no) + '</span>' +
@@ -145,7 +286,12 @@
           '<p class="w-pitch">' + esc(it.pitch) + '</p>' +
           (hl ? '<div class="w-hls">' + hl + '</div>' : '') +
           (tags ? '<div class="w-tags">' + tags + '</div>' : '') +
-          (links ? '<div class="w-links">' + links + '</div>' : '') +
+          '<div class="w-foot">' +
+            '<a class="w-go" href="' + esc(rolePageOf(it)) + '#mod-' + esc(it.no) + '">在' +
+              esc(ROLES[MODULE_ROLE[it.no]] ? ROLES[MODULE_ROLE[it.no]].short : '岗位页') + '查看 →</a>' +
+            (detail ? '<button class="w-expand" type="button" aria-expanded="false">展开详情</button>' : '') +
+          '</div>' +
+          detail +
         '</div>' +
       '</article>';
   }
@@ -159,9 +305,8 @@
     return '' +
       '<a class="w-tile" href="' + esc(rolePageOf(it)) + '#mod-' + esc(it.no) + '" data-cat="' + esc(it.cat) + '" data-role="' + esc(rk || '') + '">' +
         '<span class="w-tile-no">' + esc(it.no) + '</span>' +
-        '<span class="w-tile-cat">' + esc(c.icon) + '</span>' +
         '<span class="w-tile-t">' + esc(it.t) + '</span>' +
-        '<span class="w-tile-role">' + esc(ROLES[rk] ? ROLES[rk].short : '') + '</span>' +
+        '<span class="w-tile-role">' + esc(ROLES[rk] ? ROLES[rk].short : c.icon) + '</span>' +
       '</a>';
   }
 
@@ -169,26 +314,21 @@
   // 渲染：岗位页的模块清单
   // ==========================================================================
   function listByRole(items, roleKey, opts) {
-    var role = ROLES[roleKey];
-    var mine = items.filter(function (it) {
-      return MODULE_ROLE[it.no] === roleKey;
-    });
+    var mine = items.filter(function (it) { return MODULE_ROLE[it.no] === roleKey; });
     if (!mine.length) return '<p class="works-empty">暂无归属模块。</p>';
-
-    return mine.map(function (it) {
-      return cardHTML(it, opts);
-    }).join('');
+    return mine.map(function (it) { return cardHTML(it, opts); }).join('');
   }
 
   // ==========================================================================
   // 渲染：首页统计条
   // ==========================================================================
-  function statHTML() {
+  function statHTML(items) {
+    var n = items ? items.length : (DATA ? DATA.items.length : 21);
     return '' +
       '<div class="w-stats">' +
         '<div class="w-stat"><b>300+</b><span>项目可研 / 立项</span></div>' +
         '<div class="w-stat"><b>100+</b><span>服务企业客户</span></div>' +
-        '<div class="w-stat"><b>18</b><span>深度作品模块</span></div>' +
+        '<div class="w-stat"><b>' + n + '</b><span>深度作品模块</span></div>' +
         '<div class="w-stat"><b>93.3%</b><span>RAG 检索准确率 @3</span></div>' +
       '</div>';
   }
@@ -227,6 +367,24 @@
   }
 
   // ==========================================================================
+  // 交互：卡片展开 / 收起
+  // ==========================================================================
+  function bindExpand(root) {
+    var scope = root || document;
+    scope.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.w-expand') : null;
+      if (!btn) return;
+      var card = btn.closest('.w-card');
+      var more = card ? card.querySelector('.w-more') : null;
+      if (!more) return;
+      var open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!open));
+      btn.textContent = open ? '展开详情' : '收起';
+      more.hidden = open;
+    });
+  }
+
+  // ==========================================================================
   // 对外 API
   // ==========================================================================
   global.WORKS = {
@@ -240,6 +398,7 @@
     listByRole: listByRole,
     statHTML: statHTML,
     bindFilter: bindFilter,
+    bindExpand: bindExpand,
     esc: esc
   };
 })(window);

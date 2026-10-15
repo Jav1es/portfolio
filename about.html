@@ -54,9 +54,9 @@
       <ul class="duty-list">
         <li><b>① 规划与方案能力：</b>把模糊需求变成可执行方案——业务盘点、优先级排序、选型对比、路线图与 ROI 测算。<i>代表作：模块 01 AI 工具体系 0-1 规划包（8 大业务域 + ROI 测算 + 6 个月路线图）</i></li>
         <li><b>② 工作流落地与交付：</b>把方案真正跑通并推到一线——「AI 先做 / 人只审」双层流程、异常兜底、SOP 与培训推广。<i>代表作：模块 03 财务/行政/外贸 RPA+AI 审核（已交付）· 模块 02 企业问答与文档 AIGC</i></li>
-        <li><b>③ 智能体与 AI 工程：</b>从架构到实现的完整工程能力——编排、RAG、工具调用、记忆、容错、部署、评测与可观测性。<i>代表作：模块 04 enterprise-agent（六层架构）· 模块 06 RAG 真实评测 93.3% · 模块 07 OTel/Jaeger 全链路追踪</i></li>
-        <li><b>④ 数据与量化复盘：</b>用数据证明价值——自建业务数据库、SQL 固化报表、前后对比基线与项目复盘体系。<i>代表作：模块 12 项目复盘与量化数据报告 · 模块 05 业务数据库与数据监测报告</i></li>
-        <li><b>⑤ 开源与工具链：</b>把能力沉淀成可复用、可验证的公共品——多个 MIT 开源仓库、CI 全绿、测试完备。<i>代表作：模块 13–18 六个开源仓库（MCP 三件套 / dsh-bridge / DSH 插件 / 运维工具箱 / 知识指南 / dsh-prompt-compiler）</i></li>
+        <li><b>③ 智能体与 AI 工程：</b>从架构到实现的完整工程能力——编排、RAG、工具调用、记忆、容错、部署、评测与可观测性。<i>代表作：模块 04 enterprise-agent（六层架构）· 模块 13 RAG 真实评测 93.3% · 模块 14 OTel/Jaeger 全链路追踪</i></li>
+        <li><b>④ 数据与量化复盘：</b>用数据证明价值——自建业务数据库、SQL 固化报表、前后对比基线与项目复盘体系。<i>代表作：模块 10 项目复盘与量化数据报告 · 模块 05 业务数据库与数据监测报告</i></li>
+        <li><b>⑤ 开源与工具链：</b>把能力沉淀成可复用、可验证的公共品——多个 MIT 开源仓库、CI 全绿、测试完备。<i>代表作：模块 12 / 15 / 16 / 17 / 18 / 19 / 20 / 21 八个开源仓库（dsh-bridge / DSH 插件 / MCP 三件套 / 知识指南 / prompt-compiler / 运维工具箱 / 高企自评 PWA / workbuddy-bridge）</i></li>
         <li><b>⑥ 行业定制规划：</b>通用方法落到具体行业——为真实实体制造企业编制公司级信息化与 AI 规划蓝图。<i>代表作：某高分子新材料企业信息化总体规划（客户已脱敏）</i></li>
       </ul>
     </div>
@@ -105,7 +105,7 @@
       </ul>
 
       <div class="btn-row">
-        <a class="btn btn-primary" href="./index.html">回首页看 18 个模块</a>
+        <a class="btn btn-primary" href="./index.html">回首页看 21 个模块</a>
         <a class="btn btn-ghost" href="./fde.html">FDE 工程师</a>
         <a class="btn btn-ghost" href="./ai-agent.html">AI 智能体开发</a>
         <a class="btn btn-ghost" href="./vibe-engineer.html">VibeCoding 工程师</a>
@@ -137,7 +137,7 @@
 <script src="./menu.js" defer></script>
 <script>
   WORKS.loadData(function () {
-    document.getElementById('about-stats').innerHTML = WORKS.statHTML();
+    document.getElementById('about-stats').innerHTML = WORKS.statHTML(data.items);
   });
 </script>
 </body>
