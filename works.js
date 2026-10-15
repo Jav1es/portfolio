@@ -361,7 +361,7 @@
           coverSVG(it) +
         '</div>';
 
-    // ---- 可展开详情：完整作品情况（横向分两栏，避免竖着拉长） ----
+    // ---- 可展开详情：完整作品情况（一行一个字段，横向铺满） ----
     var detail = '';
     if (it.role || it.arch || it.pain || (it.steps && it.steps.length) || it.hard || it.retro) {
       function row(label, val) {
@@ -369,22 +369,19 @@
         return '<div class="d-row"><span class="d-label">' + esc(label) + '</span>' +
                '<span class="d-val">' + esc(val) + '</span></div>';
       }
-      // 左栏：背景与方案（我负责什么 / 痛点 / 架构）
-      var left = row('我负责什么', it.role) + row('解决的痛点', it.pain) + row('架构 / 方案', it.arch);
-      // 右栏：实施与复盘（步骤 / 难点 / 复盘 / 口径）
-      var right = '';
+      var rows = row('我负责什么', it.role) +
+                 row('解决的痛点', it.pain) +
+                 row('架构 / 方案', it.arch);
       if (it.steps && it.steps.length) {
-        right += '<div class="d-row"><span class="d-label">实施步骤</span><ol class="d-steps">' +
+        rows += '<div class="d-row"><span class="d-label">实施步骤</span><ol class="d-steps">' +
           it.steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') +
           '</ol></div>';
       }
-      right += row('难点与取舍', it.hard) + row('复盘', it.retro) + row('量化口径', it.metric);
+      rows += row('难点与取舍', it.hard) +
+              row('复盘', it.retro) +
+              row('量化口径', it.metric);
 
-      detail = '<div class="w-more" hidden>' +
-        '<div class="d-cols">' +
-          '<div class="d-col">' + left + '</div>' +
-          '<div class="d-col">' + right + '</div>' +
-        '</div>' +
+      detail = '<div class="w-more" hidden>' + rows +
         '<div class="w-preview-box" hidden></div>' +
         (links ? '<div class="w-links is-all">' + links + '</div>' : '') +
         '</div>';
