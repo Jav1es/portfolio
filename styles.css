@@ -287,6 +287,28 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 
 .lede { font-size: 17px; color: var(--txt2); max-width: 760px; margin-bottom: 16px; }
 
+/* 导航里的「附属能力」链接：VibeCoding 降为支撑定位
+   虚线边框 + 字号缩小 + 颜色弱化，与两条主责主线区分开 */
+.site-nav .nav-links a.nav-secondary {
+  font-size: 13.5px;
+  color: var(--txt3);
+  border: 1px dashed var(--line2);
+  border-radius: 99px;
+  padding: 3px 11px;
+  line-height: 1.5;
+}
+.site-nav .nav-links a.nav-secondary:hover {
+  color: var(--txt2);
+  border-color: var(--line2);
+  background: var(--bg2);
+}
+.site-nav .nav-links a.nav-secondary[aria-current="page"] {
+  color: #fff;
+  background: var(--txt3);
+  border-style: solid;
+  border-color: var(--txt3);
+}
+
 /* 入口卡片：主责 / 支撑 标签，明确区分主线与附属能力 */
 .entry-primary, .entry-secondary {
   display: inline-block; vertical-align: middle;
@@ -1171,6 +1193,11 @@ mark {
     border-top-color: var(--line);
   }
   .nav-links a { padding: 11px 12px; font-size: 15.5px; }
+  /* 汉堡菜单里：附属链接保持足够点触面积（≥44px 高），只弱化颜色 */
+  .site-nav .nav-links a.nav-secondary {
+    padding: 11px 12px; font-size: 15px;
+    border-style: dashed; border-radius: 8px;
+  }
 
   .hero { padding: 40px 0 26px; }
   .section { padding: 30px 0; }
