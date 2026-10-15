@@ -606,6 +606,20 @@
   }
 
   // ==========================================================================
+  // 渲染：按编号点名（brief P1-1 首页「精选 6 个」用）
+  // 与 listByRole 的区别：**顺序由调用方给的 nos 决定**，不是数据里的原始顺序。
+  // 首页要保证「最强的 3 个排在最前」，所以顺序必须可控。
+  // ==========================================================================
+  function pickHTML(items, nos, opts) {
+    var byNo = {};
+    items.forEach(function (it) { byNo[String(it.no)] = it; });
+    var picked = (nos || []).map(function (n) { return byNo[String(n)]; })
+                            .filter(function (x) { return !!x; });
+    if (!picked.length) return '<p class="works-empty">暂无精选模块。</p>';
+    return picked.map(function (it) { return cardHTML(it, opts); }).join('');
+  }
+
+  // ==========================================================================
   // 渲染：首页统计条
   // ==========================================================================
   function statHTML(items) {
@@ -792,6 +806,7 @@
     cardHTML: cardHTML,
     tileHTML: tileHTML,
     listByRole: listByRole,
+    pickHTML: pickHTML,
     statHTML: statHTML,
     bindFilter: bindFilter,
     bindExpand: bindExpand,
