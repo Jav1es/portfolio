@@ -1981,5 +1981,17 @@ body { line-height: 1.68; }
   font-size: 12.6px; line-height: 1.7; color: var(--txt3);
 }
 
+/* brief P1-8：真实 CI badge（GitHub Actions 原生 SVG，外链图片）。
+   只挂「最近一次通过」的两个仓库 —— 挂一个 failing 的 badge 等于自曝；
+   第三个（dsh-bridge）workflow 在但最近一次失败，故不挂也不提。
+   height 固定 20px、宽度自适应：badge 文案长度随 workflow 名变化，
+   写死 width 会把它拉伸变形。alt 写中性描述，不写「通过」（状态会变）。 */
+.ci-badges {
+  display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  margin: 0 8px 6px 0; vertical-align: middle;
+}
+.ci-badges a { display: inline-flex; align-items: center; }
+.ci-badges img { height: 20px; width: auto; }
+
 
 

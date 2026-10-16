@@ -41,7 +41,7 @@
       "no": "⑤",
       "name": "开源与工具链",
       "icon": "🧩",
-      "desc": "把能力沉淀成可复用、可验证的公共品：多个 MIT 开源仓库、CI 运行中、测试完备。",
+      "desc": "把能力沉淀成可复用、可验证的公共品：多个 MIT 开源仓库（其中 3 个含 CI 门禁）、测试完备。",
       "star": "不只会用工具，还能造工具——9 个独立开源仓库，从 MCP Server 到宿主插件、离线 PWA、运维工具链与检索规程，全部带测试与文档。",
       "pick": "代表作：模块 13 MCP 三件套 · 模块 14 dsh-bridge · 模块 15 DSH 插件三件套 · 模块 16 运维工具箱 · 模块 17 知识指南检索规程 · 模块 18 dsh-prompt-compiler"
     },
@@ -628,7 +628,7 @@
       "star": true,
       "status": "开源工具",
       "jd": "AI 智能体开发工程师",
-      "pitch": "两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现、CI 运行中。",
+      "pitch": "两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现。",
       "highlights": [
         {
           "num": "3",
@@ -979,7 +979,7 @@
         },
         {
           "num": "43",
-          "label": "自动化测试 · CI 运行中"
+          "label": "自动化测试 · CI 已接入"
         }
       ],
       "tags": [
@@ -997,8 +997,8 @@
         "CHANGELOG：v0.2.0 更新内容（逐个 bug 的根因与修法）|https://github.com/Jav1es/dsh-prompt-compiler/blob/main/CHANGELOG.md"
       ],
       "shot": "./18-prompt-compiler/compile-result.png",
-      "metric": "已发布 v0.2.1：npm（dsh-prompt-compiler，带 npm provenance 签名）+ GitHub（CI 运行中，Node 22/24 双版本矩阵）",
-      "role": "我独立设计并实现了一个 DSH 插件 dsh-prompt-compiler：把粗糙 draft 编译成精确完整 prompt 的「可编程编译层」。三阶段（诊断分析 → 交互式澄清 → 结构化合成）既服务人（澄清 + 评分 + 教学），也通过 ctx.promptCompiler 服务与 prompt_compile 工具服务其他插件与 Agent，跨 DSH / Claude Code；已发布 v0.2.1（npm + GitHub，CI 运行中 + npm provenance 签名），并提供插件设置页统一管理模型来源、编译风格、输出格式与诊断开关。",
+      "metric": "已发布 v0.2.1：npm（dsh-prompt-compiler，带 npm provenance 签名）+ GitHub（CI 已接入，Node 22/24 双版本矩阵）",
+      "role": "我独立设计并实现了一个 DSH 插件 dsh-prompt-compiler：把粗糙 draft 编译成精确完整 prompt 的「可编程编译层」。三阶段（诊断分析 → 交互式澄清 → 结构化合成）既服务人（澄清 + 评分 + 教学），也通过 ctx.promptCompiler 服务与 prompt_compile 工具服务其他插件与 Agent，跨 DSH / Claude Code；已发布 v0.2.1（npm + GitHub，CI 已接入 + npm provenance 签名），并提供插件设置页统一管理模型来源、编译风格、输出格式与诊断开关。",
       "arch": "draft → 诊断分析（识别缺失：目标 / 上下文 / 约束 / 验证标准 / 歧义）→ 交互式澄清（ctx.userQuestions.ask 插件内提问，不走 agent loop；用户拒绝时输出「自动推断」）→ 结构化合成（强制含验收标准字段，逐字保留路径 / 命令 / 版本号）→ Compiled Prompt。服务化：ctx.provide('promptCompiler') 注册服务，lib/ 内零 @deepseek-ai 运行时 import。",
       "pain": "用户给的 draft 常缺目标 / 上下文 / 约束 / 验证标准，直接写 Prompt 全凭手感、不可复现；其他插件与 Agent 也缺少一套可复用的编译能力，只能各自手搓。",
       "steps": [
