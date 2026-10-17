@@ -38,7 +38,7 @@ Node.js ESM / Python 双栈；GitHub Actions CI；pytest / vitest 测试；Servi
 ## 开源与工具链主线项目（8 个 · 全部 MIT）
 
 ### 12 dsh-bridge：让 Marvis 调用本机 DeepSeek Harness
-两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现、CI 全绿。
+两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现。
 `指标`：3 个 MCP 工具（零依赖手写协议）｜241×77 技能 × MCP 工具本地检索｜10 秒派工单生成耗时
 `证明`：[GitHub](https://github.com/Jav1es/dsh-bridge)
 

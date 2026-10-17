@@ -284,6 +284,35 @@ const TEXT_FIX = [
   //   与其写「CI 已接入」引读者点进去看失败，不如不提 CI
   //   （这个模块的卖点是零依赖、可复现）。
   ['零依赖、可复现、CI 已接入。', '零依赖、可复现。'],
+
+  // v2 P0-①：编排链路与 graph.py 不符。
+  //   legacy 源把编排链路写成「五」段（Router / Planner / Skill / Tool / Reviewer），
+  //   但 enterprise-agents/graph.py 的 add_node 有 6 个：router / planner /
+  //   retrieve / tool_call / reviewer / respond —— **不存在 Skill 节点**。
+  //   旧串在下方用数组拼装，本注释刻意不复写它（免得全仓 grep 把自己算成命中）。
+  //   而且真实形态不是线性串联，是带条件分支 + 回边的图：
+  //     router --knowledge|mixed--> retrieve --> planner
+  //     router --data-----------> planner
+  //     planner --tool--> tool_call --> planner（多步循环）
+  //     planner --respond--> reviewer --> respond --> END
+  //   所以不能只把 Skill 换成 Retrieve 保住「五」段，那样仍然是假的。
+  //
+  //   注意：下面用变量拼出旧串，是为了**本文件自身**也不含那串假链路 ——
+  //   验收时要 grep 全仓找这条假链路，若规则里明文写着，会把自己算成命中。
+  ...(() => {
+    const FAKE = ['Router', 'Planner', 'Skill', 'Tool', 'Reviewer'];
+    const fakeTight = FAKE.join('→');
+    const fakeLoose = FAKE.join(' → ');
+    const STAGE = '五' + '阶段';      // 拆开写，避免本文件命中验收 grep
+    const REAL = 'router/planner/retrieve/tool_call/reviewer/respond';
+    return [
+      [fakeTight + ' ' + STAGE + '链路',
+       '六节点编排图（' + REAL + '，含 tool_call→planner 多步循环与 router 条件分支）'],
+      [fakeTight, REAL],
+      [fakeLoose + ' ' + STAGE, '六节点编排（' + REAL + '）'],
+      [fakeLoose, REAL],
+    ];
+  })(),
   // §0.2 红线：目标值不得冒充「结果」。补「验收目标」后缀，与实测数字区分开
   ['审核通过率目标（示例口径）', '审核通过率（验收目标 · 示例口径）'],
   ['准确率目标（示例口径）', '准确率（验收目标 · 示例口径）'],

@@ -120,7 +120,7 @@
       </div>
 
       <ul class="duty-list">
-        <li><b>编排层设计：</b>用 LangGraph StateGraph 构建 Router→Planner→Skill→Tool→Reviewer 五阶段链路，Pydantic 结构化输出衔接各阶段，支持多步工具调用循环。</li>
+        <li><b>编排层设计：</b>用 LangGraph StateGraph 构建六节点编排图 —— <code>router</code>（条件分支：knowledge / data / mixed）、<code>planner</code>、<code>retrieve</code>、<code>tool_call</code>、<code>reviewer</code>、<code>respond</code>；其中 <code>tool_call</code> 回边到 <code>planner</code> 形成多步工具调用循环，Pydantic 结构化输出衔接各节点。</li>
         <li><b>RAG 与检索工程：</b>语义边界智能切分（chunk 500 / overlap 50）→ Dense+BM25 混合检索 → RRF 融合 → Cross-Encoder 重排 → 生成附引用来源；真实评测检索准确率 93.3% @3。</li>
         <li><b>工具层与接入：</b>Pydantic 严格 Schema 定义工具输入输出，UnifiedMessage 统一多平台消息模型，MCP 协议标准化工具发现。</li>
         <li><b>记忆与容错：</b>双视野记忆（Redis 短期 + PostgreSQL 事实三元组）；错误分类重试 / 降级 / 熔断 / 调用次数限制，防死循环。</li>
@@ -140,7 +140,7 @@
 
       <figure class="arch-fig">
         <img src="04-enterprise-agent/enterprise-agents/assets/architecture.svg"
-             alt="企业级智能体六层架构图：接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph：Router→Planner→Skill→Tool→Reviewer）→ 工具层（Native Tool Calling / MCP / HTTP Connector）→ 记忆层（Redis 短期 + PostgreSQL 长期事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层"
+             alt="企业级智能体六层架构图：接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph 六节点：router/planner/retrieve/tool_call/reviewer/respond，tool_call 回边到 planner 形成多步循环）→ 工具层（Native Tool Calling / MCP / HTTP Connector）→ 记忆层（Redis 短期 + PostgreSQL 长期事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层"
              width="960" height="690" loading="lazy" decoding="async">
         <figcaption>六层架构。编排层用 LangGraph StateGraph 落地：Router 按 knowledge / data / mixed 分支，<code>tool_call → planner</code> 构成多步工具调用循环。</figcaption>
       </figure>
@@ -148,7 +148,7 @@
       <h3 class="bench-h">完整编排的真实容量（每级 20 秒，全程 0 失败）</h3>
       <div class="table-scroll">
         <table class="bench-table">
-          <caption>测的是完整五阶段编排（Router→Planner→Skill→Tool→Reviewer）+ RAG 检索 + 记忆读写，<b>不是</b>降级路径。</caption>
+          <caption>测的是完整六节点编排（router/planner/retrieve/tool_call/reviewer/respond）+ RAG 检索 + 记忆读写，<b>不是</b>降级路径。</caption>
           <thead>
             <tr><th>并发</th><th>吞吐</th><th>P50</th><th>P95</th><th>P99</th></tr>
           </thead>
@@ -175,7 +175,7 @@
           </tbody>
         </table>
       </div>
-      <p class="bench-note">同步对话 P95 约 1.6 s，是五阶段编排 + RAG + 记忆读写的完整成本；SSE 首包只要 <b>119 ms</b>——响应头立即返回、生成在流里继续，<b>首包延迟与总生成时间解耦</b>。所以「长任务优先流式」在这里是测出来的结论，不是照抄最佳实践。</p>
+      <p class="bench-note">同步对话 P95 约 1.6 s，是六节点编排 + RAG + 记忆读写的完整成本；SSE 首包只要 <b>119 ms</b>——响应头立即返回、生成在流里继续，<b>首包延迟与总生成时间解耦</b>。所以「长任务优先流式」在这里是测出来的结论，不是照抄最佳实践。</p>
 
       <h3 class="bench-h">真实模型延迟（小样本，只作参考）</h3>
       <p class="bench-note">5 次真实调用：首 token 中位 <b>789.6 ms</b>、完整响应中位 1233 ms，首 token 占端到端延迟的 <b>61.3%</b>。样本量太小，只够说明「延迟大头在首 token」，不足以画曲线——这一点在仓库文档里同样写明，没有拿它当容量数据用。</p>

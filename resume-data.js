@@ -13,7 +13,7 @@ window.__RESUME__ = {
   // ---- 基本身份 ----
   name: 'Jav1es · 黄家辉',
   title: '企业级 AI Agent 开发工程师 / FDE',
-  summary: '6 年+ 企业科技服务（2021.04 至今），主导 300+ 项目、服务 100+ 企业（项目申报口径）。AI 工程实践 27 个月：把 AI Agent 从 Demo 做到生产——RAG 检索 93.3% @3，OTel/Jaeger 全链路可观测，9 个公开开源仓库、3 个含 CI 门禁。',
+  summary: '6 年+ 企业科技服务（2021.04 至今），主导 300+ 项目、服务 100+ 企业（项目申报口径）。AI 工程实践 27 个月：把 AI Agent 从 Demo 做到能评测、可观测、可演示——RAG 检索 93.3% @3，OTel/Jaeger 全链路可观测，9 个公开开源仓库、3 个含 CI 门禁。',
 
   // ---- 联系方式 ----
   contact: {
@@ -43,7 +43,7 @@ window.__RESUME__ = {
   skills: [
     {
       group: 'AI Agent 开发',
-      items: ['六层智能体架构', 'LangGraph 五阶段编排', '工具调用与运行时防护',
+      items: ['六层智能体架构', 'LangGraph 六节点编排', '工具调用与运行时防护',
               '双视野记忆（Redis / PostgreSQL）', 'MCP 协议与 Server 实现', 'FastAPI + SSE 流式接口']
     },
     {
@@ -128,7 +128,7 @@ window.__RESUME__ = {
       name: '企业级智能体系统（enterprise-agent）',
       role: '独立设计与开发',
       bullets: [
-        '主导企业级智能体系统建设，采用六层架构集成 RAG、工具调用与 MCP，基于 LangGraph StateGraph 实现 Router → Planner → Skill → Tool → Reviewer 五阶段编排，RAG 检索准确率达 93.3% @3（30 题分层评测）。',
+        '主导企业级智能体系统建设，采用六层架构集成 RAG、工具调用与 MCP，基于 LangGraph StateGraph 实现六节点编排（router / planner / retrieve / tool_call / reviewer / respond，含 tool_call → planner 多步工具调用循环与 router 条件分支），RAG 检索准确率达 93.3% @3（30 题分层评测）。',
         '建立评测集并纳入 CI 每次 push 自动回归，结合 OpenTelemetry + Jaeger 全链路追踪（一次会话 7 个 span：root · router · planner · retrieve · tool_call · reviewer · respond），将 Agent 稳定性问题的定位时间从小时级降到分钟级。',
         '完成服务端工程化：FastAPI + SSE 流式接口、Pydantic 结构化输出、重试/降级/熔断中间件；Docker Compose 一键起全栈，K8s Helm 配双指标 HPA 与健康探针。'
       ],
