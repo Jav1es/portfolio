@@ -8,7 +8,7 @@
 
 ## 个人简介
 
-能独立扛 Agent 研发全链路：自研并开源 **enterprise-agent 六层智能体架构**（接入 / 编排 / 工具 / 记忆 / 知识 / 推理），基于 LangGraph StateGraph 实现 Router → Planner → Skill → Tool → Reviewer 五阶段编排，覆盖上下文管理、双视野记忆、工具调用标准化与运行时防护。
+能独立扛 Agent 研发全链路：自研并开源 **enterprise-agent 六层智能体架构**（接入 / 编排 / 工具 / 记忆 / 知识 / 推理），基于 LangGraph StateGraph 实现六节点编排（router / planner / retrieve / tool_call / reviewer / respond，含条件分支与工具调用循环），覆盖上下文管理、双视野记忆、工具调用标准化与运行时防护。
 
 **RAG 混合检索 30 题分层评测准确率 @3 达 93.3%**（@1 73.3%）；MCP Server 三件套开源（pytest 35 用例通过）；Locust 阶梯压测 2535 请求 0 失败。Python / FastAPI 服务端与 Redis / PostgreSQL / Docker / K8s 工程化能力扎实。
 
@@ -19,7 +19,7 @@
 ## 核心能力（对齐 JD）
 
 **● Agent 后端全链路**
-LangGraph 五阶段编排；上下文管理（上下文窗口策略 + 双视野记忆：短期 Redis / 长期 PostgreSQL 事实三元组）；工具调用标准化与运行时防护（重试 / 降级 / 熔断 / 超时）。
+LangGraph 六节点编排（含条件分支与工具调用循环）；上下文管理（上下文窗口策略 + 双视野记忆：短期 Redis / 长期 PostgreSQL 事实三元组）；工具调用标准化与运行时防护（重试 / 降级 / 熔断 / 超时）。
 
 **● Python 与服务端生态**
 Python 熟练；FastAPI + SSE 流式接口；Pydantic 结构化输出校验；PostgreSQL（含 pgvector）、Redis；多系统 API 集成（ERP / CRM / OA / 钉钉 / 企微）；Docker Compose 与 K8s Helm（双指标 HPA、健康探针、密钥强制 Secret）。
@@ -50,7 +50,7 @@ Python 熟练；FastAPI + SSE 流式接口；Pydantic 结构化输出校验；Po
 ## 智能体工程主线项目（5 个）
 
 ### 04 企业级智能体系统（本地开发工程 · 个人开源）
-独立设计开发：六层架构 + LangGraph StateGraph 五阶段链路（Router → Planner → Skill → Tool → Reviewer）；上下文管理与记忆（短期 Redis + 长期 PostgreSQL 事实三元组）；FastAPI + SSE 流式接口；Pydantic 结构化输出 + 重试 / 降级 / 熔断中间件。**现场可演示。**
+独立设计开发：六层架构 + LangGraph StateGraph 六节点编排图（router / planner / retrieve / tool_call / reviewer / respond，含条件分支与 tool_call→planner 循环）；上下文管理与记忆（短期 Redis + 长期 PostgreSQL 事实三元组）；FastAPI + SSE 流式接口；Pydantic 结构化输出 + 重试 / 降级 / 熔断中间件。**现场可演示。**
 `证明`：《企业级智能体系统开发文档》、运行截图、GitHub 仓库
 
 ### 07 Prompt 工程与评测体系（自建 Demo）

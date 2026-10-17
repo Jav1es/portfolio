@@ -251,10 +251,10 @@
       "shot": "./04-enterprise-agent/enterprise-agents/assets/rag_run_terminal.png",
       "metric": "短期记忆 TTL 30 分钟，长期记忆事实三元组持久化",
       "role": "独立设计并开发了一套面向企业场景的本地智能体系统，具备工作流编排、工具调用、记忆管理、RAG 知识库四大核心能力，通过标准化接入层对接 ERP/CRM/OA/钉钉/企微，内置容错重试与降级机制，支持 Docker Compose 本地部署与 K8s 集群部署。",
-      "arch": "六层架构：接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph：Router→Planner→Skill→Tool→Reviewer）→ 工具层（Native Tool Calling / MCP 协议 / HTTP Connector）→ 记忆层（短期 Redis + 长期 PostgreSQL 事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层（DeepSeek/Qwen/Ollama 本地模型，OpenAI 兼容接口）。",
+      "arch": "六层架构：接入层（钉钉/企微/OA/ERP/CRM Channel）→ 编排层（LangGraph StateGraph：router/planner/retrieve/tool_call/reviewer/respond）→ 工具层（Native Tool Calling / MCP 协议 / HTTP Connector）→ 记忆层（短期 Redis + 长期 PostgreSQL 事实三元组）→ 知识层（ChromaDB/Milvus，Dense+BM25→RRF→Cross-Encoder 重排）→ LLM 推理层（DeepSeek/Qwen/Ollama 本地模型，OpenAI 兼容接口）。",
       "pain": "通用聊天机器人无法对接企业系统、无持久记忆、无工具调用、输出不可控、故障无兜底，难以支撑真实企业场景。",
       "steps": [
-        "编排层：用 LangGraph StateGraph 构建 Router→Planner→Skill→Tool→Reviewer 五阶段链路，Pydantic 结构化输出衔接各阶段，支持多步工具调用循环",
+        "编排层：用 LangGraph StateGraph 构建 六节点编排图（router/planner/retrieve/tool_call/reviewer/respond，含 tool_call→planner 多步循环与 router 条件分支），Pydantic 结构化输出衔接各阶段，支持多步工具调用循环",
         "记忆层：双视野记忆——短期 Redis（会话状态 TTL 30 分钟、滚动摘要、上下文预算控制）+ 长期 PostgreSQL（事实三元组持久化、按访问频率自动提升、按时间修剪、去重与冲突检测）",
         "知识层 RAG：语义边界智能切分（段落→换行→句子，chunk 500/overlap 50）→ Dense+BM25 混合检索 → RRF 融合 → Cross-Encoder（bge-reranker-base）重排 → 生成附引用来源",
         "工具层与接入：Pydantic 严格 Schema 定义工具输入输出，UnifiedMessage 统一多平台消息模型，企微经 wecom-aibot-python-sdk WebSocket 长连接，MCP 系统经 MultiServerMCPClient 标准化工具发现",

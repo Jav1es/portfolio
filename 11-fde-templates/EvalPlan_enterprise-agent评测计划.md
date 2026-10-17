@@ -48,7 +48,7 @@
 
 ### 被测链路
 
-`用户输入 → FastAPI 网关（限流/鉴权） → LangGraph 编排（Router→Planner→Skill→Tool→Reviewer） → RAG 检索（Dense+BM25 → RRF → Cross-Encoder 重排） → 记忆（Redis 短期 / PostgreSQL 长期） → 响应输出（含引用）`
+`用户输入 → FastAPI 网关（限流/鉴权） → LangGraph 编排（六节点图：router / planner / retrieve / tool_call / reviewer / respond，含条件分支与 tool_call→planner 循环） → RAG 检索（Dense+BM25 → RRF → Cross-Encoder 重排） → 记忆（Redis 短期 / PostgreSQL 长期） → 响应输出（含引用）`
 
 ### 本次包含（in scope）
 
