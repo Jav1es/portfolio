@@ -370,6 +370,10 @@
 
   function cardHTML(it, opts) {
     opts = opts || {};
+    // showStar 默认 true（works.html 的完整目录里保留「代表作」标记），
+    // 首页与三个岗位页都是精选视图，那里 5/6 张卡都带星、等于没有区分度，
+    // 由调用方传 { showStar: false } 关掉。见 v2 P2-④。
+    var showStar = opts.showStar !== false;
     var c = catOf(it);
 
     // ---- ⑤ 结果：量化指标（保留 .w-hl 数字块） ----
@@ -469,7 +473,10 @@
             '<span class="w-no">' + esc(it.no) + '</span>' +
             '<span class="w-cat">' + esc(c.icon) + ' ' + esc(c.name) + '</span>' +
             statusBadge(it) +
-            (it.star ? '<span class="w-star" title="代表作">★</span>' : '') +
+            // v2 P2-④：裸 ★ 语义不清（21 个模块里 15 个带星，首页 6 张卡里 5 张带星，
+            // 光看图标没人知道它代表什么）。改为带上可见文字标签，含义自明；
+            // title 保留完整解释给鼠标用户与读屏用户。
+            (it.star && showStar ? '<span class="w-star" title="代表作：本人认定最能说明能力的模块">★ 代表作</span>' : '') +
           '</div>' +
           '<h3 class="w-title">' + esc(it.t) + '</h3>' +
           '<p class="w-pitch">' + esc(it.pitch) + '</p>' +

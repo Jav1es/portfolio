@@ -295,7 +295,7 @@
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
-    document.getElementById('agent-works').innerHTML = WORKS.listByRole(data.items, 'agent');
+    document.getElementById('agent-works').innerHTML = WORKS.listByRole(data.items, 'agent', { showStar: false });
     bootEffects();
     bootCopyMail();
   });

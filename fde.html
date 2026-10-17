@@ -210,7 +210,7 @@
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
-    document.getElementById('fde-works').innerHTML = WORKS.listByRole(data.items, 'fde');
+    document.getElementById('fde-works').innerHTML = WORKS.listByRole(data.items, 'fde', { showStar: false });
     bootEffects();
     bootCopyMail();
   });

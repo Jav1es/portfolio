@@ -210,7 +210,7 @@
   WORKS.loadData(function (data) {
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
-    document.getElementById('vibe-works').innerHTML = WORKS.listByRole(data.items, 'vibe');
+    document.getElementById('vibe-works').innerHTML = WORKS.listByRole(data.items, 'vibe', { showStar: false });
 
     // 模块数量与编号列表由数据驱动，避免手写数字变成第二真源
     var own = WORKS.ROLES.vibe.owns || [];

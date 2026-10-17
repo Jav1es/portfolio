@@ -390,7 +390,9 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
    指标口径与 resume-data.js 的 metrics 同源，改一处必须同步另一处。 */
 .hero-nums {
   font-size: 13.4px; color: var(--txt3); line-height: 1.8;
-  max-width: 780px; margin: 0 0 22px;
+  /* v2 P2-④：指标行/说明框/按钮三块原本只隔 22px，堆成「中部偏密」。
+     改为递增梯度（30 / 28），让三者读起来是三层而不是一堆。 */
+  max-width: 780px; margin: 0 0 30px;
 }
 .hero-nums b {
   font-size: 15px; font-weight: 800; color: var(--blue);
@@ -401,7 +403,7 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
    与「这些是生产交付还是自建」两个必问项。刻意做得紧凑、低视觉权重，
    不跟核心指标抢注意力，但要能一眼读到。 */
 .career-shift {
-  margin: 0 0 22px; padding: 13px 16px;
+  margin: 0 0 28px; padding: 13px 16px;
   border-left: 3px solid var(--blue);
   border-radius: 0 10px 10px 0;
   background: var(--blue-50);
@@ -1186,7 +1188,17 @@ mark {
   background: var(--grad); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
 }
 .w-cat { font-size: 12.5px; color: var(--txt3); }
-.w-star { font-size: 13px; color: var(--amber); margin-left: auto; }
+/* 代表作标记：v2 P2-④ 之前只是一个裸 ★（title="代表作"），
+   而 21 个模块里 15 个带星、首页 6 张卡里 5 张带星 —— 没人能从图标读出含义。
+   改成带文字的徽章后，它必须能与右侧的 .w-badge 状态徽章在同一行共存：
+   用 margin-left:auto 把它推到最右，与状态徽章并排而不挤压标题。 */
+.w-star {
+  flex: none; margin-left: auto;
+  font-size: 11px; font-weight: 700; letter-spacing: .2px;
+  color: var(--amber); background: var(--amber-bg);
+  border: 1px solid var(--amber-line); border-radius: 99px;
+  padding: 2px 8px; white-space: nowrap;
+}
 
 .w-badge { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 7px; border: 1px solid transparent; }
 .w-badge.is-done { color: var(--green); background: var(--green-bg); border-color: var(--green-line); }
@@ -2106,8 +2118,8 @@ body { line-height: 1.68; }
   /* 本区既然已退成「过渡横条」，就不该再按整屏区块的留白来占位：
      垂直间距收到 34px、标题与卡片之间由 34 收到 18，省下约 100px。
      只作用于 #about —— 其它 section 的节奏不动（那是有意的呼吸感）。 */
-  #about.section { padding: 26px 0; }
-  #about .section-head { margin-bottom: 14px; }
+  #about.section { padding: 22px 0; }
+  #about .section-head { margin-bottom: 12px; }
   #about .section-head h2 { font-size: clamp(19px, 2.1vw, 24px); margin: 6px 0 7px; }
   #about .section-head p { font-size: 14px; }
 
