@@ -58,7 +58,7 @@
   "items": [
     {
       "no": "01",
-      "t": "AI 工具体系 0-1 搭建规划包",
+      "t": "八个业务域，六个月路线图",
       "cat": "plan",
       "star": true,
       "status": "方案规划",
@@ -212,7 +212,7 @@
     },
     {
       "no": "04",
-      "t": "企业级智能体系统（本地开发工程 enterprise-agent）",
+      "t": "把企业系统接进 Agent，每次工具调用都可追溯",
       "cat": "agent",
       "star": true,
       "status": "个人开源",
@@ -483,7 +483,7 @@
     },
     {
       "no": "09",
-      "t": "技术底座与运维证据",
+      "t": "一键起服务，故障自动恢复",
       "cat": "agent",
       "star": false,
       "status": "自建 Demo",
@@ -574,7 +574,7 @@
     },
     {
       "no": "11",
-      "t": "FDE 交付物模板：Discovery Brief × Eval Plan",
+      "t": "一周跑通从签单到申报",
       "cat": "flow",
       "star": true,
       "status": "模板 · 待客户现场核验",
@@ -685,7 +685,7 @@
     },
     {
       "no": "13",
-      "t": "RAG 知识库 Demo（enterprise-agent 真实带数据演示）",
+      "t": "30 题真实评测，检索准确率 93.3%",
       "cat": "agent",
       "star": true,
       "status": "自建 Demo",
@@ -855,7 +855,7 @@
     },
     {
       "no": "16",
-      "t": "企业级智能体 MCP Server 三件套（开源）",
+      "t": "三个 MCP Server，35 个用例全过",
       "cat": "oss",
       "star": true,
       "status": "已交付",
