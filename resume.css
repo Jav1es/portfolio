@@ -171,6 +171,14 @@
   font-size: 11px; color: #778; line-height: 1.6;
 }
 
+/* 「更新于」：放在底注上方、同一块视觉区里。
+   刻意做成弱化的元信息（比正文小、比底注略强），不抢简历内容的注意力；
+   日期与底注之间不再加分隔线，避免出现两条横线。 */
+.rv-updated {
+  margin: 14px 0 0;
+  font-size: 11px; color: #667; letter-spacing: .2px;
+}
+
 /* ---------------- 窄屏：A4 改为自适应宽度 ---------------- */
 @media (max-width: 820px) {
   .a4 { width: auto; min-height: 0; margin: 12px; padding: 20px 16px; }
