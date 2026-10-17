@@ -77,6 +77,12 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+/* 只在窄于桌面宽度的视口裁掉横向滚动：1024 实测存在 9px 横向可滚动
+   （滚动发生在 html 上，只给 body 加 clip 不够）。桌面上不加，避免影响
+   任何依赖横向滚动的展示块（如宽表格）。 */
+@media (max-width: 1120px) {
+  html { overflow-x: clip; }
+}
 
 /* ==========================================================================
    3D 背景层：SpaceX 式透视网格地面 + 缓慢漂移的柔光斑
@@ -191,6 +197,16 @@ body {
   line-height: 1.7;
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
+  /* 装饰背景层（.bg-grid-floor 用 left/right:-30%、.bg-orb-2 溢出右侧）
+     本就故意超出视口，未裁剪时会在 1024 等视口产生 9px 横向滚动。
+     用 clip 而不是 hidden：hidden 会把 body 变成滚动容器，破坏
+     position:sticky 的吸顶行为；clip 只裁剪、不建立滚动上下文。
+     老浏览器（不支持 clip）退回 hidden —— 它们本来也不支持本站在用的
+     一堆新特性，宁可牺牲 sticky 也不要有横向滚动条。 */
+  overflow-x: hidden;
+}
+@supports (overflow-x: clip) {
+  body { overflow-x: clip; }
 }
 
 /* 背景主体改由 .bg-stage 承担（透视网格 + 漂移光斑），此处仅保留一层极淡的整体柔光 */
@@ -2233,6 +2249,257 @@ body { line-height: 1.68; }
    混排在窄屏会把大卡压成一条窄长的畸形块，反而更差。 */
 @media (max-width: 859.98px) {
   #home-featured { grid-template-columns: 1fr; }
+}
+
+/* ==========================================================================
+   v3 任务一：首屏 Agent 可交互链路
+   --------------------------------------------------------------------------
+   C2「双色分区」的第一个落点：链路容器是深色证据块（#0B0F14），
+   页面主体保持浅色。全局 --bg / --txt 一律不动，只新增深色专用 token。
+
+   结构对应 graph.py::_build_graph()，六节点七边，其中 tool_call → planner
+   是回环边（画成弧线、用最亮的青色）—— 这条反馈边就是「企业级 Agent」
+   与「聊天机器人」的分野，所以它在视觉上必须是整张图最醒目的部分。
+   ========================================================================== */
+
+/* ---- 深色证据块 token：明暗两主题共用同一个深色底，因为它是「证据区」，
+        不随站点主题翻转（暗色站点下它同样是深色，只调整边界让层次仍成立）---- */
+:root {
+  --surface-dark: #0B0F14;        /* 证据块底色 */
+  --surface-dark-2: #111823;      /* 块内次级面（节点底） */
+  --on-dark: #E6EDF5;             /* 深色块上的正文，对比度 ≥ 4.5:1 */
+  --on-dark-2: #93A4B8;           /* 深色块上的次要文字 */
+  --on-dark-line: #1F2B3A;        /* 深色块内的分隔线 */
+  --ag-hot: #5EEAD4;              /* 回环边专用亮色（最高强调） */
+  --ag-cond: #7DD3FC;             /* 条件边颜色 */
+  --ag-plain: #475569;            /* 普通边颜色 */
+}
+
+/* 首屏左右分栏：左文案、右链路。窄屏改单列（见下方媒体查询）。 */
+.hero-grid { display: block; }
+
+/* ---- 深色证据块本体 ---- */
+.agent-graph {
+  position: relative;
+  background: var(--surface-dark);
+  border: 1px solid var(--on-dark-line);
+  border-radius: 20px;
+  padding: 18px 18px 16px;
+  color: var(--on-dark);
+  /* 深色块在浅色页面里靠一层极浅的外发光与页面分离，不用大面积阴影 */
+  box-shadow: 0 18px 50px -24px rgba(2, 6, 23, .55);
+  overflow: hidden;
+}
+
+.agent-graph__kicker {
+  font-size: 10.5px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ag-hot); margin: 0 0 5px;
+}
+.agent-graph__h {
+  font-size: 15px; font-weight: 700; line-height: 1.3;
+  color: var(--on-dark); margin: 0;
+}
+
+/* ---- 画布 ---- */
+.agent-graph__stage { margin-top: 12px; }
+.agent-graph__svg {
+  display: block; width: 100%; height: auto;
+  overflow: visible;
+  color: var(--ag-plain);   /* marker 的 currentColor 从这里继承 */
+}
+
+/* ---- 边 ---- */
+.ag-edge {
+  stroke: var(--ag-plain);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.ag-edge--cond { stroke: var(--ag-cond); stroke-opacity: .75; stroke-dasharray: 5 4; }
+/* 回环边：最亮、最粗，并带流动虚线 —— 视觉重点就是它 */
+.ag-edge--loop {
+  stroke: var(--ag-hot);
+  stroke-width: 2.2;
+  stroke-dasharray: 7 5;
+  animation: ag-flow 1.6s linear infinite;
+}
+@keyframes ag-flow { to { stroke-dashoffset: -24; } }
+
+/* ---- 分支标签 ---- */
+.ag-label {
+  font-size: 9.5px; font-weight: 600;
+  fill: var(--on-dark-2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.ag-label--loop { fill: var(--ag-hot); }
+
+/* ---- 节点容器与按钮 ----
+   用绝对定位的 <button> 而不是 SVG <rect>：SVG 图形不可聚焦、
+   不被读屏识别为按钮，无障碍要求做不到。
+
+   坐标基准：.ag-nodes 是 foreignObject 内唯一的块级容器，必须自己撑满
+   460×300 的 viewBox 尺寸（宽高写成 460/300 的百分比不可行，因此用
+   aspect-ratio 让它在不同视口下等比缩放，内部按钮用 % 定位）。 */
+.ag-nodes {
+  position: relative;
+  width: 460px; height: 300px;
+  /* 由 SVG 的 viewBox 缩放承担整体缩放，这里保持设计坐标系不变 */
+}
+/* foreignObject 的 xhtml 根元素默认会有 margin，清掉以保证坐标原点对齐 viewBox */
+.ag-nodes, .ag-nodes * { box-sizing: border-box; }
+.ag-nodes { margin: 0; display: block; }
+.ag-node {
+  position: absolute;
+  width: 104px; height: 40px;
+  display: flex; flex-direction: column; justify-content: center;
+  gap: 1px; padding: 0 9px;
+  background: var(--surface-dark-2);
+  border: 1px solid #24334A;
+  border-radius: 9px;
+  color: var(--on-dark);
+  font: inherit; text-align: left; cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.ag-node__name {
+  font-size: 11.5px; font-weight: 700; line-height: 1.15;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.ag-node__role {
+  font-size: 9px; line-height: 1.15; color: var(--on-dark-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ag-node:hover { border-color: var(--ag-cond); background: #16202E; transform: translateY(-1px); }
+.ag-node[aria-expanded="true"] {
+  border-color: var(--ag-hot);
+  box-shadow: 0 0 0 1px var(--ag-hot), 0 0 18px -4px var(--ag-hot);
+}
+/* 焦点环：沿用站点 3px outline 规范，深色底上用亮青保证对比 */
+.ag-node:focus-visible,
+.agent-graph__toggle:focus-visible,
+.ag-panel__close:focus-visible {
+  outline: 3px solid var(--ag-hot); outline-offset: 2px;
+}
+/* 入口节点给一点身份色 */
+.ag-n--router { border-color: #2C4459; }
+.ag-n--router .ag-node__name { color: var(--ag-cond); }
+.ag-n--respond .ag-node__name { color: var(--ag-hot); }
+
+/* ---- 提示行 ---- */
+.agent-graph__tip {
+  font-size: 10.5px; color: var(--on-dark-2);
+  margin: 10px 0 0; line-height: 1.5;
+}
+
+/* ---- 节点说明面板 ---- */
+.agent-graph__panel {
+  margin-top: 10px; padding: 11px 12px;
+  background: var(--surface-dark-2);
+  border: 1px solid var(--on-dark-line); border-radius: 11px;
+}
+.ag-panel__head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.ag-panel__name {
+  font-size: 12.5px; font-weight: 700; color: var(--ag-hot);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.ag-panel__role { font-size: 11px; color: var(--on-dark-2); }
+.ag-panel__close {
+  margin-left: auto; width: 22px; height: 22px;
+  display: grid; place-items: center;
+  background: transparent; border: 1px solid var(--on-dark-line);
+  border-radius: 6px; color: var(--on-dark-2); cursor: pointer; font-size: 11px;
+}
+.ag-panel__close:hover { color: var(--on-dark); border-color: var(--ag-cond); }
+.ag-panel__dl { margin: 0; font-size: 10.5px; line-height: 1.55; }
+.ag-panel__dl dt {
+  font-weight: 700; color: var(--on-dark-2); font-size: 9.5px;
+  letter-spacing: .06em; text-transform: uppercase; margin-top: 6px;
+}
+.ag-panel__dl dt:first-child { margin-top: 0; }
+.ag-panel__dl dd { margin: 2px 0 0; color: var(--on-dark); }
+.ag-panel__dl code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 10px; color: var(--ag-hot);
+  background: rgba(94, 234, 212, .08);
+  padding: 1px 5px; border-radius: 4px;
+  word-break: break-all;
+}
+
+/* ---- 窄屏折叠按钮（桌面隐藏）---- */
+.agent-graph__toggle {
+  display: none;
+  width: 100%; margin-top: 12px; padding: 9px 12px;
+  background: transparent; border: 1px solid var(--on-dark-line);
+  border-radius: 9px; color: var(--on-dark); font: inherit;
+  font-size: 11.5px; font-weight: 600; cursor: pointer;
+}
+.agent-graph__toggle:hover { border-color: var(--ag-cond); }
+
+/* ==========================================================================
+   桌面 ≥ 1024px：首屏改左右分栏，链路常显在右侧
+   ========================================================================== */
+@media (min-width: 1024px) {
+  .hero-grid {
+    display: grid;
+    /* 左列优先分到更多宽度：首屏文案（指标行 + 转型说明）在 632px 下会多折
+       3–4 行，把首屏整体撑高 70px，直接把首卡顶出 1600 验收线。
+       400px 的右列足够放下 460 宽 viewBox 的链路（等比缩到 400）。 */
+    grid-template-columns: minmax(0, 1fr) 420px;
+    gap: 36px;
+    align-items: start;
+  }
+  /* 文案列不再抢满宽度，给右侧链路让位 */
+  .hero-copy .lede { max-width: none; }
+  .hero-copy .hero-nums { max-width: none; }
+
+  /* 分栏后左列只剩 676px（原 1132px），原本一行放得下的指标行与转型说明
+     会各多折 1–2 行，把首屏顶高 ~70px、首卡挤出 1600 验收线。
+     这里把这两块的排版按窄列重排，而不是去砍内容：
+       · 指标行缩小字号与行距，回到 2 行以内
+       · 转型说明收紧行距与段间距 */
+  .hero-copy .hero-nums { font-size: 13px; line-height: 1.5; margin-bottom: 24px; }
+  .hero-copy .career-shift { padding: 13px 15px; margin-bottom: 22px; }
+  .hero-copy .career-shift > p { font-size: 12.6px; line-height: 1.55; margin: 0 0 6px; }
+  .hero-copy .career-shift > p:last-child { margin-bottom: 0; }
+  .hero-copy .career-shift__lead { font-size: 13.2px; margin-bottom: 7px; }
+
+  /* 链路块在右侧整列垂直居中偏上，与标题区对齐 */
+  .agent-graph { margin-top: 4px; }
+  .agent-graph__toggle { display: none; }
+}
+
+/* 1024–1200px：文案列变窄，链路适当收一点，避免挤 */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .hero-grid { grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; }
+}
+
+/* ==========================================================================
+   窄屏 < 1024px：链路默认收起为一行按钮，点开展开（竖排极简也一并由
+   SVG 自适应缩放承担 —— viewBox 保证 390px 下等比缩小不溢出）
+   ========================================================================== */
+@media (max-width: 1023.98px) {
+  .agent-graph { margin-top: 16px; padding: 13px 13px 11px; }
+  .agent-graph__kicker { font-size: 10px; margin-bottom: 3px; }
+  .agent-graph__h { font-size: 13.5px; }
+  /* 未展开时只露出标题与折叠按钮，画布与提示收起 */
+  .agent-graph__stage,
+  .agent-graph__tip,
+  .agent-graph__panel { display: none; }
+  .agent-graph.is-open .agent-graph__stage,
+  .agent-graph.is-open .agent-graph__tip { display: block; }
+  .agent-graph__toggle { display: block; margin-top: 8px; padding: 7px 10px; }
+  /* 展开后画布高度受限（规格要求 ≤ 320px 量级） */
+  .agent-graph.is-open .agent-graph__stage { max-width: 100%; }
+}
+
+/* ==========================================================================
+   减少动效：回环边的流动虚线停在全静帧
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .ag-edge--loop { animation: none; stroke-dashoffset: 0; }
+  .ag-node, .ag-node:hover { transition: none; transform: none; }
 }
 
 

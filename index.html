@@ -145,6 +145,12 @@
   <!-- ==================== 首屏：定位 + 指标条 + 三个 CTA ==================== -->
   <section class="hero">
     <div class="wrap">
+      <!-- v3 任务一：桌面 ≥1024px 时首屏改左右分栏 —— 左列放原有文案，
+           右列放可交互的 Agent 编排链路图。窄屏下右列移到 CTA 之后并改为
+           竖直极简版（见 styles.css 的 .hero-grid 媒体查询）。
+           用外层 div 包住原有文案，不改动任何一个原有元素的类名与内容。 -->
+      <div class="hero-grid">
+      <div class="hero-copy">
       <p class="hero-note">开放合作 · 可远程 · 可现场演示</p>
 
       <h1 class="hero-title">
@@ -177,6 +183,94 @@
         <a class="btn btn-ghost" href="#works-featured">看 3 个核心项目</a>
         <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub（9 仓库）↗</a>
       </div>
+      </div><!-- /.hero-copy -->
+
+      <!-- ==================================================================
+           首屏 Agent 编排链路（v3 任务一）
+           结构严格照 enterprise-agents 的 graph.py::_build_graph()：
+             6 节点 router / planner / retrieve / tool_call / reviewer / respond
+             tool_call → planner 是**回环边**，画成弧线（企业级 Agent 与
+             聊天机器人的分野就在这条反馈边上）
+           条件边的分支标签同样是 graph.py 里给的字面量：
+             router  → knowledge / data / mixed  （→ retrieve / planner / retrieve）
+             planner → tool / respond            （→ tool_call / reviewer）
+           每个节点是真正的 <button>，可 Tab 聚焦、点击展开说明、Esc 关闭。
+           ================================================================== -->
+      <aside class="agent-graph" id="agent-graph" aria-labelledby="agent-graph-h">
+        <div class="agent-graph__head">
+          <p class="agent-graph__kicker">企业级智能体 · 编排层</p>
+          <h2 class="agent-graph__h" id="agent-graph-h">LangGraph StateGraph · 六节点</h2>
+        </div>
+
+        <div class="agent-graph__stage" id="agent-graph-stage">
+          <svg class="agent-graph__svg" viewBox="0 0 460 300" role="img"
+               aria-label="Agent 编排链路：router 分流到 retrieve 或 planner，retrieve 汇入 planner，planner 可调用 tool_call 再回到 planner 形成多步循环，planner 交给 reviewer，最后 respond 输出">
+            <defs>
+              <marker id="agArrow" viewBox="0 0 8 8" refX="7" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L8,4 L0,8 z" fill="currentColor"/>
+              </marker>
+              <marker id="agArrowHot" viewBox="0 0 8 8" refX="7" refY="4"
+                      markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M0,0 L8,4 L0,8 z" fill="#5eead4"/>
+              </marker>
+            </defs>
+
+            <!-- ===== 边（先画边，节点覆盖在上层）=====
+                 坐标与 agent-graph.js 的 NODES 一一对应：
+                 router(16,56) retrieve(178,8) planner(178,108)
+                 tool_call(178,214) reviewer(340,8) respond(340,108)
+                 节点尺寸 104×40。 -->
+            <g class="ag-edges" fill="none">
+              <!-- router 条件边：knowledge/mixed → retrieve；data → planner -->
+              <path class="ag-edge ag-edge--cond" d="M120,70 L178,36" marker-end="url(#agArrow)"/>
+              <path class="ag-edge ag-edge--cond" d="M120,84 L178,120" marker-end="url(#agArrow)"/>
+
+              <!-- retrieve → planner -->
+              <path class="ag-edge" d="M230,48 L230,108" marker-end="url(#agArrow)"/>
+
+              <!-- planner 条件边：tool → tool_call；respond → reviewer -->
+              <path class="ag-edge ag-edge--cond" d="M230,148 L230,214" marker-end="url(#agArrow)"/>
+              <path class="ag-edge ag-edge--cond" d="M282,120 L340,36" marker-end="url(#agArrow)"/>
+
+              <!-- tool_call → planner 回环：弧线，颜色最亮（企业级 Agent 的分野） -->
+              <path class="ag-edge ag-edge--loop" d="M286,224 C330,224 330,148 286,148"
+                    marker-end="url(#agArrowHot)"/>
+
+              <!-- reviewer → respond -->
+              <path class="ag-edge" d="M392,48 L392,108" marker-end="url(#agArrow)"/>
+            </g>
+
+            <!-- ===== 分支标签（字面量取自 graph.py 的条件边字典）===== -->
+            <g class="ag-labels">
+              <text x="122" y="44" class="ag-label">knowledge</text>
+              <text x="122" y="62" class="ag-label">mixed</text>
+              <text x="122" y="112" class="ag-label">data</text>
+              <text x="236" y="186" class="ag-label">tool</text>
+              <text x="288" y="70" class="ag-label">respond</text>
+              <text x="300" y="200" class="ag-label ag-label--loop">回环</text>
+            </g>
+
+            <!-- ===== 节点按钮（真 <button>，由 JS 生成以复用统一标记）=====
+                 foreignObject 铺满整个 viewBox，内部的 .ag-nodes 作为 460×300
+                 的设计坐标系，随 SVG 一起等比缩放。 -->
+            <foreignObject x="0" y="0" width="460" height="300" overflow="visible">
+              <div xmlns="http://www.w3.org/1999/xhtml" class="ag-nodes"></div>
+            </foreignObject>
+          </svg>
+        </div>
+
+        <p class="agent-graph__tip">点任一节点看它在代码里的位置与追踪 span</p>
+        <div class="agent-graph__panel" id="agent-graph-panel" hidden
+             role="region" aria-live="polite" aria-label="节点说明"></div>
+
+        <!-- 窄屏（< 1024px）默认收起为一行按钮，点击展开。
+             理由：首屏最贵的位置要留给 CTA，链路是「探索型」内容，
+             不该在转化之前就占掉移动端半屏。 -->
+        <button type="button" class="agent-graph__toggle" aria-expanded="false"
+                aria-controls="agent-graph-stage">查看 Agent 链路</button>
+      </aside>
+      </div><!-- /.hero-grid -->
     </div>
   </section>
 
@@ -402,6 +496,7 @@
 <script src="./works-previews-index.js"></script>
 <script src="./works.js"></script>
 <script src="./effects.js"></script>
+<script src="./agent-graph.js" defer></script>
 <script src="./menu.js" defer></script>
 <script>
   // 渲染完成后初始化 3D 倾斜 / 进场动画 / 阅读进度条（卡片为动态插入）
