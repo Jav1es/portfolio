@@ -47,3 +47,6 @@ browser-screenshots/
 # 内部交接文档，不上公网
 .dsh-workspace/
 *.bak-*
+
+# 本地截图产物（验证用，不进仓库）
+shots/
