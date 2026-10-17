@@ -1265,6 +1265,10 @@ mark {
 .w-go {
   font-size: 12.8px; font-weight: 700; color: var(--cyan);
   display: inline-flex; align-items: center; gap: 5px;
+  /* 触摸目标 44px（WCAG 2.5.5）。原来 21px 高。用 min-height + 负外边距
+     把视觉高度保持在原位、可点区域扩大到 44px，不影响 .w-foot 的行高。 */
+  min-height: 44px; min-width: 44px;
+  margin: -12px 0; padding: 0 2px;
   transition: gap 0.18s ease, color 0.18s ease;
 }
 .w-go:hover { gap: 9px; color: var(--blue); }
@@ -1276,7 +1280,12 @@ mark {
   font-family: var(--font); font-size: 11.5px; font-weight: 700;
   color: var(--txt2); background: var(--badge-bg);
   border: 1px solid var(--line); border-radius: 99px;
-  padding: 3px 11px; cursor: pointer;
+  /* 触摸目标要做到 44px（WCAG 2.5.5）。原来 padding 3px 11px 只有 23px 高，
+     手机上点不准。改用 min-height + 行内居中撑高，视觉上仍是小胶囊
+     （44px 的高度在封面上不突兀，且与 MODULE 标签左右对称）。 */
+  min-height: 44px; min-width: 72px;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0 13px; cursor: pointer;
   transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 .w-expand:hover { background: var(--blue-50); color: var(--blue); border-color: var(--blue); }
@@ -1693,6 +1702,14 @@ mark {
   /* 保证等高卡片之间不会因为文本长度差太多而参差 */
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
   overflow: hidden;
+  /* 正文里有大量不可折行的长英文标识符（如
+     agent.node.router/planner/retrieve/tool_call/reviewer/respond、
+     MultiServer、bge-reranker-base）。line-clamp 只管纵向截断，
+     横向放不下时会被直接裁掉（2026-10-18 实测 mod-04 / mod-14 溢出
+     26px 与 118px）。overflow-wrap:break-word 只在这类「整串都放不下」
+     的情况下才断，正常英文单词不受影响。 */
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 /* 用行内渐隐代替生硬的截断，明确「还有更多但这里不展开」，
    避免省略号落在词中间看起来像内容损坏 */
@@ -2167,7 +2184,7 @@ body { line-height: 1.68; }
      中卡 1 列 1 行        → 约 c × r
    大卡必须 ≥ 单卡的 1.8 倍，实测见 verify-wall-grid.mjs。
    ========================================================================== */
-@media (min-width: 860px) {
+@media (min-width: 1200px) {
   #home-featured {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     /* 行高自动：大卡横跨前两行，后 3 张紧凑卡各占 1 列 */
@@ -2243,6 +2260,29 @@ body { line-height: 1.68; }
     border-color: currentColor;
     opacity: .82;
   }
+}
+
+/* 中等宽度（860–1199.98px）：三列混排会把大卡压成畸形细长条
+   （2026-10-18 实测 860px 时大卡 535×1279、宽高比 1:2.4；
+   900px 时 561×1221；1000px 时 628×1143 —— 每列只有 257–304px，
+   大卡跨两列也就 535–628px，而卡片高度由内容决定、不会跟着缩）。
+   这个区间改成「大卡独占整行 + 其余两列」：大卡宽度翻倍、比例回到正常，
+   小卡也有 400px 以上可排版。 */
+@media (min-width: 860px) and (max-width: 1199.98px) {
+  #home-featured {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+    gap: 18px;
+  }
+  #home-featured > .w-card:nth-of-type(1) {
+    grid-column: 1 / -1;          /* 大卡独占整行 */
+  }
+  #home-featured > .w-card:nth-of-type(1) .w-thumb {
+    aspect-ratio: 21 / 9;         /* 独占整行后 16:9 会过高，压扁成宽幅 */
+  }
+  #home-featured > .w-card:nth-of-type(1) .w-title { font-size: 22px; }
+  #home-featured > .w-card:nth-of-type(n+2) .w-thumb { height: 148px; }
+  #home-featured > .w-card:nth-of-type(n+2) .w-title { font-size: 17px; }
 }
 
 /* 移动端（≤599.98px）与平板（600–859.98px）维持单列 / 原网格，
