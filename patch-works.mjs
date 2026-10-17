@@ -57,8 +57,14 @@ const items = data.items
   .filter(it => !EXTRA_TITLES.has(it.t))
   .map(it => {
     const no = TITLE_TO_NO[it.t];
-    if (!no) throw new Error('未在映射表中的模块：' + it.t);
-    return { ...it, no };
+    if (no) return { ...it, no };
+    // ---------------------------------------------------------------------
+    // 新增作品（2026-10-18）：映射表里没有的条目不再抛错。
+    // 以前这里 `throw` —— 只要往 works-data.json 里加一个新作品，整条
+    // 流水线立刻中断。改成：已有 no 的原样保留；没有 no 的留到下面
+    // 自动编号。编号唯一性在分组前统一校验，不再靠「必须 21 个」兜底。
+    // ---------------------------------------------------------------------
+    return { ...it };
   });
 
 // ---------------------------------------------------------------------------
@@ -130,7 +136,46 @@ const EXTRA = [
   }
 ];
 
-const all = [...items, ...EXTRA].sort((a, b) => a.no.localeCompare(b.no));
+// ---------------------------------------------------------------------------
+// 新增作品自动编号（2026-10-18）
+// ---------------------------------------------------------------------------
+// 规则：没写 no 的条目 = 新作品，按现有最大编号往后顺延。
+// 写了 no 的保留原值（便于把某个作品插到指定位置或手工重排）。
+// 这样「往 works-data.json 里追加一条」就能上线，不需要改任何脚本。
+const usedNo = new Set(
+  [...items, ...EXTRA].map(i => i.no).filter(Boolean)
+);
+let nextNo = 1;
+for (const n of usedNo) {
+  const v = parseInt(n, 10);
+  if (Number.isFinite(v) && v >= nextNo) nextNo = v + 1;
+}
+for (const it of [...items, ...EXTRA]) {
+  if (!it.no) {
+    while (usedNo.has(String(nextNo))) nextNo++;
+    it.no = String(nextNo).padStart(2, '0');
+    usedNo.add(it.no);
+    nextNo++;
+    console.log(`  + 新作品自动编号 ${it.no}：${it.t}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 合并 EXTRA（2026-10-18 改：按编号去重，不再靠标题文本）
+// ---------------------------------------------------------------------------
+// 原逻辑是 [...items, ...EXTRA]：只要 EXTRA 里某条在 items 中没被
+// EXTRA_TITLES 过滤掉，就会重复出现。实测 extra 的 no=11 与 items 里
+// 已被 TEXT_FIX 改过标题的同一条撞车，`all` 变成 22 条、编号 11 出现两次
+// —— 这就是「重跑流水线必挂」的根因。
+// 现在：EXTRA 只补「当前数据里还没有这个编号」的条目，已有的一律以
+// works-data.json 为准（人是唯一编辑口）。
+const haveNo = new Set(items.map(i => i.no).filter(Boolean));
+const extraToAdd = EXTRA.filter(e => !haveNo.has(e.no));
+if (extraToAdd.length) {
+  console.log('  + 补入 EXTRA 中缺失的编号：' + extraToAdd.map(e => e.no).join(', '));
+}
+const merged = [...items, ...extraToAdd];
+const all = merged.sort((a, b) => a.no.localeCompare(b.no));
 
 // ---------------------------------------------------------------------------
 // 3) 分组（P0-2）：21 个模块按「读者关心什么」分成四组，供首页/作品页分区呈现
@@ -185,22 +230,62 @@ const GROUP_OF_NO = {
   '21': 'lab'     // workbuddy-bridge（开源）
 };
 
+// 新作品（不在 GROUP_OF_NO 里）按类目自动归组（2026-10-18）：
+// 以前这里直接 throw，导致「加一个新作品」必然中断流水线。
+// 类目五分类与四个展示分组本来就是一一对应的（见 patch-works.mjs 的
+// MOTIF / cats 定义），所以按 cat 推断是安全的；也可在数据里手写 group 覆盖。
+const CAT_TO_GROUP = {
+  agent: 'eng',     // 智能体与 AI 工程
+  oss: 'oss',      // 开源与工具链
+  data: 'eng',     // 数据与量化复盘（归到 AI 工程化）
+  plan: 'core',    // 规划与方案能力（核心案例）
+  flow: 'core',    // 工作流落地与交付（核心案例）
+  industry: 'core' // 行业定制规划（核心案例）
+};
+
 for (const it of all) {
-  const g = GROUP_OF_NO[it.no];
-  if (!g) throw new Error('模块未分组：' + it.no + ' ' + it.t);
+  let g = GROUP_OF_NO[it.no];
+  if (!g) {
+    // 数据里显式写了 group 就用它，否则按类目推断
+    g = it.group || CAT_TO_GROUP[it.cat] || 'lab';
+    console.log(`  + 新作品 ${it.no} 自动归组 ${g}（类目 ${it.cat}）`);
+  }
   it.group = g;
 }
 
-// 断言：覆盖 01..21 全部 21 个，且每组数量落在题面区间内
+// 分组数量校验（2026-10-18 改）：上限不再当成硬约束。
+// 原来超出 max 就 throw —— 这在「作品数量固定为 21」时是合理的设计约束，
+// 但作品会持续新增，硬上限会让每次加作品都失败。现在：
+//   · 低于 min   → 仍然报错（说明分组配置写坏了，是真的错）
+//   · 高于 max   → 只警告，不中断（作品多了是正常业务，不是错误）
 const groupCount = all.reduce((a, i) => (a[i.group] = (a[i.group] || 0) + 1, a), {});
 for (const g of GROUPS) {
   const n = groupCount[g.id] || 0;
-  if (n < g.min || n > g.max) {
-    throw new Error(`分组 ${g.id} 数量 ${n} 超出区间 [${g.min}, ${g.max}]`);
+  if (n < g.min) {
+    throw new Error(`分组 ${g.id} 只有 ${n} 个，少于下限 ${g.min}（检查分组配置）`);
+  }
+  if (n > g.max) {
+    console.log(`  ⚠️ 分组 ${g.id} 有 ${n} 个，超过原设定上限 ${g.max}（作品新增导致，已放行）`);
   }
 }
-if (new Set(all.map(i => i.no)).size !== 21) {
-  throw new Error('模块编号不是 21 个唯一值');
+// ---------------------------------------------------------------------------
+// 编号校验（2026-10-18 改）：不再硬编码 21。
+// 原来写 `size !== 21` —— 加第 22 个作品就整条流水线中断，这正是「新作品
+// 上不了线」的根因。现在校验真正该保证的两件事：
+//   ① 编号唯一（重复编号会让 #mod-NN 锚点、分组筛选互相串台）
+//   ② 编号是 1..N 的连续整数（缺号说明有作品没被分配编号，排版会空一格）
+// ---------------------------------------------------------------------------
+const nos = all.map(i => i.no);
+const uniq = new Set(nos);
+if (uniq.size !== nos.length) {
+  const dup = nos.filter((n, i) => nos.indexOf(n) !== i);
+  throw new Error('模块编号重复：' + [...new Set(dup)].join(', '));
+}
+const nums = [...uniq].map(n => parseInt(n, 10)).sort((a, b) => a - b);
+for (let i = 0; i < nums.length; i++) {
+  if (nums[i] !== i + 1) {
+    throw new Error(`模块编号不连续：期望 ${i + 1}，实际 ${nums[i]}（现有 ${nums.join(',')}）`);
+  }
 }
 
 // ---------------------------------------------------------------------------

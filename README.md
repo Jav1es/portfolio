@@ -249,6 +249,49 @@ portfolio/
 
 ---
 
+## ➕ 新增作品（一条命令上线）
+
+作品数据以 `works-data.json` 为**唯一编辑口**。新增作品只需在 `items` 里追加一条对象，
+**不用写编号**（会自动顺延），然后跑一条命令：
+
+```bash
+node build.mjs          # 构建 + 自检，不推送
+node build.mjs --ship   # 构建通过后直接提交并推送，约 2-3 分钟上线
+```
+
+`build.mjs` 会依次完成：`patch-works` → `enrich-works` → `inline-preview` →
+产物一致性校验 → 编号连续性校验 → 卡片几何自检（桌面 / 移动 / 首页）。
+**任何一步失败都会立刻停下，不会把坏页面推上线。**
+
+新作品的最小字段：
+
+```jsonc
+{
+  "t": "作品标题",           // 必填
+  "cat": "agent",           // 必填：plan / flow / agent / data / oss / industry
+  "status": "已发布",
+  "jd": "AI 智能体开发工程师",
+  "pitch": "一句话说清做成了什么",
+  "highlights": [{ "num": "3 个", "label": "关键指标" }],
+  "tags": ["MCP", "LangGraph"],
+  "links": ["GitHub 仓库：xxx|https://github.com/Jav1es/xxx"],
+  "role": "我负责什么",      // 可选：不写则「展开详情」只有摘要
+  "arch": "架构 / 方案",     // 可选
+  "steps": ["第一步", "第二步"], // 可选
+  "pain": "解决的痛点"        // 可选
+}
+```
+
+- **编号**：不写 `no` 就自动取当前最大编号 +1；写了则保留（用于插到指定位置）。
+- **分组**：不写 `group` 就按 `cat` 自动归入（`agent`/`data`→AI 工程化，
+  `oss`→开源工具，`plan`/`flow`/`industry`→核心案例）。
+- 每个新增作品都会自动进入首页精选区与岗位页，无需手工改任何 HTML。
+
+> 数据管线原本依赖 `.dsh-workspace/artifacts/legacy-singlepage.html`（旧单页，未入库）。
+> 现在该文件**只在首次全量重建时需要**，日常新增作品直接改 `works-data.json` 即可。
+
+---
+
 ## 📢 诚信说明
 
 - **真实项**：企业级智能体系统 enterprise-agent、高企认定 / 项目申报交付、自建项目信息数据库与《项目监测报告》均为本人真实经历。
