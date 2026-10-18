@@ -377,13 +377,31 @@
     metrics: '#0e7490', terminal: '#2563eb', grid: '#0e7490'
   };
 
+  // 分类 → 3D 几何体（2026-10-19）
+  // 让每类作品有辨识度：不必读文字，看封面形状就知道是哪一类。
+  // 只在「没有真实截图」的卡片上用 —— 有截图的卡片要展示真实界面，
+  // 叠 3D 图标会挡住证据本身（当前 22 张里 21 张是示意图，2 张有截图）。
+  var CAT_3D = {
+    plan: 'lattice',    // 规划：网格阵列，像排布好的路线
+    flow: 'cube',       // 工作流：立方体，结构规整
+    agent: 'sphere',    // 智能体：节点球，神经网络
+    data: 'lattice',    // 数据：柱状/矩阵
+    oss: 'cluster',     // 开源：晶体簇，多个独立件组合
+    industry: 'octa'    // 行业：八面体，稳固
+  };
+
   function coverSVG(it) {
     var motif = (MOTIFS[it.motif] || MOTIFS.grid)('c' + it.no, MOTIF_HUE[it.motif] || '#2563eb');
+    var geo = CAT_3D[it.cat] || 'cube';
     return '<svg class="w-cover" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' +
       esc(it.t + ' 的示意图：' + it.pitch.slice(0, 46) + '…') + '" preserveAspectRatio="xMidYMid meet">' +
       '<rect width="' + W + '" height="' + H + '" fill="#f8fafc"/>' +
       '<g>' + motif + '</g>' +
-      '</svg>';
+      '</svg>' +
+      // 叠在 SVG 之上的 3D 小图标（纯装饰，aria-hidden）
+      // data-underlay=true：白色衬底描边，深色示意图上才看得清
+      '<canvas class="w-3d" data-3d="' + geo + '" data-scale="0.62" data-dots="false"' +
+      ' data-underlay="true" data-speed="0.00016" data-tilt="0.38" aria-hidden="true"></canvas>';
   }
 
   // ==========================================================================

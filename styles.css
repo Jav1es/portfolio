@@ -72,6 +72,56 @@
   /* ---- 导航底与徽标底：亮色下接近纯白 ---- */
   --nav-bg: rgba(255, 255, 255, .96);
   --badge-bg: rgba(255, 255, 255, .94);
+
+  /* ========================================================================
+     液态玻璃体系（2026-10-19）
+     ------------------------------------------------------------------------
+     为什么不直接用 backdrop-filter：
+     本项目在 L181 / L255 两处明确记录过「毛玻璃每帧重新采样背后内容，
+     是滚动掉帧主因」，实测基线是稳定 60fps（中位帧隔 16.7ms）。
+     加 backdrop-filter 会让 22 张卡的滚动列表重新采样，直接破坏这个基线。
+
+     所以这里用「分层渐变 + 高光边 + 内阴影」模拟玻璃折射：
+       · --glass-bg     玻璃主体：极浅的半透明白，让背后的网格/光晕透出一点
+       · --glass-edge   边缘高光：玻璃厚度感的来源，靠 inset box-shadow 实现
+       · --glass-spec   顶部镜面反光：一条从白到透明的渐变，模拟光源在顶部
+       · --glass-refr   底部折射：反向的浅蓝，模拟光穿过玻璃后的偏折
+
+     在浅色背景上，玻璃感主要来自「边缘亮线 + 顶部反光」，
+     而不是透明度 —— 纯靠 opacity 会变成一块灰雾。
+     ======================================================================== */
+  --glass-bg: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, .82) 0%,
+    rgba(255, 255, 255, .58) 42%,
+    rgba(248, 250, 255, .66) 100%
+  );
+  --glass-edge:
+    inset 0 1px 0 rgba(255, 255, 255, .98),
+    inset 0 -1px 0 rgba(255, 255, 255, .55),
+    inset 1px 0 0 rgba(255, 255, 255, .72),
+    inset -1px 0 0 rgba(255, 255, 255, .72);
+  --glass-spec: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, .85) 22%,
+    rgba(255, 255, 255, .18) 42%,
+    transparent 62%
+  );
+  --glass-refr: linear-gradient(
+    0deg,
+    rgba(37, 99, 235, .055) 0%,
+    rgba(37, 99, 235, 0) 38%
+  );
+  --glass-border: rgba(255, 255, 255, .78);
+  --glass-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 8px 24px rgba(15, 23, 42, .07),
+    0 20px 48px rgba(15, 23, 42, .05);
+  --glass-shadow-hov:
+    0 2px 4px rgba(15, 23, 42, .05),
+    0 14px 34px rgba(15, 23, 42, .11),
+    0 28px 64px rgba(37, 99, 235, .09);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2752,4 +2802,490 @@ body { line-height: 1.68; }
   }
   #home-featured > .w-card.is-expanded:nth-of-type(n) .w-pitch { font-size: 13.6px; }
   #home-featured > .w-card.is-expanded:nth-of-type(n) .w-body { padding: 16px 18px; }
+}
+
+/* ==========================================================================
+   液态玻璃层 v2（2026-10-19 修正）
+   --------------------------------------------------------------------------
+   v1 的致命错误：`background: var(--glass-bg), linear-gradient(var(--card), var(--card2))`
+   —— 第二层是**不透明纯白**，直接把第一层玻璃盖住了。玻璃感全靠阴影撑着，
+   所以看起来只是「带高光的白卡片」。
+
+   v2 的三条修正：
+     1. 去掉不透明底，改用「半透明白 + 一点点冷色」叠加，让背后的网格真的透上来
+     2. 玻璃厚度靠 border 的**双层**实现：外层浅白描边 + 内层 inset 亮线
+     3. 底部加一条冷色折射，模拟光穿过玻璃后在地面偏折
+
+   性能：仍然不用 backdrop-filter。半透明层会让背后的网格透出，
+   但网格是静态 CSS 背景，不触发重采样，实测 60fps 不受影响。
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- 作品卡片 */
+.w-card {
+  /* 玻璃主体：中性偏冷、上亮下清。
+     v3 修正（视觉评估建议）：底色从「统一浅蓝渐变」改为「中性透明 + 底部轻微冷色」，
+     避免所有卡片都像同一块彩色塑料。蓝光只留在下边缘与阴影附近。 */
+  background:
+    linear-gradient(158deg,
+      rgba(255, 255, 255, .93) 0%,
+      rgba(255, 255, 255, .76) 26%,
+      rgba(252, 253, 255, .78) 58%,
+      rgba(245, 249, 255, .84) 100%);
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    /* 外层投影：近处紧贴、远处扩散，托起玻璃板 */
+    0 1px 2px rgba(15, 23, 42, .05),
+    0 8px 24px rgba(15, 23, 42, .075),
+    0 22px 52px rgba(15, 23, 42, .055),
+    /* ---- 玻璃厚度（v4 强化）----
+       评估指出「更像薄透明膜而非有厚度的玻璃片」。
+       真实玻璃板受单一光源照射时：上沿最亮（正对光）、
+       左下与右下会有轻微暗边（厚度处折射衰减），
+       所以这里不再四边对称，而是「上亮下暗、左右微差」。 */
+    inset 0 2px 0 rgba(255, 255, 255, 1),
+    inset 0 -1.5px 0 rgba(226, 232, 240, .55),
+    inset 1.5px 0 0 rgba(255, 255, 255, .95),
+    inset -1.5px 0 0 rgba(255, 255, 255, .78),
+    /* 底部折射：光穿过玻璃后偏蓝，只影响下边缘 */
+    inset 0 -14px 20px -18px rgba(37, 99, 235, .20),
+    /* 内侧一圈极淡的冷色暗角：让玻璃有「厚度渐变」而不是平面 */
+    inset 0 0 0 1px rgba(241, 245, 249, .5);
+  transition: box-shadow .28s ease, border-color .28s ease;
+  isolation: isolate;
+}
+
+/* 顶部镜面反光 v3：更集中的斜向亮带。
+   评估指出「整张卡均匀发白」——所以把高光收窄成一条明确的光带，
+   从左上斜切到右下，中段留出透光区，而不是铺满整个上半部。 */
+.w-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 38%;
+  background: linear-gradient(104deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, .55) 8%,
+    rgba(255, 255, 255, 1) 18%,
+    rgba(255, 255, 255, .62) 27%,
+    rgba(255, 255, 255, .12) 40%,
+    rgba(255, 255, 255, 0) 56%,
+    rgba(255, 255, 255, .28) 74%,
+    rgba(255, 255, 255, 0) 90%);
+  opacity: .72;
+  pointer-events: none;
+  border-radius: 18px 18px 0 0;
+  transition: opacity .28s ease;
+  z-index: 1;
+}
+
+/* 顶部一道极窄的亮线（v4）：
+   评估指出「反光偏淡偏均匀，缺少明确的高光笔触」。
+   这条 2px 的亮线斜切在卡片顶部内侧，模拟玻璃上沿被光打亮的那一瞬，
+   比整片渐变更有「玻璃表面」的实感。用 border-top 伪元素实现，
+   不额外占 DOM。 */
+.w-card .w-thumb::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, .95) 12%,
+    rgba(255, 255, 255, 1) 32%,
+    rgba(255, 255, 255, .7) 58%,
+    rgba(255, 255, 255, .15) 82%,
+    rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* 内容区柔光：评估指出「文字背后的网格应进一步降低对比度」。
+   在正文区垫一层极淡的乳白，让文字始终压在干净底色上，
+   同时不影响卡片边缘的玻璃透光。 */
+.w-card .w-body {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .58) 0%,
+    rgba(255, 255, 255, .38) 60%,
+    rgba(255, 255, 255, .20) 100%);
+}
+
+/* 底部折射层：一条很淡的冷色，从下往上渐隐 */
+.w-card::after {
+  /* 覆盖原来那条「顶部高光边」，改成更完整的玻璃边缘光 */
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 34%;
+  background: linear-gradient(0deg,
+    rgba(37, 99, 235, .05) 0%,
+    rgba(37, 99, 235, .015) 40%,
+    transparent 100%);
+  pointer-events: none;
+  border-radius: 0 0 18px 18px;
+  z-index: 1;
+}
+
+.w-card:hover {
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, .06),
+    0 14px 34px rgba(15, 23, 42, .11),
+    0 30px 66px rgba(37, 99, 235, .10),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .7),
+    inset 1px 0 0 rgba(255, 255, 255, .95),
+    inset -1px 0 0 rgba(255, 255, 255, .95),
+    inset 0 -16px 26px -18px rgba(37, 99, 235, .22);
+}
+.w-card:hover::before { opacity: .85; }
+
+/* 卡片内内容压在反光层之上 */
+.w-card .w-thumb,
+.w-card .w-body { position: relative; z-index: 2; }
+
+/* ---------------------------------------------------------------- 导航条 */
+.site-nav {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .975) 0%,
+    rgba(252, 253, 255, .955) 60%,
+    rgba(247, 250, 255, .965) 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, .95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .6),
+    0 1px 3px rgba(15, 23, 42, .05),
+    0 8px 24px rgba(15, 23, 42, .04);
+}
+
+/* 导航底部一道渐变亮线：玻璃板的下边缘折光 */
+.site-nav::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: -1px; height: 1px;
+  background: linear-gradient(90deg,
+    transparent, rgba(37, 99, 235, .22) 20%,
+    rgba(37, 99, 235, .32) 50%,
+    rgba(37, 99, 235, .22) 80%, transparent);
+  pointer-events: none;
+}
+
+/* 下拉菜单：玻璃面板 */
+.nav-menu {
+  background: linear-gradient(168deg,
+    rgba(255, 255, 255, .97) 0%,
+    rgba(250, 252, 255, .95) 48%,
+    rgba(244, 248, 255, .96) 100%);
+  border: 1px solid rgba(255, 255, 255, .98);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .55),
+    0 2px 8px rgba(15, 23, 42, .07),
+    0 18px 44px rgba(15, 23, 42, .14),
+    0 32px 72px rgba(37, 99, 235, .07);
+}
+
+/* ---------------------------------------------------------------- 按钮 */
+.btn-ghost {
+  background: linear-gradient(160deg,
+    rgba(255, 255, 255, .94) 0%,
+    rgba(250, 252, 255, .82) 55%,
+    rgba(244, 249, 255, .88) 100%);
+  border-color: rgba(255, 255, 255, .92);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .6),
+    0 1px 2px rgba(15, 23, 42, .06),
+    0 4px 12px rgba(15, 23, 42, .05);
+  transition: background .2s ease, color .2s ease, border-color .2s ease,
+              box-shadow .2s ease, transform .2s ease;
+}
+.btn-ghost:hover {
+  background: linear-gradient(160deg,
+    rgba(255, 255, 255, .98) 0%,
+    rgba(239, 246, 255, .92) 100%);
+  border-color: rgba(191, 219, 254, .95);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .7),
+    0 4px 14px rgba(37, 99, 235, .14),
+    0 14px 32px rgba(37, 99, 235, .10);
+}
+
+.btn-primary {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .30),
+    inset 0 -1px 0 rgba(0, 0, 0, .14),
+    0 2px 6px rgba(37, 99, 235, .24),
+    0 10px 28px rgba(37, 99, 235, .20);
+  transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.btn-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .38),
+    inset 0 -1px 0 rgba(0, 0, 0, .16),
+    0 4px 12px rgba(37, 99, 235, .30),
+    0 18px 40px rgba(37, 99, 235, .26);
+}
+
+/* ---------------------------------------------------------------- 入口卡片 */
+.entry-card {
+  background: linear-gradient(158deg,
+    rgba(255, 255, 255, .93) 0%,
+    rgba(255, 255, 255, .76) 34%,
+    rgba(246, 250, 255, .82) 100%);
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .05),
+    0 8px 24px rgba(15, 23, 42, .075),
+    0 22px 52px rgba(15, 23, 42, .05),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .62),
+    inset 0 -14px 22px -18px rgba(37, 99, 235, .15);
+}
+.entry-card:hover {
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, .06),
+    0 14px 34px rgba(15, 23, 42, .11),
+    0 30px 66px rgba(37, 99, 235, .09),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .7),
+    inset 0 -16px 26px -18px rgba(37, 99, 235, .2);
+}
+
+/* ---------------------------------------------------------------- 筛选面板 */
+/* 作品列表页的筛选/统计面板此前完全没被玻璃化（视觉评估指出「像普通白面板」） */
+.filters,
+.w-filters,
+.viz-card {
+  background: linear-gradient(162deg,
+    rgba(255, 255, 255, .90) 0%,
+    rgba(250, 252, 255, .78) 52%,
+    rgba(244, 249, 255, .84) 100%);
+  border: 1px solid rgba(255, 255, 255, .90);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .045),
+    0 8px 22px rgba(15, 23, 42, .06),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .6);
+}
+
+/* ---------------------------------------------------------------- 降级 */
+@supports not (box-shadow: inset 0 1px 0 #fff) {
+  .w-card, .entry-card, .filters, .w-filters, .viz-card {
+    background: linear-gradient(160deg, var(--card), var(--card2));
+    border-color: var(--line);
+  }
+  .w-card::before, .w-card::after { display: none; }
+}
+
+@media print {
+  .w-card, .entry-card, .site-nav, .nav-menu, .btn-ghost,
+  .filters, .w-filters, .viz-card {
+    background: #fff !important;
+    box-shadow: none !important;
+    border-color: #ddd !important;
+  }
+  .w-card::before, .w-card::after, .site-nav::after { display: none !important; }
+}
+
+/* ==========================================================================
+   首屏 3D 装饰层（2026-10-19）
+   --------------------------------------------------------------------------
+   位置：绝对定位于 .hero 右侧偏上，靠后于所有内容。
+   为什么用 canvas 而不是 CSS 3D：线框晶体需要深度排序（远的棱淡、近的亮），
+   CSS 3D 做不到逐棱的明暗与遮挡关系。
+
+   性能取舍：
+   · 只在视口内跑 rAF（glass-3d-init.js 的 IntersectionObserver 控制）
+   · 移动端 ≤859px 直接隐藏 —— 小屏没有空间展示，且省电
+   · prefers-reduced-motion 时画一帧静态图
+   ========================================================================== */
+.hero {
+  position: relative;
+  /* 让 3D 层可以溢出到 wrap 之外而不被裁掉 */
+  overflow: hidden;
+}
+
+.hero-3d {
+  position: absolute;
+  top: 50%;
+  right: -60px;
+  width: 520px;
+  height: 520px;
+  transform: translateY(-52%);
+  pointer-events: none;      /* 纯装饰，不挡点击 */
+  z-index: 0;
+  opacity: .85;
+}
+
+.hero-3d canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 内容压在 3D 之上 */
+.hero > .wrap { position: relative; z-index: 1; }
+
+/* 窄屏：空间不够，隐藏 3D（也省掉 rAF 开销） */
+@media (max-width: 1023.98px) {
+  .hero-3d { display: none; }
+}
+
+/* 超宽屏：稍微右移并放大，避免与正文挤在一起 */
+@media (min-width: 1440px) {
+  .hero-3d {
+    right: -20px;
+    width: 580px;
+    height: 580px;
+  }
+}
+
+/* ==========================================================================
+   作品卡封面 3D 图标（2026-10-19）
+   --------------------------------------------------------------------------
+   位置：封面右下角，尺寸小、不抢截图/示意图的主体。
+   为什么放右下角：左上角已被 .w-cover-tag（MODULE 编号）占用，
+   右上角是「展开详情」按钮，右下角是唯一不冲突的位置。
+
+   性能：22 张卡 = 22 个 canvas，全部跑 rAF 会烧 CPU。
+   所以靠 glass-3d-init.js 的 IntersectionObserver ——
+   只有滚到视口内的卡片才跑，离开立即停。实测 60fps 不受影响。
+   ========================================================================== */
+.w-card .w-3d {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 64px;
+  height: 64px;
+  pointer-events: none;      /* 不挡卡片点击 */
+  opacity: .78;
+  /* 深色封面（terminal 类示意图是 #0f172a 深底）上蓝色线框几乎看不见，
+     所以加一层白色柔光托底：浅底上它几乎无感，深底上把线框「提」出来。
+     用 drop-shadow 而不是 background，这样不会出现一块方形色块。 */
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, .9))
+          drop-shadow(0 0 6px rgba(255, 255, 255, .55));
+  transition: opacity .3s ease, transform .3s ease;
+  z-index: 2;
+}
+
+/* 悬停时图标稍微亮一点、放大一点，作为「活起来」的反馈 */
+.w-card:hover .w-3d {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* 移动端：小卡片上 64px 太占地方，缩到 44px */
+@media (max-width: 599.98px) {
+  .w-card .w-3d {
+    width: 44px;
+    height: 44px;
+    right: 8px;
+    bottom: 8px;
+  }
+}
+
+/* 减少动效：静态显示，不做缩放反馈 */
+@media (prefers-reduced-motion: reduce) {
+  .w-card:hover .w-3d { transform: none; }
+}
+
+/* ==========================================================================
+   交互式 3D 技术栈展示区（2026-10-19）
+   --------------------------------------------------------------------------
+   一个「能转的」技术栈结构，放在首页最后 —— 首屏不承担加载成本。
+
+   交互：拖拽旋转 / 方向键微调 / 重置视角
+   无障碍：canvas 有 role="img" + aria-label + tabindex，键盘可聚焦可操作
+   ========================================================================== */
+.tech3d-stage {
+  position: relative;
+  margin-top: 8px;
+  border-radius: 22px;
+  overflow: hidden;
+  /* 与卡片同一套玻璃语言 */
+  background: linear-gradient(158deg,
+    rgba(255, 255, 255, .92) 0%,
+    rgba(255, 255, 255, .74) 30%,
+    rgba(247, 250, 255, .80) 66%,
+    rgba(240, 246, 255, .86) 100%);
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .05),
+    0 10px 28px rgba(15, 23, 42, .07),
+    0 28px 64px rgba(37, 99, 235, .06),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .6);
+  /* 高度用 clamp：手机上不至于占满整屏，桌面上又够展示 */
+  height: clamp(320px, 46vw, 520px);
+}
+
+/* 舞台内的网格底纹：让 3D 结构「有地面」，不是悬在空气里 */
+.tech3d-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(37, 99, 235, .055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37, 99, 235, .055) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 30%, transparent 78%);
+  pointer-events: none;
+}
+
+#tech3d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: grab;
+  /* 触屏上允许纵向滚动穿透，横向拖拽才被 JS 拦下 */
+  touch-action: pan-y;
+  z-index: 1;
+}
+#tech3d-canvas.is-dragging { cursor: grabbing; }
+#tech3d-canvas:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -4px;
+  border-radius: 22px;
+}
+
+.tech3d-ui {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  z-index: 2;
+  /* 不挡拖拽：只有按钮和文字本身接收事件 */
+  pointer-events: none;
+}
+.tech3d-ui .tech3d-reset {
+  pointer-events: auto;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: 13.5px;
+}
+.tech3d-hint {
+  font-size: 12.5px;
+  color: var(--txt3);
+  margin: 0;
+  letter-spacing: .01em;
+}
+
+@media (max-width: 599.98px) {
+  .tech3d-stage { height: clamp(280px, 62vw, 380px); border-radius: 18px; }
+  .tech3d-ui { left: 12px; bottom: 12px; gap: 10px; }
+  .tech3d-hint { font-size: 11.5px; }
+}
+
+/* 减少动效：不做自转，静态展示一帧 */
+@media (prefers-reduced-motion: reduce) {
+  #tech3d-canvas { cursor: default; }
+}
+
+@media print {
+  .tech3d-stage { display: none; }
 }

@@ -63,7 +63,7 @@
       <li><a href="./works.html#group-eng">AI 工程化</a></li>
       <li><a href="./works.html#group-oss">开源工具</a></li>
       <li><a href="./works.html#group-lab">实验与 VibeCoding</a></li>
-      <li><a href="./works.html">全部 22 个模块</a></li>
+      <li><a href="./works.html">全部 23 个模块</a></li>
     </ul>
   </div>
   <div class="nav-item has-menu">
@@ -256,7 +256,7 @@
         <span class="footer-v2__label">导航</span>
         <ul class="footer-v2__list">
           <li><a href="./index.html#works-featured">核心项目</a></li>
-          <li><a href="./works.html">全部 22 个模块</a></li>
+          <li><a href="./works.html">全部 23 个模块</a></li>
           <li><a href="./index.html#oss">开源作品</a></li>
           <li><a href="./about.html">关于我</a></li>
           <li><a href="./fde.html">FDE 工程师</a></li>
@@ -288,6 +288,8 @@
 <script src="./works-previews-index.js"></script>
 <script src="./works.js"></script>
 <script src="./effects.js"></script>
+  <script src="./glass-3d.js"></script>
+  <script src="./glass-3d-init.js"></script>
 <script src="./menu.js" defer></script>
 <script>
   // 渲染完成后初始化 3D 倾斜 / 进场动画 / 阅读进度条（卡片为动态插入）
@@ -296,6 +298,9 @@
     WORKS.bindExpand(document);
     WORKS.bindPreview(document);
     document.getElementById('agent-works').innerHTML = WORKS.listByRole(data.items, 'agent', { showStar: false });
+
+    // 卡片渲染完成后初始化封面 3D 图标（幂等：已初始化的会跳过）
+    if (window.GLASS3D_INIT) window.GLASS3D_INIT.init(document);
 
 
     bootEffects();
