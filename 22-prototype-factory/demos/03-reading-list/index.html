@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人阅读清单</title>
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --surface-alt: #f5f3ef;
+    --border: #e3ded6;
+    --text: #26221d;
+    --text-dim: #857c70;
+    --accent: #9a6b3f;
+    --accent-soft: #f3ece3;
+    --want: #a8916f;
+    --reading: #3f7a9a;
+    --done: #4a8a5c;
+    --shadow: 0 2px 10px rgba(38,34,29,.07);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 48px;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 18px; }
+
+  header { padding: 34px 0 20px; }
+  h1 {
+    font-size: clamp(21px, 5.5vw, 27px);
+    font-weight: 700; letter-spacing: -.02em; margin-bottom: 5px;
+  }
+  .lede { font-size: 13px; color: var(--text-dim); }
+
+  .stats {
+    display: flex; gap: 8px; margin: 18px 0 16px; flex-wrap: wrap;
+  }
+  .stat {
+    flex: 1 1 0; min-width: 76px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+    transition: border-color .2s;
+  }
+  .stat:hover { border-color: var(--accent); }
+  .stat-num { font-size: 19px; font-weight: 650; line-height: 1.2; font-variant-numeric: tabular-nums; }
+  .stat-lbl { font-size: 11px; color: var(--text-dim); letter-spacing: .04em; }
+
+  form.add {
+    display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .field { flex: 1 1 130px; min-width: 0; }
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface); color: var(--text);
+    border: 1px solid var(--border); border-radius: 9px;
+    padding: 10px 12px; font-size: 14px; font-family: inherit;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  input[type="text"]::placeholder { color: var(--text-dim); }
+  input[type="text"]:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  input.invalid { border-color: #c25050; box-shadow: 0 0 0 3px rgba(194,80,80,.12); }
+
+  button {
+    font-family: inherit; font-size: 14px; font-weight: 550;
+    border-radius: 9px; border: 1px solid var(--border);
+    padding: 10px 18px; cursor: pointer;
+    background: var(--surface); color: var(--text);
+    transition: background-color .18s, border-color .18s, transform .1s, opacity .18s;
+    white-space: nowrap;
+  }
+  button:hover { background: var(--surface-alt); border-color: var(--accent); }
+  button:active { transform: scale(.97); }
+  button.primary {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  button.primary:hover { background: #865c35; border-color: #865c35; }
+
+  .filters {
+    display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 13px; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid var(--border); background: var(--surface);
+    color: var(--text-dim); cursor: pointer;
+    transition: background-color .2s, color .2s, border-color .2s, transform .1s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--text); }
+  .chip:active { transform: scale(.96); }
+  .chip.on {
+    background: var(--text); color: var(--bg);
+    border-color: var(--text);
+  }
+  .chip .count {
+    font-size: 11px; opacity: .65; margin-left: 4px;
+  }
+
+  ul.list { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+
+  .book {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 11px; padding: 13px 15px;
+    display: flex; align-items: flex-start; gap: 12px;
+    box-shadow: var(--shadow);
+    transition: border-color .2s, transform .2s, box-shadow .2s, opacity .25s;
+    animation: slideIn .32s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-7px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .book:hover { border-color: var(--accent); transform: translateX(2px); }
+  .book.leaving { opacity: 0; transform: translateX(24px) scale(.96); }
+
+  .book-main { flex: 1; min-width: 0; }
+  .book-title {
+    font-weight: 600; font-size: 14.5px; line-height: 1.4;
+    word-break: break-word;
+  }
+  .book-author {
+    font-size: 12.5px; color: var(--text-dim);
+    word-break: break-word;
+  }
+  .book.st-done .book-title {
+    text-decoration: line-through;
+    text-decoration-color: var(--text-dim);
+    opacity: .6;
+  }
+
+  .book-actions { display: flex; align-items: center; gap: 6px; flex: none; }
+
+  .status-btn {
+    font-size: 11.5px; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--text-dim); cursor: pointer;
+    transition: background-color .2s, color .2s, border-color .2s, transform .1s;
+    white-space: nowrap;
+  }
+  .status-btn:hover { transform: translateY(-1px); }
+  .status-btn:active { transform: scale(.95); }
+  .status-btn.st-want    { color: var(--want);    border-color: var(--want);    background: rgba(168,145,111,.1); }
+  .status-btn.st-reading { color: var(--reading); border-color: var(--reading); background: rgba(63,122,154,.1); }
+  .status-btn.st-done    { color: var(--done);    border-color: var(--done);    background: rgba(74,138,92,.1); }
+
+  .del {
+    width: 26px; height: 26px; padding: 0; flex: none;
+    border-radius: 7px; border: none; background: transparent;
+    color: var(--text-dim); font-size: 15px; line-height: 1;
+    display: grid; place-items: center;
+    transition: background-color .18s, color .18s;
+  }
+  .del:hover { background: rgba(194,80,80,.12); color: #c25050; border-color: transparent; }
+
+  .empty {
+    text-align: center; padding: 52px 20px;
+    color: var(--text-dim); font-size: 13.5px;
+    border: 1px dashed var(--border); border-radius: 12px;
+  }
+  .empty .big { font-size: 30px; opacity: .45; margin-bottom: 8px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px;
+    transform: translate(-50%, 16px);
+    background: var(--text); color: var(--bg);
+    font-size: 13px; padding: 9px 18px; border-radius: 999px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s;
+    z-index: 50;
+    max-width: calc(100vw - 32px);
+    text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 480px) {
+    .wrap { padding: 0 14px; }
+    header { padding: 26px 0 16px; }
+    form.add { gap: 7px; }
+    .field { flex: 1 1 100%; }
+    form.add button.primary { width: 100%; }
+    .book { padding: 12px 13px; gap: 10px; flex-wrap: wrap; }
+    .book-actions { width: 100%; justify-content: flex-end; }
+    .stats { gap: 7px; }
+    .stat { padding: 9px 10px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>个人阅读清单</h1>
+    <p class="lede">记录想读、在读与读完的书。</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="sTotal">0</div><div class="stat-lbl">全部</div></div>
+    <div class="stat"><div class="stat-num" id="sWant">0</div><div class="stat-lbl">想读</div></div>
+    <div class="stat"><div class="stat-num" id="sReading">0</div><div class="stat-lbl">在读</div></div>
+    <div class="stat"><div class="stat-num" id="sDone">0</div><div class="stat-lbl">已读</div></div>
+  </div>
+
+  <form class="add" id="addForm" autocomplete="off">
+    <div class="field"><input type="text" id="titleInput" placeholder="书名" aria-label="书名" maxlength="120"></div>
+    <div class="field"><input type="text" id="authorInput" placeholder="作者" aria-label="作者" maxlength="80"></div>
+    <button type="submit" class="primary">添加</button>
+  </form>
+
+  <div class="filters" id="filters" role="tablist" aria-label="按状态筛选">
+    <button class="chip on" data-filter="all"     role="tab" aria-selected="true">全部<span class="count" id="cAll">0</span></button>
+    <button class="chip"    data-filter="want"    role="tab" aria-selected="false">想读<span class="count" id="cWant">0</span></button>
+    <button class="chip"    data-filter="reading" role="tab" aria-selected="false">在读<span class="count" id="cReading">0</span></button>
+    <button class="chip"    data-filter="done"    role="tab" aria-selected="false">已读<span class="count" id="cDone">0</span></button>
+  </div>
+
+  <ul class="list" id="list" aria-live="polite"></ul>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "reading-list-v1";
+  var STATUS = {
+    want:    { label: "想读", next: "reading" },
+    reading: { label: "在读", next: "done" },
+    done:    { label: "已读", next: "want" }
+  };
+
+  var listEl    = document.getElementById("list");
+  var form      = document.getElementById("addForm");
+  var titleIn   = document.getElementById("titleInput");
+  var authorIn  = document.getElementById("authorInput");
+  var filtersEl = document.getElementById("filters");
+  var toastEl   = document.getElementById("toast");
+
+  var books = [];
+  var filter = "all";
+  var toastTimer = null;
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  function load() {
+    var raw = null;
+    try { raw = localStorage.getItem(STORAGE_KEY); } catch (e) { return; }
+    if (!raw) return;
+    try {
+      var parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return;
+      books = parsed.filter(function (b) {
+        return b && typeof b.title === "string" && b.title &&
+               typeof b.status === "string" && STATUS[b.status];
+      }).map(function (b) {
+        return {
+          id: typeof b.id === "string" && b.id ? b.id : uid(),
+          title: b.title,
+          author: typeof b.author === "string" ? b.author : "",
+          status: b.status,
+          addedAt: typeof b.addedAt === "number" ? b.addedAt : Date.now()
+        };
+      });
+    } catch (e) { books = []; }
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(books)); }
+    catch (e) { toast("保存失败：存储空间可能已满"); }
+  }
+
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toastEl.classList.remove("show");
+    }, 1900);
+  }
+
+  function counts() {
+    var c = { all: books.length, want: 0, reading: 0, done: 0 };
+    books.forEach(function (b) { c[b.status]++; });
+    return c;
+  }
+
+  function paintStats() {
+    var c = counts();
+    document.getElementById("sTotal").textContent   = c.all;
+    document.getElementById("sWant").textContent    = c.want;
+    document.getElementById("sReading").textContent = c.reading;
+    document.getElementById("sDone").textContent    = c.done;
+    document.getElementById("cAll").textContent     = c.all;
+    document.getElementById("cWant").textContent    = c.want;
+    document.getElementById("cReading").textContent = c.reading;
+    document.getElementById("cDone").textContent    = c.done;
+  }
+
+  function rowHTML(b) {
+    return '<li class="book st-' + b.status + '" data-id="' + esc(b.id) + '">' +
+      '<div class="book-main">' +
+        '<div class="book-title">' + esc(b.title) + '</div>' +
+        (b.author ? '<div class="book-author">' + esc(b.author) + '</div>' : '') +
+      '</div>' +
+      '<div class="book-actions">' +
+        '<button type="button" class="status-btn st-' + b.status + '" data-act="cycle" ' +
+          'aria-label="切换状态，当前 ' + STATUS[b.status].label + '">' + STATUS[b.status].label + '</button>' +
+        '<button type="button" class="del" data-act="del" aria-label="删除这本书">×</button>' +
+      '</div>' +
+    '</li>';
+  }
+
+  function render() {
+    paintStats();
+
+    var shown = filter === "all"
+      ? books.slice()
+      : books.filter(function (b) { return b.status === filter; });
+
+    // 已读沉底，其余按添加时间倒序
+    shown.sort(function (a, b) {
+      if (a.status === "done" && b.status !== "done") return 1;
+      if (b.status === "done" && a.status !== "done") return -1;
+      return b.addedAt - a.addedAt;
+    });
+
+    if (shown.length === 0) {
+      listEl.innerHTML = '<li><div class="empty"><div class="big">📚</div>' +
+        (books.length === 0
+          ? "还没有书，先添加一本吧"
+          : "这个分类下还没有书") +
+        '</div></li>';
+      return;
+    }
+
+    listEl.innerHTML = shown.map(rowHTML).join("");
+  }
+
+  function addBook(title, author) {
+    books.push({
+      id: uid(),
+      title: title,
+      author: author,
+      status: "want",
+      addedAt: Date.now()
+    });
+    save();
+    render();
+    toast("已加入「想读」");
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var title  = titleIn.value.trim();
+    var author = authorIn.value.trim();
+
+    if (!title) {
+      titleIn.classList.add("invalid");
+      titleIn.focus();
+      toast("请先填写书名");
+      setTimeout(function () { titleIn.classList.remove("invalid"); }, 1400);
+      return;
+    }
+
+    addBook(title, author);
+    titleIn.value = "";
+    authorIn.value = "";
+    titleIn.focus();
+  });
+
+  listEl.addEventListener("click", function (e) {
+    var btn = e.target.closest("button[data-act]");
+    if (!btn) return;
+
+    var li = btn.closest(".book");
+    if (!li) return;
+    var id = li.getAttribute("data-id");
+    var book = books.filter(function (b) { return b.id === id; })[0];
+    if (!book) return;
+
+    if (btn.getAttribute("data-act") === "del") {
+      li.classList.add("leaving");
+      setTimeout(function () {
+        books = books.filter(function (b) { return b.id !== id; });
+        save();
+        render();
+        toast("已删除");
+      }, 200);
+      return;
+    }
+
+    // 状态循环：想读 → 在读 → 已读 → 想读
+    book.status = STATUS[book.status].next;
+    save();
+    render();
+    toast("已标记为「" + STATUS[book.status].label + "」");
+  });
+
+  filtersEl.addEventListener("click", function (e) {
+    var chip = e.target.closest(".chip");
+    if (!chip) return;
+    filter = chip.getAttribute("data-filter");
+
+    Array.prototype.forEach.call(filtersEl.children, function (c) {
+      var on = c === chip;
+      c.classList.toggle("on", on);
+      c.setAttribute("aria-selected", String(on));
+    });
+
+    render();
+  });
+
+  load();
+  if (books.length === 0) {
+    // 首次打开的内联 mock 示例
+    books = [
+      { id: uid(), title: "人类简史", author: "尤瓦尔·赫拉利", status: "done",    addedAt: Date.now() - 3000 },
+      { id: uid(), title: "设计心理学", author: "唐纳德·诺曼", status: "reading", addedAt: Date.now() - 2000 },
+      { id: uid(), title: "置身事内", author: "兰小欢",     status: "want",    addedAt: Date.now() - 1000 }
+    ];
+    save();
+  }
+  render();
+})();
+</script>
+</body>
+</html>

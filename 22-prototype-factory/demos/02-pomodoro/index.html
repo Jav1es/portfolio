@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>极简番茄钟</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    background: #14161c;
+    color: #eceff4;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    overflow-x: hidden;
+    transition: background-color .5s ease;
+  }
+  body.mode-break { background: #14201a; }
+  body.mode-done  { background: #1f1620; }
+
+  .app { width: 100%; max-width: 380px; text-align: center; }
+
+  .mode-tag {
+    display: inline-block;
+    font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+    color: #8b93a7;
+    padding: 5px 14px; border-radius: 999px;
+    border: 1px solid #2a2f3a;
+    margin-bottom: 26px;
+    transition: color .3s, border-color .3s;
+  }
+  body.mode-break .mode-tag { color: #5eead4; border-color: #1f4a42; }
+  body.mode-done  .mode-tag { color: #f0abfc; border-color: #4a2450; }
+
+  .dial {
+    position: relative;
+    width: min(280px, 78vw);
+    height: min(280px, 78vw);
+    margin: 0 auto 30px;
+  }
+  .dial svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; }
+  .track { fill: none; stroke: #232833; stroke-width: 9; }
+  .progress {
+    fill: none;
+    stroke: #7c9cff;
+    stroke-width: 9;
+    stroke-linecap: round;
+    transition: stroke .4s ease;
+  }
+  body.mode-break .progress { stroke: #5eead4; }
+  body.mode-done  .progress { stroke: #f0abfc; }
+
+  .dial-center {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 2px;
+  }
+  #time {
+    font-size: clamp(42px, 15vw, 60px);
+    font-weight: 300;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    transition: color .3s;
+  }
+  body.mode-done #time { color: #f0abfc; }
+  .sub {
+    font-size: 12px; color: #6b7385; letter-spacing: .08em;
+  }
+  .dial.pulse { animation: pulse .5s ease; }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.035); }
+  }
+
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 22px; }
+  button {
+    font-family: inherit; font-size: 14px; font-weight: 550;
+    border-radius: 10px; border: 1px solid #2a2f3a;
+    padding: 11px 22px; cursor: pointer;
+    background: #1b1f28; color: #eceff4;
+    transition: background-color .18s, border-color .18s, transform .1s, opacity .18s;
+    min-width: 96px;
+  }
+  button:hover:not(:disabled) { background: #232936; border-color: #3d4557; }
+  button:active:not(:disabled) { transform: scale(.96); }
+  button:disabled { opacity: .38; cursor: not-allowed; }
+  button.primary {
+    background: #7c9cff; border-color: #7c9cff; color: #0d1017;
+  }
+  button.primary:hover:not(:disabled) { background: #93adff; border-color: #93adff; }
+  body.mode-break button.primary { background: #5eead4; border-color: #5eead4; }
+  body.mode-break button.primary:hover:not(:disabled) { background: #7df0dd; border-color: #7df0dd; }
+
+  .rounds { display: flex; gap: 7px; justify-content: center; margin-bottom: 16px; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #2a2f3a;
+    transition: background-color .3s, transform .3s;
+  }
+  .dot.filled { background: #7c9cff; transform: scale(1.15); }
+  .dot.active { background: #7c9cff; box-shadow: 0 0 0 4px rgba(124,156,255,.16); }
+
+  .hint { font-size: 12px; color: #5b6273; min-height: 17px; }
+  .hint.on { color: #8b93a7; }
+
+  @media (max-width: 380px) {
+    .controls { gap: 8px; }
+    button { padding: 10px 16px; min-width: 84px; font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="mode-tag" id="modeTag">专注</div>
+
+  <div class="dial" id="dial">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <circle class="track"    cx="100" cy="100" r="88"></circle>
+      <circle class="progress" cx="100" cy="100" r="88" id="ring"></circle>
+    </svg>
+    <div class="dial-center">
+      <div id="time" role="timer" aria-live="off">25:00</div>
+      <div class="sub" id="sub">准备开始</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="startBtn">开始</button>
+    <button id="resetBtn">重置</button>
+  </div>
+
+  <div class="rounds" id="rounds" aria-label="轮次进度"></div>
+  <div class="hint" id="hint"></div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var WORK_SECONDS  = 25 * 60;
+  var BREAK_SECONDS = 5 * 60;
+  var CIRCUMFERENCE = 2 * Math.PI * 88;
+
+  var timeEl  = document.getElementById("time");
+  var subEl   = document.getElementById("sub");
+  var ring    = document.getElementById("ring");
+  var dial    = document.getElementById("dial");
+  var startBtn = document.getElementById("startBtn");
+  var resetBtn = document.getElementById("resetBtn");
+  var modeTag = document.getElementById("modeTag");
+  var roundsEl = document.getElementById("rounds");
+  var hintEl  = document.getElementById("hint");
+
+  var state = {
+    phase: "work",     // work | break | done
+    total: WORK_SECONDS,
+    remaining: WORK_SECONDS,
+    running: false,
+    completed: 0
+  };
+
+  var ticker = null;
+  var audioCtx = null;
+
+  ring.style.strokeDasharray = CIRCUMFERENCE;
+  ring.style.strokeDashoffset = 0;
+
+  function fmt(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function paint() {
+    timeEl.textContent = fmt(state.remaining);
+    var ratio = state.total > 0 ? state.remaining / state.total : 0;
+    ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - ratio);
+
+    document.title = (state.running ? "▶ " : "") + fmt(state.remaining) + " · 番茄钟";
+
+    startBtn.textContent = state.running ? "暂停" : (state.remaining < state.total ? "继续" : "开始");
+    startBtn.disabled = false;
+
+    if (state.phase === "work") {
+      modeTag.textContent = "专注";
+      subEl.textContent = state.running ? "专注中…" : (state.remaining < state.total ? "已暂停" : "准备开始");
+      document.body.className = "";
+    } else if (state.phase === "break") {
+      modeTag.textContent = "休息";
+      subEl.textContent = state.running ? "休息中…" : "已暂停";
+      document.body.className = "mode-break";
+    } else {
+      modeTag.textContent = "完成";
+      subEl.textContent = "这一轮结束了";
+      document.body.className = "mode-done";
+    }
+
+    roundsEl.innerHTML = "";
+    for (var i = 0; i < 4; i++) {
+      var d = document.createElement("span");
+      d.className = "dot" + (i < state.completed ? " filled" : "") +
+        (i === state.completed % 4 && state.completed < 4 ? " active" : "");
+      roundsEl.appendChild(d);
+    }
+  }
+
+  function beep() {
+    try {
+      if (!audioCtx) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        audioCtx = new AC();
+      }
+      if (audioCtx.state === "suspended") { audioCtx.resume(); }
+
+      var now = audioCtx.currentTime;
+      // 三声上行提示音，全部由振荡器合成，不依赖任何音频文件
+      [0, 0.22, 0.44].forEach(function (offset, i) {
+        var osc  = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        var freq = [660, 880, 1174][i];
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, now + offset);
+
+        gain.gain.setValueAtTime(0.0001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.28, now + offset + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + 0.20);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + offset);
+        osc.stop(now + offset + 0.24);
+      });
+    } catch (e) { /* 音频不可用时静默降级 */ }
+  }
+
+  function pulse() {
+    dial.classList.remove("pulse");
+    void dial.offsetWidth;
+    dial.classList.add("pulse");
+  }
+
+  function tick() {
+    state.remaining -= 1;
+    if (state.remaining <= 0) {
+      state.remaining = 0;
+      paint();
+      finish();
+      return;
+    }
+    paint();
+  }
+
+  function finish() {
+    stopTicker();
+    state.running = false;
+    beep();
+    pulse();
+
+    if (state.phase === "work") {
+      state.completed = Math.min(state.completed + 1, 4);
+      state.phase = "break";
+      state.total = BREAK_SECONDS;
+      state.remaining = BREAK_SECONDS;
+      hintEl.textContent = "专注完成，休息 5 分钟";
+      hintEl.className = "hint on";
+      paint();
+    } else {
+      state.phase = "done";
+      state.remaining = 0;
+      hintEl.textContent = "点击「重置」开始新一轮";
+      hintEl.className = "hint on";
+      paint();
+    }
+  }
+
+  function startTicker() {
+    if (ticker) return;
+    ticker = setInterval(tick, 1000);
+  }
+  function stopTicker() {
+    if (ticker) { clearInterval(ticker); ticker = null; }
+  }
+
+  function toggle() {
+    if (state.phase === "done") { reset(); return; }
+
+    if (state.running) {
+      state.running = false;
+      stopTicker();
+      paint();
+      return;
+    }
+
+    // 首次启动时解锁音频上下文（必须在用户手势内）
+    if (!audioCtx) {
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC) audioCtx = new AC();
+      } catch (e) {}
+    }
+    if (audioCtx && audioCtx.state === "suspended") { audioCtx.resume(); }
+
+    state.running = true;
+    hintEl.textContent = "";
+    hintEl.className = "hint";
+    startTicker();
+    paint();
+  }
+
+  function reset() {
+    stopTicker();
+    state.phase = "work";
+    state.total = WORK_SECONDS;
+    state.remaining = WORK_SECONDS;
+    state.running = false;
+    state.completed = 0;
+    hintEl.textContent = "";
+    hintEl.className = "hint";
+    paint();
+  }
+
+  startBtn.addEventListener("click", toggle);
+  resetBtn.addEventListener("click", reset);
+
+  document.addEventListener("keydown", function (e) {
+    if (e.code === "Space" && e.target === document.body) {
+      e.preventDefault();
+      toggle();
+    }
+    if (e.key === "r" || e.key === "R") { reset(); }
+  });
+
+  paint();
+})();
+</script>
+</body>
+</html>
