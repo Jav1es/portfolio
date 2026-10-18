@@ -420,9 +420,14 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
    不跟核心指标抢注意力，但要能一眼读到。 */
 .career-shift {
   margin: 0 0 28px; padding: 13px 16px;
-  border-left: 3px solid var(--blue);
+  /* 2026-10-19 用户反馈：左侧 3px 实心蓝线「会挡住文字的视觉效果」。
+     完全删掉会丢掉「这是一段独立说明」的语义，所以改为淡化：
+     ① 线宽 3px → 2px，颜色从实心 --blue 降到 30% 透明度；
+     ② 底色同步减淡，避免整块比正文还重；
+     ③ 圆角随之微调，保持左右不对称的视觉节奏。 */
+  border-left: 2px solid rgba(37, 99, 235, .3);
   border-radius: 0 10px 10px 0;
-  background: var(--blue-50);
+  background: rgba(37, 99, 235, .045);
   font-size: 14.2px; line-height: 1.68; color: var(--txt2);
 }
 .career-shift p { margin: 0; }
@@ -524,6 +529,22 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
   transition: opacity .5s cubic-bezier(.2, .7, .3, 1), transform .5s cubic-bezier(.2, .7, .3, 1);
 }
 .is-revealed { opacity: 1 !important; transform: none !important; }
+
+/* 封面轻微收束（2026-10-19）：卡片淡入的同时，封面从 1.04 缩回 1。
+   比整张卡片缩放更克制 —— 卡片本身在位移，再缩放会显得晃。
+   用 backwards 保证动画开始前就处于起始态，不会先闪一下原尺寸。
+   动画结束后 transform 交回 hover 的 scale(1.03) 控制。 */
+.w-card.is-revealed .w-thumb {
+  animation: wThumbSettle .5s cubic-bezier(.22, .61, .36, 1) backwards;
+}
+@keyframes wThumbSettle {
+  from { transform: scale(1.04); }
+  to   { transform: scale(1); }
+}
+/* 无障碍：不做任何缩放 */
+@media (prefers-reduced-motion: reduce) {
+  .w-card.is-revealed .w-thumb { animation: none !important; }
+}
 
 /* 减少动效时不做任何入场位移，内容直接可见 */
 /* ==========================================================================
@@ -1546,7 +1567,14 @@ mark {
 }
 .nav-menu {
   position: absolute; top: 100%; left: 0; z-index: 130;
-  min-width: 200px; margin: 6px 0 0; padding: 6px;
+  min-width: 200px;
+  /* ⚠️ 不能用 margin-top 做间距（2026-10-19 用户反馈「鼠标一离开就没法选」）：
+     margin 属于盒外空隙，鼠标从链接往下移时中间会经过一段既不属于
+     .nav-item 也不属于 .nav-menu 的空白，hover 立刻中断、菜单消失。
+     改用 padding-top 把这段距离变成菜单自身的可 hover 区域，
+     视觉间距不变，鼠标路径连续。 */
+  margin: 0; padding: 6px;
+  padding-top: 12px;
   list-style: none;
   background: var(--card);
   border: 1px solid var(--line);
@@ -1559,6 +1587,15 @@ mark {
 .nav-item:hover .nav-menu,
 .nav-item:focus-within .nav-menu {
   opacity: 1; visibility: visible; transform: none; pointer-events: auto;
+}
+/* 关闭时给一点延迟：鼠标快速掠过相邻导航项时，菜单不会一闪而灭，
+   配合上面的 padding-top 让「从链接移到菜单」这条路径完全连续。 */
+.nav-menu {
+  transition: opacity .16s ease .12s, transform .16s ease .12s, visibility 0s linear .28s;
+}
+.nav-item:hover .nav-menu,
+.nav-item:focus-within .nav-menu {
+  transition: opacity .16s ease 0s, transform .16s ease 0s, visibility 0s linear 0s;
 }
 .nav-menu a {
   display: block; padding: 8px 11px; border-radius: 8px;
@@ -2210,27 +2247,29 @@ body { line-height: 1.68; }
    ========================================================================== */
 @media (min-width: 1200px) {
   #home-featured {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* 行高自动：大卡横跨前两行，后 3 张紧凑卡各占 1 列 */
+    /* 4 列（2026-10-19 用户反馈改版）。
+       原先是 3 列 + 「大卡跨 2 列、中卡与第 3 张小卡都钉在第 3 列」，
+       结果第 3 列纵向堆了三张、第二行只剩一张卡靠右，左边空出两列 ——
+       正是用户截图里那个「第二行只有一张、靠右、不美观」。
+       改成 4 列后：第一行 = 大卡(跨2) + 中卡(跨2)，第二行 = 4 张小卡各占 1 列，
+       两行都填满、左右对称，视觉上稳定得多。 */
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     grid-auto-rows: auto;
     gap: 20px;
   }
 
-  /* 第 1 张：大卡（跨 2 列）。
-     刻意**不跨行** —— 一开始写了 grid-row:span 2，结果右侧两张中卡各 ~960px
-     把行高撑到近 2000px，大卡被拉成 749x1964 的细长条，面积达到小卡的 4.4 倍，
-     完全失衡。只跨列后大卡 748x866，与小卡比例回到合理区间。 */
+  /* 第 1 张：大卡（跨 2 列 = 整行的一半）。 */
   #home-featured > .w-card:nth-of-type(1) {
     grid-column: span 2;
     border-radius: 22px;
   }
-  /* 第 2 张：中卡（右侧 1 列） */
+  /* 第 2 张：中卡（跨 2 列 = 另半行），与第 1 张共同占满第一行。 */
   #home-featured > .w-card:nth-of-type(2) {
-    grid-column: 3;
+    grid-column: span 2;
   }
-  /* 第 3–6 张：按 3 列自然落位，其中第 3 张紧跟大卡右侧 */
-  #home-featured > .w-card:nth-of-type(3) {
-    grid-column: 3;
+  /* 第 3–6 张：第二行，各占 1 列，自然排满 4 格。 */
+  #home-featured > .w-card:nth-of-type(n+3) {
+    grid-column: span 1;
   }
 
   /* ---- 大卡内部：字号与封面放大，形成真实的视觉层级 ---- */
@@ -2245,28 +2284,99 @@ body { line-height: 1.68; }
   #home-featured > .w-card:nth-of-type(1) .w-pitch { font-size: 14.5px; }
   #home-featured > .w-card:nth-of-type(1) .w-body { padding: 20px 22px; }
 
-  /* 中卡：封面压到 150px（16:9 会到 204px，与 208px 的大卡几乎等高，
-     层级根本拉不开），字号介于大卡与小卡之间。 */
-  #home-featured > .w-card:nth-of-type(2) .w-thumb,
-  #home-featured > .w-card:nth-of-type(3) .w-thumb {
+  /* ---- 大卡瘦身（2026-10-19）----
+     大卡 1053px、小卡 347px，落差 2:1 —— 第一行像完整页面、第二行像附赠，
+     重心明显压在上半部分。首页只需要「让人一眼看出做成了什么」，
+     完整的「问题/方案/结果/边界」在 works.html 展开看。
+     所以大卡保留标题/摘要/标签/一条关键指标，隐藏详情段落。
+     注意与 works.html 的区别：那边是检索与深读场景，详情必须完整。 */
+  #home-featured > .w-card:nth-of-type(1) .w-seg,
+  #home-featured > .w-card:nth-of-type(1) .w-boundary {
+    display: none;
+  }
+  /* 大卡封面从 16:9 收到固定 260px：16:9 在 556px 宽下是 313px，
+     占了大卡一半高度，压缩后正文才有呼吸空间。 */
+  #home-featured > .w-card:nth-of-type(1) .w-thumb {
+    aspect-ratio: auto; height: 260px;
+  }
+  /* 摘要限 3 行：556px 宽下不限行时实测 343px（约 11 行），
+     是撑高大卡的主因。3 行足够讲清「做成了什么」。 */
+  #home-featured > .w-card:nth-of-type(1) .w-pitch {
+    /* ⚠️ 必须同时覆盖 flex:1 和 display ——
+       .w-pitch 基础样式带 flex:1，作为 flex 子项会被撑满剩余高度，
+       此时 display 计算成 flow-root，-webkit-line-clamp 完全不生效
+       （实测 clamp 值读到 3、高度仍 438px）。 */
+    flex: 0 0 auto;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* 大卡也隐藏元信息行（岗位/状态在卡片右上角已有徽标，重复） */
+  #home-featured > .w-card:nth-of-type(1) .w-meta {
+    display: none;
+  }
+
+  /* 中卡：封面 150px。4 列下中卡宽约 560px，若按 16:9 会到 315px，
+     把第一行撑得比第二行重太多。字号介于大卡与小卡之间。 */
+  #home-featured > .w-card:nth-of-type(2) .w-thumb {
     aspect-ratio: auto; height: 150px;
   }
-  #home-featured > .w-card:nth-of-type(2) .w-title,
-  #home-featured > .w-card:nth-of-type(3) .w-title {
-    font-size: 17.5px;
+  #home-featured > .w-card:nth-of-type(2) .w-title {
+    font-size: 18px;
+  }
+  #home-featured > .w-card:nth-of-type(2) .w-pitch { font-size: 13.6px; }
+  #home-featured > .w-card:nth-of-type(2) .w-body { padding: 16px 18px; }
+  /* 中卡同样瘦身（2026-10-19）：它与大卡同处第一行，等高对齐，
+     任一张带详情段就会把整行撑高、另一张留白。 */
+  #home-featured > .w-card:nth-of-type(2) .w-seg,
+  #home-featured > .w-card:nth-of-type(2) .w-boundary,
+  #home-featured > .w-card:nth-of-type(2) .w-meta {
+    display: none;
+  }
+  #home-featured > .w-card:nth-of-type(2) .w-pitch {
+    flex: 0 0 auto;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   /* ---- 小卡：紧凑横条，信息密度更高、视觉权重更低 ---- */
-  #home-featured > .w-card:nth-of-type(n+4) .w-thumb {
+  /* 从第 3 张起（n+3）。改 4 列后只有前 2 张是「大 / 中」，
+     原来的 n+4 会让第 3 张被当成中卡。 */
+  #home-featured > .w-card:nth-of-type(n+3) .w-thumb {
     aspect-ratio: auto; height: 84px;
   }
-  #home-featured > .w-card:nth-of-type(n+4) .w-title { font-size: 15px; }
-  #home-featured > .w-card:nth-of-type(n+4) .w-pitch {
+  #home-featured > .w-card:nth-of-type(n+3) .w-title { font-size: 15px; }
+  #home-featured > .w-card:nth-of-type(n+3) .w-pitch {
     font-size: 12.8px;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  #home-featured > .w-card:nth-of-type(n+4) .w-body { padding: 14px 15px; }
+  #home-featured > .w-card:nth-of-type(n+3) .w-body { padding: 14px 15px; }
+
+  /* ---- 小卡瘦身（2026-10-19）----
+     4 列后每张小卡只有 268px 宽，却沿用了完整信息结构：
+     三段「问题/方案/结果」+ 边界段合计 442px，把卡片撑到 957px 高、
+     比例 1:3.6，读起来像一根竖条。
+     首页的定位是「让人一眼看出这人做了什么」，完整详情本来就在
+     works.html（那里每张卡都能展开）。所以小卡只留
+     编号/标题/摘要/标签/跳转，详情段落在这里隐藏。
+     ⚠️ 用 display:none 而不是删 DOM —— works.html 与展开逻辑共用同一套
+     HTML 生成，删元素会让那边的详情缺内容。 */
+  #home-featured > .w-card:nth-of-type(n+3) .w-seg,
+  #home-featured > .w-card:nth-of-type(n+3) .w-boundary {
+    display: none;
+  }
+  /* 摘要限 2 行，避免长短不一把小卡拉得参差 */
+  #home-featured > .w-card:nth-of-type(n+3) .w-pitch {
+    -webkit-line-clamp: 2;
+  }
+  /* 元信息（岗位/状态）在小卡上信息价值低，且会挤占标签行 */
+  #home-featured > .w-card:nth-of-type(n+3) .w-meta {
+    display: none;
+  }
+  /* 标签只留前 3 个，超出部分由 overflow 收掉 */
+  #home-featured > .w-card:nth-of-type(n+3) .w-tags {
+    max-height: 26px; overflow: hidden;
+  }
 
   /* ======================================================================
      降权元数据（v3 §3 要求）
@@ -2301,12 +2411,23 @@ body { line-height: 1.68; }
   #home-featured > .w-card:nth-of-type(1) {
     grid-column: 1 / -1;          /* 大卡独占整行 */
   }
+  /* 第 2 张（中卡）同样独占整行（2026-10-19 修）。
+     原来只有大卡独占，剩下 5 张按两列排 → 行分布 [1,2,2,1]，
+     最后一行只剩一张、左边空出半行，正是用户指出的「第二行只有一张、
+     靠右、不美观」。中卡也独占后分布变成 [1,1,2,2]，每行都填满。 */
+  #home-featured > .w-card:nth-of-type(2) {
+    grid-column: 1 / -1;
+  }
   #home-featured > .w-card:nth-of-type(1) .w-thumb {
     aspect-ratio: 21 / 9;         /* 独占整行后 16:9 会过高，压扁成宽幅 */
   }
   #home-featured > .w-card:nth-of-type(1) .w-title { font-size: 22px; }
-  #home-featured > .w-card:nth-of-type(n+2) .w-thumb { height: 148px; }
+  /* 中卡独占整行后也跟着变宽，封面用稍高的 18:9，与下方小卡的 148px 拉开层级 */
+  #home-featured > .w-card:nth-of-type(2) .w-thumb {
+    aspect-ratio: 18 / 9;
+  }
   #home-featured > .w-card:nth-of-type(n+2) .w-title { font-size: 17px; }
+  #home-featured > .w-card:nth-of-type(n+3) .w-thumb { height: 148px; }
 }
 
 /* 移动端（≤599.98px）与平板（600–859.98px）维持单列 / 原网格，

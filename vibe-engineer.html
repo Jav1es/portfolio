@@ -212,6 +212,8 @@
     WORKS.bindPreview(document);
     document.getElementById('vibe-works').innerHTML = WORKS.listByRole(data.items, 'vibe', { showStar: false });
 
+
+
     // 模块数量与编号列表由数据驱动，避免手写数字变成第二真源
     var own = WORKS.ROLES.vibe.owns || [];
     document.querySelectorAll('[data-owns-count]').forEach(function (el) {
@@ -225,6 +227,20 @@
       }).join(' · ');
     }
     bootEffects();
+    // 卡片入场动画（2026-10-19）：在卡片确定已进 DOM 之后显式绑定。
+    // 不依赖 bootEffects() —— 实测该路径下卡片会被提前判定为「视口内」
+    // 而直接显示，入场动画永远不播。
+    // fresh:true 让 bindReveal 把已显示的新卡片复位，再按真实位置判断。
+    // rAF + setTimeout 双保险：rAF 等布局，setTimeout 兜住 EFFECTS 尚未就绪的情况。
+    (function armReveal(tries) {
+      if (!(window.EFFECTS && window.EFFECTS.bindReveal)) {
+        if (tries > 0) setTimeout(function () { armReveal(tries - 1); }, 60);
+        return;
+      }
+      requestAnimationFrame(function () {
+        window.EFFECTS.bindReveal(document, { fresh: true });
+      });
+    })(5);
     bootCopyMail();
   });
 

@@ -53,17 +53,41 @@
   }
 
   /* ------------------------------------------------------------ 进场动画 */
-  function bindReveal(root) {
+  function bindReveal(root, opts) {
     var scope = root || document;
+    var fresh = opts && opts.fresh === true;
     var targets = scope.querySelectorAll('.w-card, .entry-card, .strength-grid li, .duty-list li');
     if (!targets.length) return;
 
     var list = Array.prototype.slice.call(targets);
 
+    // 若所有目标的尺寸都是 0，说明此刻浏览器还没完成布局
+    //（卡片 HTML 刚被 innerHTML 写入，同一次任务里读 rect 会拿到 0）。
+    // 这时不做任何 armed 判断，等下一帧重来 —— 否则 inView 全部误判为
+    // 「不在视口」，而 show() 又没被调用，卡片会停在隐藏态。
+    var laidOut = list.some(function (el) {
+      var r = el.getBoundingClientRect();
+      return r.width > 0 || r.height > 0;
+    });
+    if (!laidOut) {
+      global.requestAnimationFrame(function () { bindReveal(scope); });
+      return;
+    }
+
     function show(el, delay) {
       el.style.transitionDelay = delay + 'ms';
       el.classList.add('is-revealed');
       el.classList.remove('reveal-armed');
+    }
+
+    // 同批进入视口的卡片按索引错开出现（2026-10-19 用户要求「给每个作品集
+    // 做一个小动画」）。原来 show(el, 0) 固定 0 延迟，一屏 6 张同时淡入，
+    // 看起来是「整块闪现」而不是「一张张铺开」。
+    // 上限 6 张：再多后面的要等太久，反而像加载卡住。
+    function showBatch(els) {
+      els.forEach(function (el, i) {
+        show(el, Math.min(i, 6) * 55);
+      });
     }
 
     if (reduceMotion || !global.IntersectionObserver) {
@@ -72,25 +96,42 @@
     }
 
     var io = new IntersectionObserver(function (entries) {
+      var hit = [];
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        show(entry.target, 0);
+        hit.push(entry.target);
         io.unobserve(entry.target);
       });
+      // 同批进入视口的卡片一起交错，形成「一排排铺开」的节奏
+      if (hit.length) showBatch(hit);
     }, { rootMargin: '150px 0px', threshold: 0.01 });
 
     // 只给"还没进视口"的元素加隐藏态；视口内的立即可见，避免首屏空白
     list.forEach(function (el) {
+      // fresh 模式：这些元素是「渲染后新出现的」，可能已被上一轮
+      // bindReveal 误判为「在视口内」而提前显示。先复位再重新判断，
+      // 否则入场动画永远不会播（2026-10-19 实测：首页 6 张精选卡
+      // 在 bootEffects() 那次调用里被当成视口内元素，直接 is-revealed）。
+      if (fresh && !el.classList.contains('reveal-armed')) {
+        el.classList.remove('is-revealed');
+      }
       var r = el.getBoundingClientRect();
       var inView = r.top < global.innerHeight + 150 && r.bottom > -150;
       if (!inView) el.classList.add('reveal-armed');
       io.observe(el);
     });
 
-    // 兜底：3 秒后仍未显示的强制显示，任何异常路径都不留空白
+    // 兜底：3 秒后把「已经滚到视口里却还没显示」的元素强制显示，
+    // 防止 observer 异常导致内容永久空白。
+    // ⚠️ 不能无条件 show 全部 —— 远在视口外的卡片也会被补播，
+    // 用户滚下去时动画早已结束，等于白做（2026-10-19 实测：首页 6 张
+    // 精选卡在 3 秒时被全部补显示，滚动时看不到任何入场效果）。
     setTimeout(function () {
       list.forEach(function (el) {
-        if (!el.classList.contains('is-revealed')) {
+        if (el.classList.contains('is-revealed')) return;
+        var r = el.getBoundingClientRect();
+        var reallyInView = r.top < global.innerHeight && r.bottom > 0;
+        if (reallyInView) {
           el.style.transitionDelay = '0ms';
           show(el, 0);
           io.unobserve(el);
