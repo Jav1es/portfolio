@@ -7,7 +7,12 @@
   'use strict';
 
   // ==========================================================================
-  // 岗位定义：21 个模块按岗位归属（编号对齐真实目录/仓库，见 patch-works.mjs）
+  // 岗位定义：模块按岗位归属（编号对齐真实目录/仓库，见 patch-works.mjs）
+  //
+  // ⚠️ owns 是**兜底列表**，运行时以每条的 jd 字段为准自动派生（见下方
+  //    resolveOwns）。原因：owns 是手写编号，新增作品时必然漏（2026-10-19
+  //    实测 22 号作品加入后，三个岗位的 owns 合计 21 个，22 号无人认领，
+  //    按岗位筛选时会直接消失）。改由 jd 派生后，新作品只要填对 jd 就自动归位。
   // ==========================================================================
   var ROLES = {
     fde: {
@@ -41,10 +46,53 @@
   };
 
   // 模块 → 所属岗位，供首页瓦片交叉跳转
+  // 必须定义在 resolveOwns 之前：resolveOwns 会调 rebuildModuleRole()，
+  // 而 var 声明的 MODULE_ROLE 若不先执行，函数内赋值会落到全局而非闭包。
   var MODULE_ROLE = {};
-  Object.keys(ROLES).forEach(function (k) {
-    ROLES[k].owns.forEach(function (no) { MODULE_ROLE[no] = k; });
-  });
+  function rebuildModuleRole() {
+    MODULE_ROLE = {};
+    Object.keys(ROLES).forEach(function (k) {
+      ROLES[k].owns.forEach(function (no) { MODULE_ROLE[no] = k; });
+    });
+  }
+  rebuildModuleRole();
+
+  // 岗位归属：以 ROLES[].owns 为准，只把「没被任何岗位认领」的新作品补进去。
+  //
+  // ⚠️ 不能用 jd 做权威来源 —— jd 是展示文案，写法很杂
+  //    （「AI 项目经理」「FDE / AI 项目经理」「所有岗位（数据量化是共同底座）」
+  //    甚至一个作品同时挂多个岗位）。2026-10-19 试过按 jd 严格匹配，结果
+  //    12/15/16/17/18 的 jd 都是「AI 智能体开发工程师」，被从 vibe 抢到 agent，
+  //    三个岗位的既有归属全乱。所以 jd 只用来给**新作品**兜底。
+  var JD_HINTS = [
+    { role: 'vibe',  re: /VibeCoding|VibeEngineering/i },
+    { role: 'agent', re: /智能体开发工程师/ },
+    { role: 'fde',   re: /FDE|前线部署|项目经理/ }
+  ];
+  function resolveOwns(items) {
+    var claimed = {};
+    Object.keys(ROLES).forEach(function (k) {
+      ROLES[k].owns.forEach(function (no) { claimed[no] = k; });
+    });
+    var added = [];
+    for (var i = 0; i < items.length; i++) {
+      var it = items[i];
+      if (claimed[it.no]) continue;           // 已有归属，尊重人工配置
+      var rk = null;
+      for (var j = 0; j < JD_HINTS.length; j++) {
+        if (JD_HINTS[j].re.test(it.jd || '')) { rk = JD_HINTS[j].role; break; }
+      }
+      if (!rk) rk = 'vibe';                   // 兜底：归到最宽的那个岗位
+      ROLES[rk].owns.push(it.no);
+      claimed[it.no] = rk;
+      added.push(it.no + '→' + rk);
+    }
+    if (added.length) {
+      console.log('[WORKS] 新作品自动归岗：' + added.join(' '));
+      rebuildModuleRole();
+    }
+    return ROLES;
+  }
 
   var CATS = [
     { id: 'plan',     no: '①', icon: '📐', name: '规划与方案'       },
@@ -64,10 +112,16 @@
   var DATA = global.__WORKS_DATA__ || null;
 
   function loadData(cb) {
-    if (DATA) return cb(DATA);
+    // 数据到手后先按 jd 重算岗位归属，再交给调用方 ——
+    // 这样 5 个页面都不用各自调 resolveOwns，也不会漏。
+    function hand(data) {
+      try { resolveOwns(data.items || []); } catch (e) { /* 归属算不出来不影响渲染 */ }
+      cb(data);
+    }
+    if (DATA) return hand(DATA);
     fetch('./works-data.json')
       .then(function (r) { return r.json(); })
-      .then(cb)
+      .then(hand)
       .catch(function () {
         var el = document.getElementById('works-root');
         if (el) {
@@ -796,6 +850,9 @@
   // 对外 API
   // ==========================================================================
   global.WORKS = {
+    // resolveOwns 用 items 重算每个岗位的 owns（以 jd 为准），
+    // 调用方拿到数据后应调一次，否则新增作品不会出现在岗位页/岗位筛选里。
+    resolveOwns: resolveOwns,
     ROLES: ROLES,
     CATS: CATS,
     CAT_MAP: CAT_MAP,

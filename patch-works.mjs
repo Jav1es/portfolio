@@ -308,8 +308,13 @@ for (const it of all) {
 // 类目描述同步（模块数变了）
 // 注意：这一步必须在写文件之前 —— 之前它写在 writeFileSync 之后，
 // 改的只是内存对象，落到磁盘上的 works-data.json 永远拿不到这段描述。
+// 2026-10-19 精确化：22 号（原型工厂）的方法论与引擎源码放在 portfolio
+// 仓库的 22-prototype-factory/ 子目录里，**不是第 10 个独立仓库**。
+// 原文「9 个独立开源仓库…」会让读者把它也算成一个仓库，故改为把两类分开说：
+// 独立仓库 9 个（gh api 实测：9 个非 fork 仓库，全部 MIT），
+// 另有方法论归档在本仓库内。
 data.cats.find(c => c.id === 'oss').star =
-  '不只会用工具，还能造工具——9 个独立开源仓库，从 MCP Server 到宿主插件、离线 PWA、运维工具链与检索规程，全部带测试与文档。';
+  '不只会用工具，还能造工具——9 个独立开源仓库全部 MIT，从 MCP Server 到宿主插件、离线 PWA、运维工具链与检索规程；另有原型工厂的方法论与断言引擎归档在本仓库，全部带测试与文档。';
 
 // 分组元数据：写进 data，让 works-data.json 自解释；
 // works.js 优先读这里，读不到才回退到自带常量（避免两处硬编码各写一份）。
@@ -325,7 +330,7 @@ const GROUP_META = {
   },
   oss: {
     id: 'oss', no: '③', icon: '🧩', name: '开源工具',
-    desc: '不只会用工具，还能造工具——9 个公开仓库全部 MIT，从 MCP Server 到宿主插件、离线 PWA 与运维工具链。'
+    desc: '不只会用工具，还能造工具——9 个独立公开仓库全部 MIT，从 MCP Server 到宿主插件、离线 PWA 与运维工具链。'
   },
   lab: {
     id: 'lab', no: '④', icon: '✨', name: '实验与 VibeCoding',
@@ -418,6 +423,30 @@ const TEXT_FIX = [
   ['并累计编制 300+ 政府/企业项目的可行性研究与立项方案；', '并长期承担政府/企业项目的可行性研究与立项方案编制；'],
   ['我给每个项目建卡片、埋基线、前后对比出数据看板，300+项目、单年24家（含复审）高企就是这么量化出来的。',
    '我给每个项目建卡片、埋基线、前后对比出数据看板——成效不是拍脑袋说的，是按统一口径量出来的。'],
+
+  // 2026-10-19 实测纠偏：断言总数 68 → 74。
+  //   作品集 22 号（原型工厂）原先写「68 项断言」，来源是两阶段响应式改造
+  //   **之前**的真实数字（21 + 21 + 26）。改造后 375px 三项会跑两遍
+  //   （初始 + 内容填充后），前两张卡各多 3 项，实测 24 + 24 + 26 = 74。
+  //   验证方式：cd 22-prototype-factory && node verify.mjs，数输出里的 ✓。
+  //   README 表格已同步改为 24 / 24 / 26 = 74。
+  ['任何原型交付前必须 68 项断言全 PASS', '任何原型交付前必须 74 项断言全 PASS'],
+  ['3 个原型（导航页 / 番茄钟 / 阅读清单）合计 68 项断言全 PASS',
+   '3 个原型（导航页 / 番茄钟 / 阅读清单）合计 74 项断言全 PASS'],
+  // 2026-10-19 实测纠偏：「覆盖 6 个视口」不实。
+  //   引擎只用了两个视口：375×812（移动，两阶段各跑一遍）与 1280×900（桌面）。
+  //   卡片断言里也没有额外视口（cards/*.mjs 里出现的只是重复这两个值）。
+  //   数字断言必须有证据，改成可复算的表述。
+  ['覆盖 6 个视口', '覆盖移动 375px 与桌面 1280px 两种视口'],
+  ['回归：68 项断言全 PASS', '回归：74 项断言全 PASS'],
+];
+
+// highlights[].num 是独立字段，值是纯字符串 "68"。
+// ⚠️ 不能写成 TEXT_FIX 里的 ['68', '74'] —— applyTextFix 会对**全文所有
+// 字符串节点**做替换，那样会把 Jaeger 端口 16686 / 4318 等数字一起改坏。
+// 这里按「模块 22 + 该高亮标签」精确定位，只改那一个字段。
+const HIGHLIGHT_FIX = [
+  { no: '22', labelIncludes: '自动化断言', num: '74' }
 ];
 
 function applyTextFix(node) {
@@ -441,6 +470,20 @@ function applyTextFix(node) {
   for (const k of Object.keys(fixed)) data[k] = fixed[k];
   const after = JSON.stringify(data).split('CI 全绿').length - 1;
   console.log('口径修复：CI 全绿 %d 处 → %d 处；目标值 3 处已标注「验收目标」', before, after);
+}
+
+// highlights[].num 定点修正（2026-10-19）
+// 只改指定模块里标签匹配的那一条，避免全局替换误伤其它数字（如端口号）。
+{
+  for (const rule of HIGHLIGHT_FIX) {
+    const it = data.items.find(i => i.no === rule.no);
+    if (!it || !Array.isArray(it.highlights)) continue;
+    const h = it.highlights.find(x => String(x.label || '').includes(rule.labelIncludes));
+    if (h && h.num !== rule.num) {
+      console.log(`  高亮修正：模块 ${rule.no}「${h.label}」${h.num} → ${rule.num}`);
+      h.num = rule.num;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------

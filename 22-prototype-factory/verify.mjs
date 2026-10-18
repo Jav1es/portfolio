@@ -107,21 +107,34 @@ if (!chromium) {
 
 /**
  * 扫描目录下形如 `NN-slug` 且含 index.html 的子目录。
+ *
+ * 搜索两个位置（2026-10-19 修）：
+ *   ① __dirname/NN-slug/index.html        —— README 描述的原始布局
+ *   ② __dirname/demos/NN-slug/index.html  —— 本归档副本的实际布局
+ *
+ * 为什么：本目录是作品集归档副本，原型被收进 demos/ 以免和 cards/、
+ * scripts/ 混在一起；但 verify.mjs 原先只扫 __dirname，导致照 README
+ * 执行 `node verify.mjs` 直接报「当前目录下没有 NN-slug/index.html 形式的
+ * 原型」——文档与代码对不上，访客第一步就卡住。
+ * 现在两处都扫，原始布局和归档布局都能跑。
  * @returns {Array<{slug: string, dir: string, html: string}>}
  */
 function discoverCards() {
-  return readdirSync(__dirname)
-    .filter(name => {
-      if (!/^\d{2}-[a-z0-9-]+$/.test(name)) return false;
-      const full = join(__dirname, name);
-      return statSync(full).isDirectory() && existsSync(join(full, 'index.html'));
-    })
-    .sort()
-    .map(name => ({
-      slug: name,
-      dir: join(__dirname, name),
-      html: join(__dirname, name, 'index.html')
-    }));
+  const ROOTS = [__dirname, join(__dirname, 'demos')];
+  const out = [];
+  for (const root of ROOTS) {
+    if (!existsSync(root)) continue;
+    for (const name of readdirSync(root)) {
+      if (!/^\d{2}-[a-z0-9-]+$/.test(name)) continue;
+      const full = join(root, name);
+      if (!statSync(full).isDirectory()) continue;
+      if (!existsSync(join(full, 'index.html'))) continue;
+      // 同 slug 只认第一次命中的（根目录优先）
+      if (out.some(c => c.slug === name)) continue;
+      out.push({ slug: name, dir: full, html: join(full, 'index.html') });
+    }
+  }
+  return out.sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
 /* ---------- 通用断言 ---------- */
