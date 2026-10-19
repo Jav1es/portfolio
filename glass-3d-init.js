@@ -36,9 +36,29 @@
       case 'graph': return GLASS3D.graph(56);            // 图/网络：中心 + 两圈
       case 'layers': return GLASS3D.layers(52, 4);       // 分层：4 层
       case 'ring': return GLASS3D.ring(56, 14);          // 环：14 段
-      case 'tree': return GLASS3D.tree(56);              // 树：1 根 + 3×3
+      case 'tree': return GLASS3D.extrude(GLASS3D.tree(42), 18);              // 17 知识树（挤出）
       case 'mesh': return GLASS3D.mesh(48, 4);           // 网格：4×4 点阵
       case 'helix': return GLASS3D.helix(56, 2);         // 螺旋：2 圈
+      // ---- 23 个作品专属造型（2026-10-19）----
+      // 尺寸按「顶点密度」分别调：点多的造型用小 size，避免线框糊成一团
+      case 'roadmap': return GLASS3D.roadmap(46);              // 01 立柱矩阵
+      case 'bilayer': return GLASS3D.bilayer(50);              // 02 双层流
+      case 'auditflow': return GLASS3D.auditflow(52);          // 03 审核流水线 + 旁路
+      case 'agentgraph': return GLASS3D.extrude(GLASS3D.agentgraph(46), 14);  // 04 编排图（挤出）
+      case 'dashboard': return GLASS3D.dashboard(50);          // 05 条形看板
+      case 'triphase': return GLASS3D.triphase(46);            // 07 三阶段嵌套
+      case 'pyramid': return GLASS3D.pyramid(50);              // 08 金字塔
+      case 'servicestack': return GLASS3D.servicestack(48);    // 09 服务栈 + 断口
+      case 'reviewloop': return GLASS3D.extrude(GLASS3D.reviewloop(42), 16);  // 10 复盘环 + 折线（挤出）
+      case 'twodocs': return GLASS3D.twodocs(52);              // 11 两份文档（本身有体积）
+      case 'toolsfan': return GLASS3D.extrude(GLASS3D.toolsfan(42), 16);     // 12 工具扇形（挤出）
+      case 'observability': return GLASS3D.extrude(GLASS3D.observability(40), 16); // 14 可观测环（挤出）
+      case 'plugcluster': return GLASS3D.plugcluster(50);      // 15 插件三簇
+      case 'toolmatrix': return GLASS3D.toolmatrix(42);        // 19 3×3 工具阵
+      case 'radar': return GLASS3D.extrude(GLASS3D.radar(46), 11);           // 20 雷达三层（挤出）
+      case 'bridge': return GLASS3D.extrude(GLASS3D.bridge(44), 15);         // 21 桥接（挤出）
+      case 'factory': return GLASS3D.extrude(GLASS3D.factory(40), 16);       // 22 齿轮 + 箭头（挤出）
+      case 'workflow': return GLASS3D.extrude(GLASS3D.workflow(38), 14);     // 23 之字形长链（挤出）
       case 'cube': default: return GLASS3D.cube(96);
     }
   }
@@ -55,14 +75,23 @@
       scale: parseFloat(el.getAttribute('data-scale')) || 1,
       showDots: el.getAttribute('data-dots') !== 'false',
       // 卡片小图标开白色衬底，深色封面上才看得清
-      underlay: el.getAttribute('data-underlay') === 'true'
+      underlay: el.getAttribute('data-underlay') === 'true',
+      // 2026-10-19：卡片图标用更深的线色。
+      // 视觉评估反复指出「线条太浅、和背景对比不足」，
+      // 默认的 .52 透明度在浅灰封面上几乎看不出结构。
+      lineColor: el.getAttribute('data-underlay') === 'true'
+        ? 'rgba(37, 99, 235, .78)' : undefined,
+      accentColor: el.getAttribute('data-underlay') === 'true'
+        ? 'rgba(29, 78, 216, 1)' : undefined
     });
 
-    // 小图标限帧：canvas 尺寸 ≤80px 时按 30fps 绘制。
-    // 64px 的缓慢旋转图形，30fps 与 60fps 肉眼无差别，
+    // 小图标限帧：canvas 尺寸 ≤100px 时按 30fps 绘制。
+    // 缓慢旋转的线框，30fps 与 60fps 肉眼无差别，
     // 但 21 张卡同时在视口内时能省一半绘制开销。
+    // 2026-10-19：阈值从 80 提到 100 —— 卡片图标放大到 96px 后，
+    // 原阈值会让它们全部掉出优化范围，性能反而回退。
     var cw = canvas.getBoundingClientRect().width;
-    if (cw > 0 && cw <= 80) sc.minFrameMs = 33;
+    if (cw > 0 && cw <= 100) sc.minFrameMs = 33;
 
     scenes.push(sc);
 
@@ -99,9 +128,51 @@
     return sc;
   }
 
+
+  /* 2026-10-19：分批初始化队列。
+     CDP 追踪显示滚动时单帧最长 34.9ms，原因是同一帧里同时构造多个几何体。
+     这里把待初始化的画布排队，每帧只处理 1 个，把负载摊到多帧。 */
+  var initQueue = [];
+  var initScheduled = false;
+
+  function scheduleInit(canvas) {
+    if (canvas.__glass3d || canvas.__queued) return;
+    canvas.__queued = true;
+    initQueue.push(canvas);
+    if (initScheduled) return;
+    initScheduled = true;
+    // 优先用 requestIdleCallback（浏览器空闲时做），降级到 rAF
+    var runner = global.requestIdleCallback
+      ? function (cb) { global.requestIdleCallback(cb, { timeout: 200 }); }
+      : function (cb) { global.requestAnimationFrame(cb); };
+
+    runner(function processQueue() {
+      var c = initQueue.shift();
+      if (c) {
+        c.__queued = false;
+        if (!c.__glass3d) c.__glass3d = initOne(c) || true;
+      }
+      if (initQueue.length) {
+        runner(processQueue);
+      } else {
+        initScheduled = false;
+      }
+    });
+  }
+
   function init(root) {
     var nodes = (root || document).querySelectorAll('[data-3d]');
     if (!nodes.length) return;
+
+    /* 2026-10-19：不再在同一帧里同步构造全部画布。
+       CDP 追踪显示，滚动时单帧最长 34.9ms —— 因为一次 IntersectionObserver
+       回调里可能同时进入 3-4 个画布，每个都要构造几何体 + 首次投影 + 首帧绘制。
+       现在改为：
+         · 视口内的画布立即初始化（首屏观感不变）
+         · 视口外的排队，用 requestIdleCallback 逐个处理，每帧最多 1 个 */
+    var vh = global.innerHeight || 800;
+    var immediate = [], deferred = [];
+
     Array.prototype.forEach.call(nodes, function (el) {
       if (el.__glass3d) return;          // 幂等：重复调用不重复创建
       // 技术栈画布由 initInteractive 专门接管（需要拖拽/键盘/语义节点），
@@ -109,8 +180,19 @@
       // 曾出现 tech3d-canvas 在 scenes 里出现两次（一个自动轮播、一个交互），
       // 白白多跑一个 rAF 循环。
       if (el.id === 'tech3d-canvas') { el.__glass3d = true; return; }
+
+      var r = el.getBoundingClientRect();
+      if (r.bottom > -60 && r.top < vh + 60) immediate.push(el);
+      else deferred.push(el);
+    });
+
+    // 视口内的：同步初始化（通常只有 1-4 个，首屏必须立刻可见）
+    immediate.forEach(function (el) {
       el.__glass3d = initOne(el) || true;
     });
+
+    // 视口外的：排队，空闲时逐个处理
+    deferred.forEach(function (el) { scheduleInit(el); });
   }
 
   // 切到后台标签页时全部暂停，回来再恢复（省电、省 CPU）
@@ -166,6 +248,11 @@
   var TECH_EDGES = [];
   for (var ni = 1; ni < TECH_NODES.length; ni++) TECH_EDGES.push([0, ni]);
 
+  // ⚠️ 2026-10-19：这套「技术栈网络」交互已被 whale-3d.js 的
+  // 「作品全生命周期鲸鱼」取代（用户要求把 23 个作品放进去）。
+  // 首页已没有 #tech3d-canvas 和 .tech3d-stage，所以下面两个函数
+  // 实际不会被触发；保留它们是为了不破坏 works.html 等其它页面的
+  // 引用，后续可整体删除。
   function initInteractive() {
     var canvas = document.getElementById('tech3d-canvas');
     if (!canvas || canvas.__interactive) return;

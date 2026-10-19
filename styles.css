@@ -4467,3 +4467,286 @@ body.nav-open {
     height: 5px;
   }
 }
+
+/* ---------- 黄色提示条重做（2026-10-19） ---------- */
+/* 用户反馈三条，全部实测复现：
+     ① 移动端有空行
+     ② 显示内容很少
+     ③ 有的链接不能跳转
+
+   根因：.sample-note 用的是 display:inline-flex + flex-wrap:wrap。
+   flex 容器会把**每个文本节点和每个 <a> 都变成独立 flex item**。
+   实测 #1 那条（按能力类别浏览）在 390px 下有 14 个 flex item，
+   相邻 item 的 top 交替出现 8490 / 8488 / 8490 / 8488 …
+   —— 因为基线对齐 + 行内元素高度不一致，同一视觉行被拆成两个 top 值，
+   渲染出来就是「文字上下错位 + 中间空行」。
+   而且 inline-flex 的宽度按 max-content 计算，被 max-width 限制后
+   内容被压成很多短行，342px 宽只放了 5 行字，信息密度极低。
+
+   链接点不到的原因：inline-flex 里 <a> 变成 flex item 后，
+   行内断行把链接挤到奇怪位置，elementFromPoint 命中的是 null
+   （该坐标上没有元素），所以点不动。
+
+   修法：**不用 flex**，改回正常块级段落（display:block）。
+   块级流里文字自然连排、链接作为行内元素随文字流动，
+   既不会有空行，链接也能正常点击。 */
+
+.sample-note {
+  display: block;              /* 关键：不用 flex */
+  max-width: 100%;
+  font-size: 12.5px;
+  line-height: 1.72;           /* 行高给足，多行时读得舒服 */
+  color: var(--amber);
+  background: var(--amber-bg);
+  border: 1px dashed var(--amber-line);
+  padding: 9px 13px;
+  border-radius: 9px;
+  margin: 0 0 16px;
+  /* 中文按词断行，不在字中间硬切；长 URL 才允许断 */
+  word-break: normal;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+/* 段落内的加粗与链接：行内流动，不单独成行 */
+.sample-note b {
+  color: #b45309;
+  font-weight: 700;
+}
+.sample-note a {
+  color: #b45309;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(180, 83, 9, .35);
+  /* 链接行内不断行，保证「FDE」「AI Agent」这类短标签整体可点 */
+  white-space: nowrap;
+  /* 手机点触目标：用内边距撑高，不改变排版流 */
+  padding: 1px 1px;
+}
+.sample-note a:hover {
+  color: #92400e;
+  border-bottom-color: #92400e;
+  background: rgba(251, 191, 36, .16);
+}
+
+/* 移动端：字号略降、行高略增，让长句读起来不挤 */
+@media (max-width: 599.98px) {
+  .sample-note {
+    font-size: 12.8px;
+    line-height: 1.78;
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+}
+
+/* ---------- 首屏三件事：修内部布局错位（2026-10-19） ---------- */
+/* 用户反馈「首页排版有问题」。实测根因：
+   .hero-proof li 是 display:grid + grid-template-columns: auto 1fr
+   （原本是为了让 ::before 圆点和正文并排），但 <b> 和 <span> 没有指定
+   grid-column / grid-row，于是它们被**自动放置**到不同格子：
+     · 卡片1：<b> 落在第 2 列 (x=372)，<span> 落在第 1 列 (x=16)
+     · 卡片2：<b> 在第 2 列 (x=450) 占 2 行，<span> 在第 1 列 (x=16)
+   结果是标题跑到右边、说明跑到左边，中间空一大块，
+   而且 <b> 被压到 174px 宽后换行成 2 行 —— 卡片高度从 80px 涨到 102px。
+
+   修法：显式把 <b> 和 <span> 都钉在第 2 列、按顺序占第 1/2 行。
+   ::before 占第 1 列、跨两行。这样标题在上、说明在下，左侧圆点对齐。
+   ⚠️ 不要改成 flex —— ::before 在 flex 里会变成独立 item 参与排布，
+      导致圆点和文字的基线关系错乱（这个坑在 .sample-note 上刚踩过）。 */
+
+.hero-proof li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: start;
+  align-content: start;
+}
+.hero-proof li::before {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: start;
+  margin-top: 8px;          /* 视觉上对齐第一行文字的中线 */
+  transform: none;
+}
+.hero-proof b {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+}
+.hero-proof span {
+  grid-column: 2;
+  grid-row: 2;
+  margin-top: 0;
+  min-width: 0;
+}
+
+@media (max-width: 599.98px) {
+  .hero-proof li {
+    column-gap: 10px;
+    row-gap: 1px;
+  }
+  .hero-proof li::before { margin-top: 7px; }
+}
+
+/* ---------- 卡片 3D 封面：放大 + 提对比（2026-10-19） ---------- */
+/* 视觉评估反复指出「图标太小、线条太浅、对比不足」。
+   实测：卡片图标只有 78×78px，23 个造型在这个尺寸下细节全丢。
+   同时线色 rgba(37,99,235,.52) 在浅底上偏淡。
+   改法：
+     · 尺寸 78 → 96px（桌面）/ 84px（平板）/ 76px（手机），
+       造型细节有地方展开，又不至于压过卡片文字
+     · 线色加深（见 glass-3d-init.js 的 colorOverride）
+     · 衬底柔光加强，深底封面上也能看清 */
+.w-card .w-3d {
+  width: 96px;
+  height: 96px;
+  right: 8px;
+  bottom: 8px;
+  opacity: .95;
+}
+
+@media (max-width: 1023.98px) {
+  .w-card .w-3d { width: 86px; height: 86px; }
+}
+
+@media (max-width: 599.98px) {
+  .w-card .w-3d { width: 74px; height: 74px; right: 6px; bottom: 6px; }
+}
+
+/* 悬停时轻微放大 + 完全不透明，给一点「可以看」的暗示 */
+.w-card:hover .w-3d {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w-card .w-3d { transition: none; }
+  .w-card:hover .w-3d { transform: none; }
+}
+
+/* ---------- 作品全生命周期 · 3D 鲸鱼（2026-10-19） ---------- */
+/* 替代原来的「技术栈网络」：那 7 个抽象节点跟 23 个作品没有对应关系，
+   访客看完不知道该点哪里。鲸鱼把 23 个作品本身放上去，可悬停、可点击。 */
+
+.whale-stage {
+  position: relative;
+  margin-top: 22px;
+  border-radius: 18px;
+  /* 与全站玻璃语言一致：分层渐变 + 内高光，不用 backdrop-filter */
+  background:
+    linear-gradient(168deg,
+      rgba(255, 255, 255, .96) 0%,
+      rgba(250, 252, 255, .92) 42%,
+      rgba(243, 248, 255, .94) 100%);
+  border: 1px solid rgba(255, 255, 255, .96);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 10px 30px rgba(37, 99, 235, .06),
+    0 24px 60px rgba(15, 23, 42, .05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  overflow: hidden;
+}
+
+/* 画布：宽屏给足高度让鲸鱼展开，窄屏压扁一点避免占满一屏 */
+#whale-canvas {
+  display: block;
+  width: 100%;
+  height: 380px;
+  touch-action: pan-y;      /* 允许纵向滚动页面，横向留给拖拽旋转 */
+  cursor: default;
+  outline: none;
+}
+#whale-canvas:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+  border-radius: 18px;
+}
+
+/* 图例 */
+.whale-legend {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+.whale-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--txt3);
+  letter-spacing: .01em;
+}
+.whale-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+.whale-dot--head { background: #1d4ed8; box-shadow: 0 0 0 3px rgba(29, 78, 216, .14); }
+.whale-dot--mid  { background: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+.whale-dot--tail { background: #93c5fd; box-shadow: 0 0 0 3px rgba(147, 197, 253, .16); }
+
+/* 底部控制条 */
+.whale-ui {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.whale-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--txt3);
+  letter-spacing: .01em;
+}
+
+/* 降级提示（无 JS 时） */
+.whale-fallback {
+  margin: 0;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--txt3);
+  font-size: 14px;
+}
+.whale-fallback a { color: var(--blue); }
+
+/* 平板 */
+@media (max-width: 1023.98px) {
+  #whale-canvas { height: 330px; }
+}
+
+/* 手机：压到 260px，避免一屏全是画布 */
+@media (max-width: 599.98px) {
+  .whale-stage { border-radius: 14px; margin-top: 16px; }
+  #whale-canvas { height: 260px; border-radius: 14px; }
+  .whale-legend {
+    top: 10px;
+    left: 12px;
+    gap: 10px;
+  }
+  .whale-legend__item { font-size: 11px; gap: 5px; }
+  .whale-dot { width: 7px; height: 7px; }
+  .whale-ui {
+    left: 12px;
+    right: 12px;
+    bottom: 10px;
+    gap: 8px;
+  }
+  .whale-ui .btn { font-size: 12.5px; padding: 6px 12px; }
+  .whale-hint { font-size: 11px; }
+}
+
+/* 打印：不显示画布 */
+@media print {
+  .whale-stage { display: none; }
+}

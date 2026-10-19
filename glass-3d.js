@@ -171,6 +171,13 @@
     // 白色衬底描边：卡片小图标在深色封面上需要它才看得清；
     // 首屏大图不需要（会显得脏）
     this.underlay = opts.underlay === true;
+
+    // 2026-10-19：线宽按画布尺寸自适应。
+    // 实测 78px 的卡片小图标上，默认 0.7~2.2px 的线缩小后几乎看不见
+    // （填充率仅 0.6%~1%，主体结构消失），小画布要显著加粗。
+    this.lineBoost = opts.lineBoost == null
+      ? (Math.min(canvas.width, canvas.height) <= 150 ? 1.9 : 1)
+      : opts.lineBoost;
     this.running = false;
     this.raf = 0;
     this.t0 = 0;
@@ -227,7 +234,11 @@
       // z 范围约 ±size，映射到 0..1 的「靠近程度」
       var near = Math.max(0, Math.min(1, (a.z + b.z) / 2 / 140 + 0.5));
       ctx.strokeStyle = near > 0.58 ? this.accentColor : this.lineColor;
-      ctx.lineWidth = 0.7 + near * 1.5;
+      // 2026-10-19：线宽按画布尺寸自适应。
+      // 实测 78px 的卡片小图标上，0.7~2.2px 的线缩小后几乎看不见
+      // （填充率仅 0.6%~1%），所以小画布要显著加粗。
+      var lwBase = this.lineBoost || 1;
+      ctx.lineWidth = (0.7 + near * 1.5) * lwBase;
       ctx.globalAlpha = 0.42 + near * 0.58;
 
       // 白色衬底描边：深色封面上蓝线会糊掉，先描一层白再描蓝，
@@ -236,7 +247,7 @@
       if (this.underlay) {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 255, 255, .85)';
-        ctx.lineWidth = (0.7 + near * 1.5) + 1.6;
+        ctx.lineWidth = (0.7 + near * 1.5) * lwBase + 1.6;
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
         ctx.lineTo(b.x, b.y);
@@ -403,6 +414,11 @@
         e.push([i + 1, v.length - 1]);
       }
     }
+    // 2026-10-19：补地面基线 —— 原来只有枝干，缩小后像断裂的三角形
+    var gb = v.length;
+    v.push({ x: -size * 1.05, y: -size * 0.98, z: 0 });
+    v.push({ x: size * 1.05, y: -size * 0.98, z: 0 });
+    e.push([gb, gb + 1]);
     return { v: v, e: e };
   }
 
@@ -447,6 +463,514 @@
     return { v: v, e: e };
   }
 
+
+  /* ======================================================================
+     作品专属几何体（2026-10-19 第二批）
+     ----------------------------------------------------------------------
+     每个函数对应一个作品的真实技术结构，避免「同类作品长得一样」。
+     命名与 works.js 的 STACK_3D 一一对应。
+     ====================================================================== */
+
+  // 01 路线图矩阵：8 个业务域 × 6 个月，画成带立柱的矩阵平面
+  function roadmap(size) {
+    var v = [], e = [], cols = 4, rows = 3, i, j;
+    var gw = size * 1.5, gh = size * 1.1;
+    for (i = 0; i < cols; i++) {
+      for (j = 0; j < rows; j++) {
+        var x = -gw / 2 + (i / (cols - 1)) * gw;
+        var z = -gh / 2 + (j / (rows - 1)) * gh;
+        var h = size * (0.28 + ((i * 3 + j * 5) % 7) / 7 * 0.62);
+        var b = v.length;
+        // 立柱：底面四点 + 顶面四点
+        v.push({ x: x - 0.12 * size, y: -size * 0.5, z: z - 0.12 * size });
+        v.push({ x: x + 0.12 * size, y: -size * 0.5, z: z - 0.12 * size });
+        v.push({ x: x + 0.12 * size, y: -size * 0.5, z: z + 0.12 * size });
+        v.push({ x: x - 0.12 * size, y: -size * 0.5, z: z + 0.12 * size });
+        v.push({ x: x - 0.12 * size, y: -size * 0.5 + h, z: z - 0.12 * size });
+        v.push({ x: x + 0.12 * size, y: -size * 0.5 + h, z: z - 0.12 * size });
+        v.push({ x: x + 0.12 * size, y: -size * 0.5 + h, z: z + 0.12 * size });
+        v.push({ x: x - 0.12 * size, y: -size * 0.5 + h, z: z + 0.12 * size });
+        e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b],
+               [b + 4, b + 5], [b + 5, b + 6], [b + 6, b + 7], [b + 7, b + 4],
+               [b, b + 4], [b + 1, b + 5], [b + 2, b + 6], [b + 3, b + 7]);
+      }
+    }
+    return { v: v, e: e };
+  }
+
+  // 02 双层流：上下两层平行面 + 竖向连接（AI 先做 / 人只审）
+  function bilayer(size) {
+    var v = [], e = [], n = 4, i;
+    // 2026-10-19 重画：原来和 09 servicestack 都是「上下叠置的板」，
+    // 视觉评估判定「最像的一对」。改成「上下两层宽、中间收窄」的沙漏轮廓，
+    // 一眼就能和 09 区分（09 是等宽的多层堆叠）。
+    for (i = 0; i < n; i++) {
+      var t = (i / (n - 1) - 0.5) * size * 1.7;
+      // 腰部收窄：靠中间的截面宽度小
+      var waist = 1 - Math.abs(i / (n - 1) - 0.5) * 0.9;
+      var halfW = size * 0.52 * waist;
+      var b1 = v.length;
+      v.push({ x: t, y: size * 0.55, z: -halfW });
+      v.push({ x: t, y: size * 0.55, z: halfW });
+      v.push({ x: t, y: -size * 0.55, z: -halfW });
+      v.push({ x: t, y: -size * 0.55, z: halfW });
+      if (i > 0) {
+        e.push([b1 - 4, b1], [b1 - 3, b1 + 1], [b1 - 2, b1 + 2], [b1 - 1, b1 + 3]);
+      }
+      e.push([b1, b1 + 1], [b1 + 2, b1 + 3]);
+      e.push([b1, b1 + 2], [b1 + 1, b1 + 3]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 03 审核流水线：串行方块 + 旁路分支（取数→识别→判断→异常）
+  function auditflow(size) {
+    var v = [], e = [], count = 4, i;
+    var gap = size * 0.95, s = size * 0.26;
+    var startX = -gap * (count - 1) / 2;
+    var corners = [
+      [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+      [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
+    ];
+    for (i = 0; i < count; i++) {
+      var cx = startX + i * gap;
+      var b = v.length;
+      for (var k = 0; k < 8; k++) {
+        v.push({ x: cx + corners[k][0] * s, y: corners[k][1] * s, z: corners[k][2] * s });
+      }
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b],
+             [b + 4, b + 5], [b + 5, b + 6], [b + 6, b + 7], [b + 7, b + 4],
+             [b, b + 4], [b + 1, b + 5], [b + 2, b + 6], [b + 3, b + 7]);
+      if (i > 0) e.push([b - 8 + 1, b]);
+    }
+    // 旁路分支：从第 2 个方块向下引一条折线，再回到主线（异常处理）
+    var branchY = -size * 0.95;
+    var bx1 = startX + gap, bx2 = startX + gap * 2;
+    var bb = v.length;
+    v.push({ x: bx1, y: branchY, z: 0 });
+    v.push({ x: bx2, y: branchY, z: 0 });
+    e.push([bb, bb + 1]);
+    return { v: v, e: e };
+  }
+
+  // 04 Agent 编排图：中心 + 六节点 + 回环边（LangGraph 六节点）
+  function agentgraph(size) {
+    var v = [], e = [], i;
+    v.push({ x: 0, y: 0, z: 0 });          // 中心
+    var ring1 = 6, r = size * 1.05;
+    for (i = 0; i < ring1; i++) {
+      var a = (i / ring1) * Math.PI * 2 - Math.PI / 2;
+      v.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 0.62, z: Math.sin(a * 2) * size * 0.32 });
+      e.push([0, i + 1]);
+      if (i > 0) e.push([i, i + 1]);
+    }
+    e.push([ring1, 1]);                     // 闭环
+    // 回环边（tool_call → planner）：画成外弧
+    var ab = v.length;
+    for (i = 0; i <= 8; i++) {
+      var t = (i / 8) * Math.PI;
+      v.push({ x: Math.cos(t) * r * 1.42, y: -Math.sin(t) * r * 0.72, z: -size * 0.5 });
+      if (i > 0) e.push([ab + i - 1, ab + i]);
+    }
+    // 2026-10-19：补一圈外环 —— 原来只有放射线，缩到 78px 后没有闭合轮廓
+    var rb = v.length, rr = r * 1.62, rseg = 16;
+    for (i = 0; i < rseg; i++) {
+      var ra = (i / rseg) * Math.PI * 2;
+      v.push({ x: Math.cos(ra) * rr, y: Math.sin(ra) * rr * 0.58, z: 0 });
+      if (i > 0) e.push([rb + i - 1, rb + i]);
+    }
+    e.push([rb + rseg - 1, rb]);
+    return { v: v, e: e };
+  }
+
+  // 05 指标看板：横向条形柱 + 顶部折线（BI 看板）
+  function dashboard(size) {
+    var v = [], e = [], bars = 5, i;
+    var w = size * 0.3, gap = size * 0.46;
+    var startX = -gap * (bars - 1) / 2;
+    for (i = 0; i < bars; i++) {
+      var x = startX + i * gap;
+      var h = size * (0.35 + ((i * 7) % 5) / 5 * 0.9);
+      var b = v.length;
+      v.push({ x: x - w / 2, y: -size * 0.6, z: 0 });
+      v.push({ x: x + w / 2, y: -size * 0.6, z: 0 });
+      v.push({ x: x + w / 2, y: -size * 0.6 + h, z: 0 });
+      v.push({ x: x - w / 2, y: -size * 0.6 + h, z: 0 });
+      // 给一点厚度
+      v.push({ x: x - w / 2, y: -size * 0.6, z: w });
+      v.push({ x: x + w / 2, y: -size * 0.6, z: w });
+      v.push({ x: x + w / 2, y: -size * 0.6 + h, z: w });
+      v.push({ x: x - w / 2, y: -size * 0.6 + h, z: w });
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b],
+             [b + 4, b + 5], [b + 5, b + 6], [b + 6, b + 7], [b + 7, b + 4],
+             [b, b + 4], [b + 1, b + 5], [b + 2, b + 6], [b + 3, b + 7]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 07 Prompt 三阶段：三个嵌套方框（诊断→澄清→合成）
+  function triphase(size) {
+    var v = [], e = [], i;
+    var sizes = [1.0, 0.68, 0.36];
+    for (i = 0; i < 3; i++) {
+      var s = size * sizes[i];
+      var b = v.length;
+      v.push({ x: -s, y: -s, z: -s }, { x: s, y: -s, z: -s },
+             { x: s, y: s, z: -s }, { x: -s, y: s, z: -s },
+             { x: -s, y: -s, z: s }, { x: s, y: -s, z: s },
+             { x: s, y: s, z: s }, { x: -s, y: s, z: s });
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b],
+             [b + 4, b + 5], [b + 5, b + 6], [b + 6, b + 7], [b + 7, b + 4],
+             [b, b + 4], [b + 1, b + 5], [b + 2, b + 6], [b + 3, b + 7]);
+    }
+    // 三个方框之间的连线（表示阶段推进）
+    e.push([0, 8], [2, 10]);
+    return { v: v, e: e };
+  }
+
+  // 08 培训体系：三层金字塔（培训→SOP→推广）
+  function pyramid(size) {
+    var v = [], e = [], layers = 3, i, j;
+    for (i = 0; i < layers; i++) {
+      var y = -size * 0.7 + (i / (layers - 1)) * size * 1.4;
+      var w = size * (1.0 - i * 0.28);
+      var b = v.length;
+      v.push({ x: -w, y: y, z: -w }, { x: w, y: y, z: -w },
+             { x: w, y: y, z: w }, { x: -w, y: y, z: w });
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b]);
+      if (i > 0) {
+        // 与下一层的竖边
+        e.push([b - 4, b], [b - 3, b + 1], [b - 2, b + 2], [b - 1, b + 3]);
+      }
+    }
+    // 顶点
+    var top = v.length;
+    v.push({ x: 0, y: size * 0.95, z: 0 });
+    e.push([top - 4, top], [top - 3, top], [top - 2, top], [top - 1, top]);
+    return { v: v, e: e };
+  }
+
+  // 09 服务栈：竖直堆叠的服务层 + 熔断断口
+  function servicestack(size) {
+    var v = [], e = [], n = 4, i;
+    for (i = 0; i < n; i++) {
+      var y = -size * 0.85 + (i / (n - 1)) * size * 1.7;
+      var w = size * 0.85;
+      var b = v.length;
+      v.push({ x: -w, y: y, z: -w * 0.6 }, { x: w, y: y, z: -w * 0.6 },
+             { x: w, y: y, z: w * 0.6 }, { x: -w, y: y, z: w * 0.6 });
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b]);
+      // 2026-10-19：每层中间开一个方孔 —— 视觉评估指出 09 与 02 太像。
+      // 加孔后变成「机架 / 服务格」的形态，和 02 的实心板一眼可分。
+      var hole = w * 0.34;
+      var hb = v.length;
+      v.push({ x: -hole, y: y, z: -hole * 0.6 }, { x: hole, y: y, z: -hole * 0.6 },
+             { x: hole, y: y, z: hole * 0.6 }, { x: -hole, y: y, z: hole * 0.6 });
+      e.push([hb, hb + 1], [hb + 1, hb + 2], [hb + 2, hb + 3], [hb + 3, hb]);
+      // 孔与边框的四条连接
+      e.push([b, hb], [b + 1, hb + 1], [b + 2, hb + 2], [b + 3, hb + 3]);
+      if (i > 0) e.push([b - 8, b], [b - 7, b + 1], [b - 6, b + 2], [b - 5, b + 3]);
+    }
+    // 熔断断口：一个明显的缺口标记
+    var cb = v.length;
+    v.push({ x: size * 1.15, y: 0, z: 0 });
+    v.push({ x: size * 1.45, y: size * 0.25, z: 0 });
+    v.push({ x: size * 1.45, y: -size * 0.25, z: 0 });
+    e.push([cb, cb + 1], [cb, cb + 2], [cb + 1, cb + 2]);
+    return { v: v, e: e };
+  }
+
+  // 10 复盘循环：环 + 内部折线（复盘卡片 + 基线 + 看板）
+  function reviewloop(size) {
+    var v = [], e = [], seg = 14, i;
+    var r = size * 0.95;
+    for (i = 0; i < seg; i++) {
+      var a = (i / seg) * Math.PI * 2;
+      v.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 0.55, z: Math.sin(a) * r * 0.35 });
+      if (i > 0) e.push([i - 1, i]);
+    }
+    e.push([seg - 1, 0]);
+    // 内部上升折线（基线 → 改进后）
+    var ab = v.length;
+    for (i = 0; i <= 4; i++) {
+      v.push({ x: -r * 0.5 + (i / 4) * r, y: -r * 0.3 + (i / 4) * r * 0.6, z: 0 });
+      if (i > 0) e.push([ab + i - 1, ab + i]);
+    }
+    // 2026-10-19：补第二层环 + 辐条 —— 原来只有一圈细环 + 一条折线，
+    // 缩小后像一片叶子。加内环和辐条后有了「循环 + 指标」的闭合感。
+    var ib = v.length, ir = r * 0.58;
+    for (i = 0; i < seg; i++) {
+      var ia = (i / seg) * Math.PI * 2;
+      v.push({ x: Math.cos(ia) * ir, y: Math.sin(ia) * ir * 0.55, z: 0 });
+      if (i > 0) e.push([ib + i - 1, ib + i]);
+    }
+    e.push([ib + seg - 1, ib]);
+    // 辐条：外环 → 内环
+    for (i = 0; i < 6; i++) {
+      e.push([Math.round(i / 6 * seg), ib + Math.round(i / 6 * seg)]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 11 标准件：两份并列文档（Discovery Brief / Eval Plan）
+  function twodocs(size) {
+    var v = [], e = [], i, k;
+    var offsets = [-size * 0.62, size * 0.62];
+    for (i = 0; i < 2; i++) {
+      var cx = offsets[i];
+      var w = size * 0.52, h = size * 0.82;
+      var b = v.length;
+      // 扁平方板
+      v.push({ x: cx - w, y: -h, z: 0 }, { x: cx + w, y: -h, z: 0 },
+             { x: cx + w, y: h, z: 0 }, { x: cx - w, y: h, z: 0 });
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b]);
+      // 内部横线（文档行）
+      for (k = 1; k <= 3; k++) {
+        var ly = -h + (k / 4) * h * 2;
+        var lb = v.length;
+        v.push({ x: cx - w * 0.7, y: ly, z: 0 });
+        v.push({ x: cx + w * 0.7, y: ly, z: 0 });
+        e.push([lb, lb + 1]);
+      }
+    }
+    // 两文档之间的连接
+    e.push([3, 4 + 8]);
+    return { v: v, e: e };
+  }
+
+  // 12 工具拓扑：中心 + 5 个工具节点呈扇形
+  function toolsfan(size) {
+    var v = [], e = [], i;
+    v.push({ x: 0, y: -size * 0.6, z: 0 });
+    var n = 5, r = size * 1.1;
+    for (i = 0; i < n; i++) {
+      var a = -Math.PI * 0.85 + (i / (n - 1)) * Math.PI * 0.7;
+      v.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 0.9, z: 0 });
+      e.push([0, i + 1]);
+      if (i > 0) e.push([i, i + 1]);
+    }
+    // 2026-10-19：补外弧 + 底座 —— 原来只有 5 条放射线，缩小后散成碎片。
+    // 外弧把扇形闭合起来，底座给它一个「工具架」的落脚点。
+    var ab = v.length, aseg = 12, ar = r * 1.22;
+    for (i = 0; i <= aseg; i++) {
+      var aa = -Math.PI * 0.9 + (i / aseg) * Math.PI * 0.8;
+      v.push({ x: Math.cos(aa) * ar, y: Math.sin(aa) * ar * 0.9, z: 0 });
+      if (i > 0) e.push([ab + i - 1, ab + i]);
+    }
+    // 底座横线
+    var bb = v.length;
+    v.push({ x: -size * 1.15, y: -size * 0.95, z: 0 });
+    v.push({ x: size * 1.15, y: -size * 0.95, z: 0 });
+    e.push([bb, bb + 1]);
+    e.push([0, bb], [0, bb + 1]);
+    return { v: v, e: e };
+  }
+
+  // 14 可观测：环形 + 三条探针（OTel / Jaeger / CI）
+  function observability(size) {
+    var v = [], e = [], seg = 12, i;
+    var r = size * 0.9;
+    for (i = 0; i < seg; i++) {
+      var a = (i / seg) * Math.PI * 2;
+      v.push({ x: Math.cos(a) * r, y: Math.sin(a) * r * 0.7, z: 0 });
+      if (i > 0) e.push([i - 1, i]);
+    }
+    e.push([seg - 1, 0]);
+    // 三条探针向外
+    for (i = 0; i < 3; i++) {
+      var a2 = (i / 3) * Math.PI * 2 + 0.4;
+      var b = v.length;
+      v.push({ x: Math.cos(a2) * r * 1.55, y: Math.sin(a2) * r * 1.1, z: 0 });
+      e.push([0, b]);
+    }
+    // 2026-10-19：补一圈虚线外环（OTel 的 span 边界）+ 探针端点小方框
+    var ob = v.length, oseg = 18, orr = r * 1.85;
+    for (i = 0; i < oseg; i++) {
+      var oa = (i / oseg) * Math.PI * 2;
+      v.push({ x: Math.cos(oa) * orr, y: Math.sin(oa) * orr * 0.62, z: 0 });
+      if (i > 0 && i % 2 === 0) e.push([ob + i - 2, ob + i - 1]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 15 插件簇：三个独立小立方体围绕一个中心
+  function plugcluster(size) {
+    var v = [], e = [], i;
+    var corners = [
+      [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+      [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
+    ];
+    var s = size * 0.3;
+    var pos = [
+      [0, size * 0.75, 0],
+      [-size * 0.85, -size * 0.5, size * 0.3],
+      [size * 0.85, -size * 0.5, -size * 0.3]
+    ];
+    for (i = 0; i < 3; i++) {
+      var b = v.length;
+      for (var k = 0; k < 8; k++) {
+        v.push({ x: pos[i][0] + corners[k][0] * s, y: pos[i][1] + corners[k][1] * s, z: pos[i][2] + corners[k][2] * s });
+      }
+      e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b],
+             [b + 4, b + 5], [b + 5, b + 6], [b + 6, b + 7], [b + 7, b + 4],
+             [b, b + 4], [b + 1, b + 5], [b + 2, b + 6], [b + 3, b + 7]);
+      // 中心到各插件
+      if (i > 0) e.push([0, b]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 19 工具矩阵：4 个象限的工具点阵
+  function toolmatrix(size) {
+    var v = [], e = [], i, j;
+    var n = 3, s = size * 0.22, gap = size * 0.72;
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < n; j++) {
+        var x = -gap + i * gap, y = -gap + j * gap;
+        var b = v.length;
+        v.push({ x: x - s, y: y - s, z: 0 }, { x: x + s, y: y - s, z: 0 },
+               { x: x + s, y: y + s, z: 0 }, { x: x - s, y: y + s, z: 0 });
+        e.push([b, b + 1], [b + 1, b + 2], [b + 2, b + 3], [b + 3, b]);
+        // 横向连到右边
+        if (i > 0) e.push([b - 4 + 1, b]);
+      }
+    }
+    return { v: v, e: e };
+  }
+
+  // 20 评分雷达：五边形雷达 + 中心放射
+  function radar(size) {
+    var v = [], e = [], i, k;
+    var n = 5, r = size * 1.0;
+    // 三层同心多边形
+    for (k = 1; k <= 3; k++) {
+      var rr = r * (k / 3);
+      var b = v.length;
+      for (i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2 - Math.PI / 2;
+        v.push({ x: Math.cos(a) * rr, y: Math.sin(a) * rr, z: 0 });
+        if (i > 0) e.push([b + i - 1, b + i]);
+      }
+      e.push([b + n - 1, b]);
+    }
+    // 中心放射
+    for (i = 0; i < n; i++) {
+      var a2 = (i / n) * Math.PI * 2 - Math.PI / 2;
+      var cb = v.length;
+      v.push({ x: Math.cos(a2) * r, y: Math.sin(a2) * r, z: 0 });
+      e.push([0, cb]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 21 桥接：两侧各一个节点 + 中间桥
+  function bridge(size) {
+    var v = [], e = [], i;
+    // 左端（MCP 客户端）
+    var lb = v.length;
+    v.push({ x: -size * 1.3, y: -size * 0.4, z: 0 });
+    v.push({ x: -size * 0.85, y: -size * 0.4, z: 0 });
+    v.push({ x: -size * 0.85, y: size * 0.4, z: 0 });
+    v.push({ x: -size * 1.3, y: size * 0.4, z: 0 });
+    e.push([lb, lb + 1], [lb + 1, lb + 2], [lb + 2, lb + 3], [lb + 3, lb]);
+    // 右端（WorkBuddy）
+    var rb = v.length;
+    v.push({ x: size * 0.85, y: -size * 0.4, z: 0 });
+    v.push({ x: size * 1.3, y: -size * 0.4, z: 0 });
+    v.push({ x: size * 1.3, y: size * 0.4, z: 0 });
+    v.push({ x: size * 0.85, y: size * 0.4, z: 0 });
+    e.push([rb, rb + 1], [rb + 1, rb + 2], [rb + 2, rb + 3], [rb + 3, rb]);
+    // 桥（两根横梁 + 中间竖撑）
+    var mb = v.length;
+    v.push({ x: -size * 0.85, y: size * 0.22, z: 0 });
+    v.push({ x: size * 0.85, y: size * 0.22, z: 0 });
+    v.push({ x: -size * 0.85, y: -size * 0.22, z: 0 });
+    v.push({ x: size * 0.85, y: -size * 0.22, z: 0 });
+    e.push([mb, mb + 1], [mb + 2, mb + 3], [mb, mb + 2], [mb + 1, mb + 3]);
+    return { v: v, e: e };
+  }
+
+  // 22 原型工厂：引擎齿轮（两个交错的环）+ 输出箭头
+  function factory(size) {
+    var v = [], e = [], seg = 10, i, k;
+    // 两个交错的环
+    for (k = 0; k < 2; k++) {
+      var cx = k === 0 ? -size * 0.5 : size * 0.5;
+      var r = size * 0.62;
+      var b = v.length;
+      for (i = 0; i < seg; i++) {
+        var a = (i / seg) * Math.PI * 2;
+        v.push({ x: cx + Math.cos(a) * r, y: Math.sin(a) * r, z: 0 });
+        if (i > 0) e.push([b + i - 1, b + i]);
+      }
+      e.push([b + seg - 1, b]);
+    }
+    // 输出箭头（向右）
+    var ab = v.length;
+    v.push({ x: size * 1.1, y: 0, z: 0 });
+    v.push({ x: size * 1.55, y: 0, z: 0 });
+    v.push({ x: size * 1.35, y: size * 0.2, z: 0 });
+    v.push({ x: size * 1.35, y: -size * 0.2, z: 0 });
+    e.push([ab, ab + 1], [ab + 1, ab + 2], [ab + 1, ab + 3]);
+    return { v: v, e: e };
+  }
+
+  // 23 工作流：31 节点规模的长链 + 分支
+  function workflow(size) {
+    var v = [], e = [], i;
+    var n = 7, gap = size * 0.48;
+    var startX = -gap * (n - 1) / 2;
+    for (i = 0; i < n; i++) {
+      var x = startX + i * gap;
+      var y = (i % 2 === 0) ? size * 0.22 : -size * 0.22;
+      v.push({ x: x, y: y, z: 0 });
+      if (i > 0) e.push([i - 1, i]);
+    }
+    // 分支：从第 3、5 个节点向下
+    var b1 = v.length;
+    v.push({ x: startX + gap * 2, y: -size * 0.85, z: 0 });
+    e.push([2, b1]);
+    var b2 = v.length;
+    v.push({ x: startX + gap * 4, y: -size * 0.85, z: 0 });
+    e.push([4, b2]);
+    e.push([b1, b2]);
+    // 2026-10-19：补外框 —— 原来只有之字折线，缩小后像一根乱线。
+    // 外框把 31 节点的工作流圈成一个「画布」，边界清楚。
+    var fb = v.length, fw = gap * (n - 1) / 2 + size * 0.42, fh = size * 1.02;
+    v.push({ x: -fw, y: -fh, z: 0 }, { x: fw, y: -fh, z: 0 },
+           { x: fw, y: fh, z: 0 }, { x: -fw, y: fh, z: 0 });
+    e.push([fb, fb + 1], [fb + 1, fb + 2], [fb + 2, fb + 3], [fb + 3, fb]);
+    return { v: v, e: e };
+  }
+
+
+  // 2026-10-19：把平面造型挤出厚度。
+  // 评估指出 reviewloop / toolsfan / bridge / factory / workflow / observability
+  // 这些「看不出 3D 结构」，根因是所有顶点 z=0 —— 旋转时没有透视变化，
+  // 只是一张会转的平面图。这里复制一层到 ±depth，再用连线缝合两层。
+  function extrude(geo, depth) {
+    var v = [], e = [], i;
+    var base = geo.v.length;
+    // 原层（后半）
+    for (i = 0; i < base; i++) {
+      v.push({ x: geo.v[i].x, y: geo.v[i].y, z: (geo.v[i].z || 0) - depth });
+    }
+    // 复制层（前半）
+    for (i = 0; i < base; i++) {
+      v.push({ x: geo.v[i].x, y: geo.v[i].y, z: (geo.v[i].z || 0) + depth });
+    }
+    // 原有棱
+    for (i = 0; i < geo.e.length; i++) {
+      e.push([geo.e[i][0], geo.e[i][1]]);
+      e.push([geo.e[i][0] + base, geo.e[i][1] + base]);
+    }
+    // 缝合：只在「端点」处连，避免线太多糊掉（每 3 个顶点连 1 条）
+    for (i = 0; i < base; i += 3) {
+      e.push([i, i + base]);
+    }
+    return { v: v, e: e };
+  }
+
   global.GLASS3D = {
     Scene: Scene,
     cube: cube,
@@ -461,6 +985,26 @@
     tree: tree,
     mesh: mesh,
     helix: helix,
+    // 2026-10-19 新增：23 个作品专属造型
+    roadmap: roadmap,
+    bilayer: bilayer,
+    auditflow: auditflow,
+    agentgraph: agentgraph,
+    dashboard: dashboard,
+    triphase: triphase,
+    pyramid: pyramid,
+    servicestack: servicestack,
+    reviewloop: reviewloop,
+    twodocs: twodocs,
+    toolsfan: toolsfan,
+    observability: observability,
+    plugcluster: plugcluster,
+    toolmatrix: toolmatrix,
+    radar: radar,
+    bridge: bridge,
+    factory: factory,
+    workflow: workflow,
+    extrude: extrude,
     rotY: rotY, rotX: rotX, rotZ: rotZ
   };
 })(window);

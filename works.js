@@ -385,29 +385,29 @@
   //
   // 每条的依据来自 works-data.json 里的 tags / arch / pitch（不是凭感觉挑）：
   var STACK_3D = {
-    '01': 'mesh',      // 8 业务域 × 6 个月路线图 → 多维规划矩阵
-    '02': 'layers',    // Coze + 多维表双层流（AI 先做 / 人只审）→ 分层
-    '03': 'pipeline',  // 影刀/UiBot RPA + AI 审核：取数→识别→判断→异常 → 流水线
-    '04': 'graph',     // LangGraph 编排 + 六层架构 + MCP + RAG → 图拓扑
-    '05': 'mesh',      // 指标体系 + BI 看板 + ChatBI + ETL → 指标矩阵
-    '06': 'pipeline',  // 影刀/UiBot RPA + Python 脚本 → 流水线
-    '07': 'layers',    // Prompt 三阶段（诊断→澄清→合成）+ 评测集 → 分层
-    '08': 'tree',      // 培训 → SOP → 推广的分层体系 → 树
-    '09': 'layers',    // Docker Compose 服务栈 + 熔断 + 健康检查 → 分层
-    '10': 'ring',      // 复盘卡片 + 基线 + 数据看板（复盘是循环）→ 环
-    '11': 'octa',      // FDE 两份标准件（Discovery Brief / Eval Plan）→ 八面体
-    '12': 'graph',     // MCP Server 5 工具 + PowerShell 零依赖 → 工具拓扑
-    '13': 'pipeline',  // RAG 30 题：检索→重排→命中判定 → 流水线
-    '14': 'ring',      // OTel + Jaeger + CI 回归（持续观测循环）→ 环
-    '15': 'cluster',   // 三个独立插件（推送 / 预览 / 待办）→ 晶体簇
-    '16': 'cluster',   // 三个 MCP Server → 晶体簇
-    '17': 'tree',      // TiddlyWiki 知识库 + Markdown 规程 → 知识树
-    '18': 'helix',     // prompt 编译 + 192 测试 + 版本迭代 → 双螺旋
-    '19': 'mesh',      // 自检 / 预检 / 补丁 / 调研四件工具 → 工具矩阵
-    '20': 'octa',      // 高企评分：8 条一票否决 + 雷达图 → 多面体维度
-    '21': 'graph',     // MCP 桥接（单工具 run_workbuddy_task）→ 图
-    '22': 'ring',      // 原型工厂：引擎 + 断言回归（循环验证）→ 环
-    '23': 'graph'      // Dify 31 节点 / 33 边工作流 + 52 条验收 → 工作流拓扑
+    '01': 'roadmap',       // 8 业务域 × 6 个月路线图 → 立柱矩阵（高度=进度）
+    '02': 'bilayer',       // Coze + 多维表双层流（AI 先做/人只审）→ 上下双层 + 竖向连接
+    '03': 'auditflow',     // 影刀/UiBot RPA + AI 审核 → 串行方块 + 异常旁路分支
+    '04': 'agentgraph',    // LangGraph 六节点编排 + 回环边 → 中心放射 + 外弧回环
+    '05': 'dashboard',     // 指标体系 + BI 看板 + ChatBI → 高低条形柱阵列
+    '06': 'pipeline',      // 影刀/UiBot RPA + Python 脚本 → 直线流水线
+    '07': 'triphase',      // Prompt 三阶段（诊断→澄清→合成）→ 三层嵌套方框
+    '08': 'pyramid',       // 培训→SOP→推广的分层体系 → 金字塔（越往上越窄）
+    '09': 'servicestack',  // Docker Compose 服务栈 + 熔断 → 竖直服务层 + 断口标记
+    '10': 'reviewloop',    // 复盘卡片 + 基线 + 看板（循环）→ 环 + 内部上升折线
+    '11': 'twodocs',       // FDE 两份标准件（Discovery Brief / Eval Plan）→ 两份并排文档
+    '12': 'toolsfan',      // MCP Server 5 工具 → 中心 + 扇形展开的 5 个节点
+    '13': 'layers',        // RAG 30 题：检索→重排→命中判定 → 水平分层
+    '14': 'observability', // OTel + Jaeger + CI 回归 → 环 + 三条外探针
+    '15': 'plugcluster',   // 三个独立插件（推送/预览/待办）→ 三个立方体绕中心
+    '16': 'cluster',       // 三个 MCP Server → 晶体簇
+    '17': 'tree',          // TiddlyWiki 知识库 + Markdown 规程 → 知识树
+    '18': 'helix',         // prompt 编译 + 192 测试 + 版本迭代 → 双螺旋
+    '19': 'toolmatrix',    // 自检/预检/补丁/调研四件工具 → 3×3 工具点阵
+    '20': 'radar',         // 高企评分：8 条一票否决 + 雷达图 → 三层同心雷达
+    '21': 'bridge',        // MCP 桥接（单工具 run_workbuddy_task）→ 两端 + 桥
+    '22': 'factory',       // 原型工厂：引擎 + 断言回归 → 交错齿轮 + 输出箭头
+    '23': 'workflow'       // Dify 31 节点 / 33 边工作流 → 之字形长链 + 分支
   };
   // 兜底：新增作品若还没映射，按类目给一个
   var CAT_3D = {
