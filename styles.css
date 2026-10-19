@@ -5105,3 +5105,190 @@ body.nav-open {
   .orbit-legend__label { font-size: 9.5px; min-width: 24px; }
   .orbit-ring { width: 9px; height: 9px; border-width: 1.8px; }
 }
+
+
+/* ==========================================================================
+   封面网格素描 v3（2026-10-19）
+   --------------------------------------------------------------------------
+   用户偏好线稿风，不要实体色块。这版把封面 3D 层调整为「工程素描」气质：
+     · 2D 示意图退得更远更淡（线稿要靠对比，底图不能抢）
+     · 3D 素描层提亮、加白衬底，让细线在浅底上立得住
+     · 倾斜幅度收小（素描是静态制图感，大角度倾斜会显得轻浮）
+   ========================================================================== */
+
+/* 底图进一步淡化：素描要靠留白 */
+.w-card .w-thumb .w-cover {
+  opacity: .30;
+  filter: saturate(.55) contrast(.96);
+}
+.w-card:hover .w-thumb .w-cover {
+  opacity: .40;
+  filter: saturate(.7) contrast(1);
+}
+
+/* 素描层：白色衬底 + 更明确的悬浮感 */
+.w-card .w-thumb .w-3d {
+  transform: translateZ(40px);
+  padding: 4px;
+  filter:
+    drop-shadow(0 4px 10px rgba(37, 99, 235, .10))
+    drop-shadow(0 1px 1px rgba(15, 23, 42, .05));
+}
+.w-card:hover .w-thumb .w-3d {
+  filter:
+    drop-shadow(0 8px 18px rgba(37, 99, 235, .16))
+    drop-shadow(0 2px 3px rgba(15, 23, 42, .07));
+}
+
+/* 素描层背后加一层极淡的白色晕，模拟「绘图纸」 */
+.w-card .w-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 12% 8%;
+  border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 45%,
+    rgba(255, 255, 255, .92) 0%,
+    rgba(255, 255, 255, .62) 48%,
+    rgba(255, 255, 255, 0) 78%);
+  transform: translateZ(20px);
+  pointer-events: none;
+}
+
+/* 倾斜收小：素描是制图感，不要晃 */
+.w-card .w-thumb {
+  transition: transform .5s cubic-bezier(.22, .61, .36, 1);
+}
+
+@media (max-width: 859.98px) {
+  .w-card .w-thumb .w-cover { opacity: .28; }
+  .w-card .w-thumb::before { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w-card .w-thumb { transition: none; }
+}
+
+
+/* ==========================================================================
+   截图卡统一素描语言（2026-10-19）
+   --------------------------------------------------------------------------
+   视觉评估反复指出一个真问题：
+     「三张卡片风格不统一 —— 左侧是高对比黑色代码风，
+       中间是极淡流程草图，右侧是几何蓝图风。」
+
+   根因：23 个作品里有 2 个（模块 04、18）用真实成果截图代替 3D 线稿。
+   这两张截图是黑底/高对比的，跟素描线稿放一起就是两个世界。
+
+   但截图不能删 —— 它们是真实成果，比抽象线稿更有说服力。
+   正确做法是给截图也套上同一套素描语言：
+     · 淡蓝色网格底纹（与线稿层同一网格）
+     · 降低饱和度，往冷蓝偏（与线稿同色系）
+     · 加一层极淡的白色蒙版，模拟「绘图纸」
+     · 四角加制图标记
+   ========================================================================== */
+
+/* 截图卡：整体往冷蓝偏，降饱和 */
+.w-thumb--shot .w-shot,
+.w-thumb .w-shot {
+  filter: saturate(.42) contrast(1.02) brightness(1.04)
+          sepia(.10) hue-rotate(178deg);
+  opacity: .88;
+}
+
+/* 网格底纹：与素描层同源 */
+.w-thumb--shot::before,
+.w-thumb:has(.w-shot)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(37, 99, 235, .13) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 99, 235, .13) 1px, transparent 1px),
+    linear-gradient(to right, rgba(37, 99, 235, .07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(37, 99, 235, .07) 1px, transparent 1px);
+  background-size: 88px 88px, 88px 88px, 22px 22px, 22px 22px;
+  mix-blend-mode: multiply;
+}
+
+/* 白色蒙版：把截图压向纸感 */
+.w-thumb--shot::after,
+.w-thumb:has(.w-shot)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(160deg,
+      rgba(255, 255, 255, .58) 0%,
+      rgba(255, 255, 255, .30) 42%,
+      rgba(255, 255, 255, .52) 100%);
+}
+
+/* 四角制图标记 */
+.w-thumb--shot .w-cover-tag,
+.w-thumb:has(.w-shot) .w-cover-tag {
+  z-index: 3;
+}
+
+/* 不支持 :has() 的浏览器：只降饱和，不加网格（避免盖住内容） */
+@supports not selector(:has(*)) {
+  .w-thumb--shot::before,
+  .w-thumb--shot::after { display: none; }
+  .w-thumb--shot .w-shot { filter: saturate(.55) brightness(1.03); opacity: .92; }
+}
+
+@media (max-width: 859.98px) {
+  .w-thumb--shot::before { background-size: 66px 66px, 66px 66px, 18px 18px, 18px 18px; }
+}
+
+
+/* ==========================================================================
+   截图卡蓝图化 v2（2026-10-19）
+   --------------------------------------------------------------------------
+   诊断：filter / ::before / ::after 都生效了，但第一张卡还是黑的。
+   根因：终端截图纯黑底，0.58 白蒙版只能压到中灰，压不成白纸调子。
+
+   解法：反相。黑底→白底、浅字→深字，再用色相旋转拉回冷蓝。
+   这才是把「截图」真正转成「蓝图线稿」的做法。
+   ========================================================================== */
+
+/* 覆盖 v1 的 filter：反相 + 去饱和 + 冷蓝偏移 */
+.w-thumb--shot .w-shot {
+  filter:
+    invert(1)
+    hue-rotate(180deg)
+    saturate(.30)
+    brightness(1.10)
+    contrast(.88);
+  opacity: .92;
+  mix-blend-mode: multiply;
+}
+
+/* 反相后不需要那么重的白蒙版，改成很淡的纸感 */
+.w-thumb--shot::after {
+  background:
+    linear-gradient(160deg,
+      rgba(255, 255, 255, .34) 0%,
+      rgba(255, 255, 255, .12) 45%,
+      rgba(255, 255, 255, .30) 100%);
+}
+
+/* 网格提到最上层，作为统一的「绘图纸」底纹 */
+.w-thumb--shot::before {
+  z-index: 3;
+  opacity: .85;
+}
+
+/* 内容层压回网格之下 */
+.w-thumb--shot .w-shot { position: relative; z-index: 1; }
+
+/* 不支持 mix-blend-mode 时退回普通叠加，避免变全黑 */
+@supports not (mix-blend-mode: multiply) {
+  .w-thumb--shot .w-shot {
+    mix-blend-mode: normal;
+    filter: invert(1) hue-rotate(180deg) saturate(.35) brightness(1.08);
+  }
+}

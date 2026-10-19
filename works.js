@@ -430,10 +430,15 @@
          纯线稿在浅色底上无法产生体积感，这是渲染方式的限制，不是调色能解决的。
          现在由 SOLID3D 渲染实体方块（6 个实面 + 法线光照 + 画家算法遮挡），
          模型按每个作品的真实技术结构拼装（见 solid-models.js）。
-         data-3d 保留为模型名，data-solid="true" 标记走新渲染器。 */
-      '<canvas class="w-3d" data-solid="true" data-3d="' + geo + '" data-solid-model="' + geo + '"'
-      + ' data-solid-scale="1.0" data-speed="0.00016" data-tilt="0.30"'
-      + ' data-stretch-x="1.15" aria-hidden="true"></canvas>';
+         data-3d 保留为模型名，data-sketch="true" 标记走素描渲染器。 */
+      /* 2026-10-19：封面用「网格素描」线稿渲染（SKETCH3D）。
+         用户偏好线稿/科技感，不要实体色块。
+         线稿的关键不是画实面，而是做好深度提示：
+         近处线粗深、远处线细淡，再加网格底纹与节点标注 ——
+         这才是「工程素描 / 蓝图」的观感。
+         几何体复用 glass-3d.js 里已有的 23 套线框。 */
+      '<canvas class="w-3d" data-sketch="true" data-3d="' + geo + '" data-sketch-model="' + geo + '"'
+      + ' data-speed="0.00016" aria-hidden="true"></canvas>';
   }
 
   // ==========================================================================
@@ -502,7 +507,11 @@
 
     // 有真实截图用截图，否则用内联 SVG 示意图（保证每张都有语义化描述）
     var cover = it.shot
-      ? '<div class="w-thumb"><img src="' + esc(it.shot.replace(/^\.\//, '')) + '" alt="' +
+      /* 2026-10-19：截图卡加 w-thumb--shot 标记。
+         23 个作品里只有模块 04、18 用真实截图（其余 21 个是 3D 线稿），
+         截图是黑底高对比的，和素描线稿放一起风格断裂。
+         加标记后由 CSS 套同一套「网格 + 降饱和 + 白蒙版」语言。 */
+      ? '<div class="w-thumb w-thumb--shot"><img class="w-shot" src="' + esc(it.shot.replace(/^\.\//, '')) + '" alt="' +
         esc(it.t + ' 的运行截图：' + (it.metric || it.pitch.slice(0, 40))) + '" loading="lazy"></div>'
       : '<div class="w-thumb">' +
           '<span class="w-cover-tag">' + esc(c.icon) + ' MODULE ' + esc(it.no) + '</span>' +
