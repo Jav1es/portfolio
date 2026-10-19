@@ -37,10 +37,11 @@
     { id: 'reply', label: '组装回复', ok: '返回新地址与预计送达时间' }
   ];
 
-  function runAgent(root) {
+  function runAgent(root, mode) {
     var flow = root.querySelector('.lab-flow');
     var result = root.querySelector('.lab-result');
     var btn = root.querySelector('.lab-run');
+    var failBtn = root.querySelector('.lab-run-fail');
     flow.innerHTML = AGENT_STEPS.map(function (s, i) {
       return '<div class="lab-step" data-i="' + i + '">' +
         '<span class="dot">' + (i + 1) + '</span>' +
@@ -50,9 +51,14 @@
     result.className = 'lab-result';
     result.textContent = '准备就绪，点击「跑一遍」开始。';
     btn.disabled = true;
+    if (failBtn) failBtn.disabled = true;
 
     var steps = flow.querySelectorAll('.lab-step');
-    var failAt = 3;   // 第 4 步（索引 3）模拟一次失败，展示 fail-closed
+    // 2026-10-19 修：原来每次都固定在第 4 步失败，用户点了三次都是失败，
+    // 看不出「这个流程本来是能跑通的」。改成默认跑成功链路，
+    // 失败分支由单独的「看失败分支」按钮触发 —— 想展示 fail-closed 随时能看，
+    // 但第一印象是「它能跑通」。
+    var failAt = (mode === 'fail') ? 3 : -1;
 
     (async function () {
       for (var i = 0; i < AGENT_STEPS.length; i++) {
@@ -61,7 +67,7 @@
         el.querySelector('.msg').textContent = '执行中…';
         await wait(520);
 
-        // 第 4 步：展示 fail-closed —— 调用超时，不猜、不重试，直接转人工
+        // 失败分支：展示 fail-closed —— 调用超时，不猜、不重试，直接转人工
         if (i === failAt) {
           el.classList.remove('is-run');
           el.classList.add('is-fail');
@@ -70,6 +76,7 @@
           result.textContent = '调用超时 → 按设计 fail-closed：不重试、不猜测，直接转人工并记录 trace。' +
             '（这正是作品 04 的核心主张：宁可失败也不编造。）';
           btn.disabled = false;
+          if (failBtn) failBtn.disabled = false;
           return;
         }
 
@@ -80,6 +87,7 @@
       result.className = 'lab-result ok';
       result.textContent = '链路完成：6 步全部留痕，每次工具调用都可追溯到 trace_id。';
       btn.disabled = false;
+      if (failBtn) failBtn.disabled = false;
     })();
   }
 
@@ -323,6 +331,11 @@
       var runner = RUNNERS[p.dataset.lab];
       if (btn && runner) {
         btn.addEventListener('click', function () { runner(p); });
+      }
+      // Agent 演示的失败分支：单独按钮触发，不影响默认的成功链路
+      var failBtn = p.querySelector('.lab-run-fail');
+      if (failBtn && runner) {
+        failBtn.addEventListener('click', function () { runner(p, 'fail'); });
       }
     });
 

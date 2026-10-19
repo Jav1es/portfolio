@@ -3751,3 +3751,678 @@ pre,
 
 .lab-cell { cursor: default; }
 .lab-cell.pass, .lab-cell.fail { cursor: help; }
+
+/* ---------- 演示按钮：主按钮要有主按钮的样子（2026-10-19） ---------- */
+/* 图五反馈「按钮太浅不明显」。原来的 .lab-btn 是白底浅灰边，
+   和白面板几乎融在一起。改成：
+     · 「跑一遍」= 实心蓝主按钮（和 .lab-tab 选中态同一套渐变）
+     · 「看失败分支」= 次级按钮，白底但边框加深，不与主按钮抢
+*/
+.lab-btn.lab-run {
+  color: #fff;
+  background: linear-gradient(152deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
+  border: 1px solid rgba(37, 99, 235, .9);
+  box-shadow:
+    0 2px 6px rgba(37, 99, 235, .30),
+    0 8px 20px rgba(37, 99, 235, .20),
+    inset 0 1px 0 rgba(255, 255, 255, .35),
+    inset 0 -1px 0 rgba(0, 0, 0, .12);
+  font-weight: 700;
+}
+.lab-btn.lab-run:hover:not(:disabled) {
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 10px rgba(37, 99, 235, .36),
+    0 12px 28px rgba(37, 99, 235, .24),
+    inset 0 1px 0 rgba(255, 255, 255, .40),
+    inset 0 -1px 0 rgba(0, 0, 0, .14);
+}
+.lab-btn.lab-run:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 3px rgba(37, 99, 235, .30),
+    inset 0 1px 2px rgba(0, 0, 0, .16);
+}
+
+/* 次级按钮：白底但边框明显，比原来的「几乎看不见」要清楚 */
+.lab-btn.lab-btn-ghost {
+  color: var(--txt2);
+  border: 1px solid rgba(148, 163, 184, .55);
+  background: rgba(255, 255, 255, .82);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.lab-btn.lab-btn-ghost:hover:not(:disabled) {
+  color: var(--blue);
+  border-color: rgba(37, 99, 235, .55);
+  background: rgba(255, 255, 255, .95);
+}
+
+/* ---------- 优势卡：图标放大 + 正文不再硬断行（2026-10-19） ---------- */
+/* 图二反馈「小图标太小」「第 4 张卡文字挤」。
+   实测：第 4 张卡正文栏被图标栏挤压后，
+   「9 个公开开源仓库，3 个含 CI 门禁」被断成「3 个合 / CI 门禁」——
+   「合」和「CI」被切开，读起来是断的。
+   两个改法：
+     ① 图标从 38px 提到 46px（视觉评估说约 20px 偏小）
+     ② 正文加 word-break 规则，让中文按词断、英文词组不被拆开
+*/
+
+/* ① 图标放大 */
+.strength-grid .s-fig svg { width: 46px; height: auto; }
+
+/* ② 正文断行规则：
+   · overflow-wrap: break-word —— 长英文词可以断，但不影响中文
+   · word-break: normal —— 中文按标点/词边界断，不在字中间硬切
+   · text-wrap: pretty —— 支持的浏览器会优化末行长度，避免孤字
+   同时给正文一点最小宽度，防止被图标挤到极窄。 */
+.strength-grid .s-body > div {
+  min-width: 0;
+  flex: 1;
+}
+.strength-grid .s-body span {
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-wrap: pretty;
+  display: block;
+}
+
+/* 桌面宽屏：给正文更多呼吸空间（四列时最容易挤） */
+@media (min-width: 1120px) {
+  .strength-grid .s-body { padding: 15px 22px 19px; gap: 13px; }
+  .strength-grid b { font-size: 16px; }
+  .strength-grid span { font-size: 14.2px; line-height: 1.62; }
+}
+
+/* 极窄（四列被压到 230px 时）：图标缩回去，优先保文字 */
+@media (min-width: 1120px) and (max-width: 1279.98px) {
+  .strength-grid .s-fig svg { width: 40px; }
+  .strength-grid .s-body { padding: 13px 16px 17px; gap: 10px; }
+  .strength-grid .num { width: 24px; height: 24px; }
+}
+
+/* ---------- 优势卡：图标改竖排，把宽度全让给文字（2026-10-19 v2） ---------- */
+/* 实测数据（1440px 四列）：
+     卡片宽 274px，图标栏固定 62px，正文只剩 133px。
+     而「造工具而非只用工具」需要约 170px 才不断行 —— 于是被硬切成
+     「造工具而非只用工 / 具」「可量 / 化验收口径」，中文在词中间断开。
+   手机 390px 两列更糟：正文只剩 71px，一句话断成 3 行。
+
+   根因不是断行规则，是**图标栏横向占位**。改法：
+     把「图标在左、文字在右」改成「图标在上、文字在下」，
+     文字拿到整张卡的宽度（274 → 234px），一行能放更多字。
+   图标同时放大（视觉评估说 20px 偏小 → 46px）。
+*/
+
+/* 竖排：卡片内改为纵向流 */
+.strength-grid .s-fig {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--line);
+  border-right: 0;
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+  background: linear-gradient(160deg, var(--blue-50), transparent 72%);
+}
+.strength-grid .s-fig svg {
+  width: 88px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* 正文拿到整张卡宽度 */
+.strength-grid .s-body {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 14px 18px 18px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.strength-grid .s-body > div {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* 断行：中文不在字中间硬切；英文词组尽量完整 */
+.strength-grid b,
+.strength-grid .s-body span {
+  overflow-wrap: break-word;
+  word-break: normal;
+  text-wrap: pretty;
+}
+
+/* 窄屏（两列）：图标收一档，但仍是竖排 —— 文字宽度优先 */
+@media (max-width: 599.98px) {
+  .strength-grid .s-fig { padding: 12px 14px 9px; }
+  .strength-grid .s-fig svg { width: 64px; }
+  .strength-grid .s-body { padding: 11px 13px 14px; gap: 9px; }
+  .strength-grid b { font-size: 14px; line-height: 1.34; }
+  .strength-grid .s-body span { font-size: 12.4px; line-height: 1.46; }
+  .strength-grid .num { width: 22px; height: 22px; font-size: 11px; border-radius: 6px; }
+}
+
+/* 极窄（≤389px）：单列，避免 71px 那种把一句话切成 3 行的情况 */
+@media (max-width: 389.98px) {
+  .strength-grid { grid-template-columns: 1fr; }
+  .strength-grid .s-fig svg { width: 72px; }
+}
+
+/* ---------- 优势卡竖排：强制覆盖媒体查询里的横排（2026-10-19 v3） ---------- */
+/* 上一版失效的原因：基础规则 .strength-grid li 是 flex-direction: column，
+   但后面的 @media 段（约 L2192 / L2243）把 .s-fig 改成了横向侧栏
+   （flex:none; width:62px），于是「图标在左、文字在右」的横排又回来了。
+   我给 .s-fig 设 width:100% 之后，在横排里它变成「占满整行」，
+   正文被压到只剩 14-16px —— 比改之前更糟。
+
+   这一版用足够高的优先级把 li 也钉成竖排，并把 .s-fig 恢复成块级。 */
+
+.strength-grid li {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.strength-grid .s-fig {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  padding: 16px 18px 12px !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-right: 0 !important;
+  border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0 !important;
+  background: linear-gradient(160deg, var(--blue-50), transparent 72%) !important;
+  perspective: 460px !important;
+}
+.strength-grid .s-fig svg {
+  width: 88px !important;
+  max-width: 100% !important;
+  height: auto !important;
+  transform: rotateX(14deg) rotateY(-8deg) !important;
+}
+
+.strength-grid .s-body {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  gap: 11px !important;
+  width: auto !important;
+  box-sizing: border-box !important;
+  padding: 14px 18px 18px !important;
+}
+.strength-grid .s-body > div {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+@media (max-width: 599.98px) {
+  .strength-grid .s-fig { padding: 12px 14px 9px !important; }
+  .strength-grid .s-fig svg { width: 64px !important; }
+  .strength-grid .s-body { padding: 11px 13px 14px !important; gap: 9px !important; }
+  .strength-grid b { font-size: 14px !important; line-height: 1.34 !important; }
+  .strength-grid .s-body span { font-size: 12.4px !important; line-height: 1.46 !important; }
+  .strength-grid .num { width: 22px !important; height: 22px !important; font-size: 11px !important; border-radius: 6px !important; }
+}
+/* 术语不断行：CI 门禁 这类词组不能被拆到两行 */
+.nowrap { white-space: nowrap; }
+
+/* ==========================================================================
+   手机端导航重做（2026-10-19）
+   --------------------------------------------------------------------------
+   用户反馈两条：
+     ① 导航条无法滑动 —— 现在的 .nav-links 用 max-height + overflow:hidden
+        做展开动画，这个组合下内容一旦超出就被裁掉，而且滚不动。
+        手机上 7 个主项 + 13 个子项，1040px 的 max-height 只是「猜够了」，
+        换个字号或加一项就会露出来，且滚轮/手指完全无效。
+     ② 二级菜单直接展开 —— 现在 .nav-menu 在手机上被设成 position:static
+        + opacity:1 + visibility:visible，等于全部平铺。13 个子项一次铺开，
+        面板长得离谱，主次不分。
+
+   改成参考百科类站点（维基/百度百科）的做法：
+     · 主菜单是一个可滚动的抽屉（flex + overflow-y:auto，不用 max-height）
+     · 二级菜单默认收起，点主项前面的箭头才展开（用 <button> 控制）
+     · 展开项左侧有竖线，层级一眼看得出来
+     · 抽屉打开时锁住 body 滚动，关闭时恢复
+   ========================================================================== */
+
+@media (max-width: 859.98px) {
+  /* ---- 抽屉：可滚动，不再用 max-height 猜高度 ---- */
+  .site-nav .nav-links {
+    /* 2026-10-19 修正：原来用 position:fixed + top/bottom 撑满视口，
+       但 .site-nav 是 position:sticky，fixed 子元素放在 sticky 容器里时
+       bottom:0 参照的是容器而不是视口，结果抽屉高度被内容撑成自适应
+       （实测内容高 543 = 可视高 543，永远滚不动）。
+       改成用 max-height 按视口高度算，不依赖 bottom。 */
+    position: fixed;
+    top: var(--nav-h, 62px);
+    left: 0;
+    right: 0;
+    order: 0;
+    width: 100%;
+    margin: 0;
+    padding: 8px 0 28px;
+    /* 视口高度减去导航条高度，留 8px 余量 */
+    max-height: calc(100vh - var(--nav-h, 62px) - 8px);
+    max-height: calc(100dvh - var(--nav-h, 62px) - 8px);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+
+    /* 关键：用 flex + overflow-y 代替 max-height + overflow:hidden */
+    /* max-height 由上面两行按视口算，这里不要再覆盖 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+
+    background: linear-gradient(178deg,
+      rgba(255, 255, 255, .98) 0%,
+      rgba(252, 253, 255, .98) 60%,
+      rgba(247, 250, 255, .99) 100%);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, .10);
+
+    /* 收起时移出视口，不用 max-height */
+    transform: translateY(-8px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity .22s ease, transform .22s ease, visibility .22s;
+  }
+  .site-nav .nav-links.is-open {
+    /* 保持上面算出来的 max-height，不要重置为 none ——
+       否则内容超出时抽屉会继续长高，把后面的项顶出屏幕且滚不到。 */
+    padding: 8px 0 28px;
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  /* ---- 主项：一行一个，右侧留出展开箭头的位置 ---- */
+  .site-nav .nav-links .nav-item {
+    display: block;
+    width: 100%;
+    border-bottom: 1px solid rgba(226, 232, 240, .7);
+  }
+  .site-nav .nav-links .nav-item:last-child { border-bottom: 0; }
+
+  /* 主项链接：占满整行，最小 48px 点触高度 */
+  .site-nav .nav-links .nav-item > a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 12px 18px !important;
+    font-size: 16px !important;
+    font-weight: 600;
+    color: var(--txt1);
+    border-radius: 0;
+    background: none;
+  }
+  .site-nav .nav-links .nav-item > a:hover,
+  .site-nav .nav-links .nav-item > a:focus-visible {
+    background: rgba(37, 99, 235, .05);
+    color: var(--blue);
+  }
+
+  /* 去掉桌面端的 hover 箭头（手机上没有 hover） */
+  .site-nav .nav-item.has-menu > a::after { content: none !important; }
+
+  /* ---- 二级菜单：默认收起，点箭头才展开 ---- */
+  .site-nav .nav-menu {
+    position: static;
+    display: none;            /* 默认收起 */
+    min-width: 0;
+    margin: 0 0 6px 0;
+    padding: 0 0 6px 0;
+    background: rgba(248, 250, 253, .9);
+    border: 0;
+    border-top: 1px solid rgba(226, 232, 240, .55);
+    border-radius: 0;
+    box-shadow: none;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+  .site-nav .nav-item.is-expanded > .nav-menu { display: block; }
+
+  /* 子项：左侧竖线 + 缩进，层级清楚 */
+  .site-nav .nav-menu li { border: 0; }
+  .site-nav .nav-menu a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 18px 10px 34px !important;
+    font-size: 14.5px !important;
+    font-weight: 400;
+    color: var(--txt2);
+    white-space: normal;
+    border-radius: 0;
+    background: none;
+    position: relative;
+  }
+  .site-nav .nav-menu a::before {
+    content: "";
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background: rgba(148, 163, 184, .8);
+  }
+  .site-nav .nav-menu a:hover,
+  .site-nav .nav-menu a:focus-visible {
+    background: rgba(37, 99, 235, .06);
+    color: var(--blue);
+  }
+  .site-nav .nav-menu a:hover::before { background: var(--blue); }
+}
+
+/* 抽屉打开时锁住 body 滚动，避免背景跟着动 */
+body.nav-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
+/* 平板（600-859）也用抽屉，但保留稍大的行高 */
+@media (min-width: 600px) and (max-width: 859.98px) {
+  .site-nav .nav-links .nav-item > a { font-size: 17px !important; min-height: 52px; }
+  .site-nav .nav-menu a { font-size: 15px !important; min-height: 46px; }
+}
+
+/* 减少动效：抽屉直接显示，不做位移动画 */
+@media (prefers-reduced-motion: reduce) {
+  .site-nav .nav-links { transition: none; }
+}
+
+/* ---------- 手机端二级菜单展开按钮（2026-10-19） ---------- */
+/* 由 menu.js 注入到每个 .nav-item.has-menu 的主链接之后。
+   桌面端不显示（桌面靠 hover 展开），只在抽屉模式下出现。 */
+
+@media (max-width: 859.98px) {
+  .site-nav .nav-item.has-menu {
+    position: relative;
+    display: block;
+  }
+
+  /* 主链接右内边距让出按钮位置 */
+  .site-nav .nav-links .nav-item.has-menu > a {
+    padding-right: 62px !important;
+  }
+
+  .nav-sub-toggle {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 46px;
+    height: 46px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    /* 用 CSS 画箭头，不依赖字体图标 */
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* 箭头本体 */
+  .nav-sub-toggle::before {
+    content: "";
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid var(--txt3);
+    border-bottom: 2px solid var(--txt3);
+    transform: rotate(45deg) translate(-1px, -1px);
+    transition: transform .24s ease, border-color .24s ease;
+  }
+  .nav-sub-toggle:hover::before { border-color: var(--blue); }
+  .nav-sub-toggle:focus-visible {
+    outline: 2px solid var(--blue);
+    outline-offset: -3px;
+  }
+  /* 展开后箭头朝上 */
+  .nav-sub-toggle[aria-expanded="true"]::before {
+    transform: rotate(-135deg) translate(-2px, -2px);
+    border-color: var(--blue);
+  }
+  .nav-item.is-expanded > .nav-sub-toggle { background: rgba(37, 99, 235, .07); }
+
+  /* 展开项的主链接也高亮一点，和子菜单连成一组 */
+  .nav-item.is-expanded > a { color: var(--blue); }
+}
+
+/* 桌面端：按钮不显示（桌面用 hover 展开子菜单） */
+@media (min-width: 860px) {
+  .nav-sub-toggle { display: none; }
+}
+
+/* ---------- 抽屉滚动修复（2026-10-19 v3） ---------- */
+/* 现象：抽屉里只显示到「全部 23 个模块」，后面的主项（我的经历 / 技能 / FDE /
+   AI Agent 等）看不到，也滚不动。
+
+   根因：.site-nav .nav-links 是 display:flex + flex-direction:column。
+   flex 容器默认会让子项收缩（flex-shrink:1），当 max-height 限制住容器高度时，
+   子项被压扁而不是让容器溢出 —— 于是 scrollHeight 永远等于 clientHeight，
+   overflow-y:auto 没有任何可滚内容。截图里「下载 PDF 简历」按钮被切一半，
+   正是子项被压扁的表现。
+
+   修法：给直接子项加 flex-shrink:0，让它们保持自然高度，
+   超出部分才交给 overflow-y:auto 去滚。 */
+
+@media (max-width: 859.98px) {
+  .site-nav .nav-links > * {
+    flex: 0 0 auto;
+  }
+  .site-nav .nav-links .nav-item,
+  .site-nav .nav-links .nav-cta-row,
+  .site-nav .nav-links > a {
+    flex: 0 0 auto;
+  }
+  /* 子菜单展开后也保持自然高度 */
+  .site-nav .nav-links .nav-menu,
+  .site-nav .nav-links .nav-menu li,
+  .site-nav .nav-links .nav-menu a {
+    flex: 0 0 auto;
+  }
+  /* 给底部留出安全区（iPhone 的 home indicator） */
+  .site-nav .nav-links {
+    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ---------- 抽屉布局修复（2026-10-19 v4） ---------- */
+/* 实测发现：5 个 .nav-item 的 getBoundingClientRect().top 出现重复值
+   （71 / 224 / 71 / 224 / 377），说明子项在 flex 列布局里互相重叠，
+   而不是依次往下排。于是「我的经历」「技能」「开源」被压在「关于」下面，
+   看起来像是被裁掉了 —— 这才是用户反馈「导航条无法滑动」的真正表现。
+
+   根因：.nav-links 是 flex 列容器，同时 .nav-item 又被设了 position:relative，
+   而 .nav-menu 用了 position:static + 展开时 display:block。
+   在 flex 布局里，绝对定位的展开按钮 + static 的子菜单组合会让
+   高度计算错乱（子项算出的高度没被父级采纳）。
+
+   修法：抽屉内不用 flex 布局，改用普通块级流（block）。
+   块级流天然按顺序堆叠、高度自动累加，不会重叠；
+   需要滚动时只要 overflow-y:auto + max-height 即可，这正是我们要的。 */
+
+@media (max-width: 859.98px) {
+  .site-nav .nav-links {
+    display: block;              /* 不用 flex，避免高度塌陷/重叠 */
+    flex-direction: initial;
+  }
+  .site-nav .nav-links .nav-item,
+  .site-nav .nav-links > a {
+    display: block;
+    width: 100%;
+    position: relative;          /* 供展开按钮定位 */
+  }
+  /* 块级流里子菜单正常参与布局 */
+  .site-nav .nav-menu {
+    position: static;
+    display: none;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .site-nav .nav-item.is-expanded > .nav-menu {
+    display: block;
+  }
+  /* 「联系」「下载简历」这两个直接子链接也按块排 */
+  .site-nav .nav-links > a {
+    border-bottom: 1px solid rgba(226, 232, 240, .7);
+  }
+  .site-nav .nav-links > a.nav-cta {
+    border-bottom: 0;
+    margin: 10px 14px 4px;
+    border-radius: 10px;
+    text-align: center;
+  }
+}
+
+/* ---------- 联系方式行：前缀 + 可点值（2026-10-19） ---------- */
+/* 图七反馈「联系信息缺少链接或可操作性」。
+   改成「键 + 值」两栏：左边是灰色小标签，右边是可点/可复制的值。 */
+.contact-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.contact-row__k {
+  flex: none;
+  min-width: 46px;
+  font-size: 12.5px;
+  color: var(--txt3);
+  letter-spacing: .02em;
+}
+.contact-row a {
+  color: var(--txt2);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color .2s, border-color .2s;
+}
+.contact-row a:hover {
+  color: var(--blue);
+  border-bottom-color: rgba(37, 99, 235, .35);
+}
+
+@media (max-width: 599.98px) {
+  .contact-row { gap: 8px; }
+  .contact-row__k { min-width: 42px; font-size: 12px; }
+}
+
+/* ---------- 首屏「三件事」+ 直达联系方式（2026-10-19） ---------- */
+/* 用户第 3 条：「HR 一般不喜欢点开这些东西去看……我也懒得点开你的内容」。
+   所以首屏要能独立完成初筛：做什么 / 做成过什么 / 怎么联系。
+   这三条用轻量卡片承载，不做成需要点击才能展开的组件。 */
+
+.hero-proof {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  max-width: 640px;
+}
+.hero-proof li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: baseline;
+  padding: 11px 15px;
+  border-radius: 12px;
+  /* 与全站玻璃语言一致，但更轻 —— 首屏不该有一堆重卡片 */
+  background: linear-gradient(154deg,
+    rgba(255, 255, 255, .90) 0%,
+    rgba(249, 251, 255, .78) 60%,
+    rgba(243, 248, 255, .84) 100%);
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 4px 14px rgba(37, 99, 235, .045),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.hero-proof li::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
+  transform: translateY(-1px);
+}
+.hero-proof b {
+  display: block;
+  font-size: 15px;
+  color: var(--txt1);
+  font-weight: 700;
+  line-height: 1.45;
+  letter-spacing: -.005em;
+}
+.hero-proof span {
+  display: block;
+  font-size: 13px;
+  color: var(--txt3);
+  line-height: 1.55;
+  margin-top: 2px;
+}
+
+/* 首屏直达联系方式 */
+.hero-contact {
+  margin: 16px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--txt3);
+}
+.hero-contact a {
+  color: var(--txt2);
+  text-decoration: none;
+  padding: 4px 9px;
+  border-radius: 7px;
+  border: 1px solid rgba(226, 232, 240, .9);
+  background: rgba(255, 255, 255, .72);
+  transition: color .2s, border-color .2s, background .2s;
+  font-variant-numeric: tabular-nums;
+}
+.hero-contact a:hover {
+  color: var(--blue);
+  border-color: rgba(37, 99, 235, .35);
+  background: rgba(255, 255, 255, .95);
+}
+.hero-contact > span { color: var(--line2); }
+
+@media (max-width: 599.98px) {
+  .hero-proof { gap: 8px; margin-top: 16px; }
+  .hero-proof li { padding: 10px 13px; gap: 10px; border-radius: 10px; }
+  .hero-proof b { font-size: 14px; }
+  .hero-proof span { font-size: 12.4px; }
+  .hero-contact { font-size: 12.8px; gap: 6px; margin-top: 13px; }
+  .hero-contact a { padding: 4px 8px; }
+}
+
+/* 减少动效 / 打印：不需要过渡 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-contact a { transition: none; }
+}
+@media print {
+  .hero-proof li { box-shadow: none; border: 1px solid #d8dee9; }
+  .hero-contact a { border: 1px solid #d8dee9; background: none; }
+}

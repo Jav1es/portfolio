@@ -88,7 +88,7 @@
 <!-- ==================== 导航栏（全站统一） ==================== -->
 <header class="site-nav">
   <div class="wrap nav-inner">
-    <a class="nav-brand" href="./index.html">黄家辉<span class="dot">.</span></a>
+    <a class="nav-brand" href="./index.html">黄家辉</a>
 
     <button class="nav-toggle" type="button" data-nav-toggle
             aria-expanded="false" aria-controls="nav-links" aria-label="展开或收起导航菜单">
@@ -158,21 +158,45 @@
            用外层 div 包住原有文案，不改动任何一个原有元素的类名与内容。 -->
       <div class="hero-grid">
       <div class="hero-copy">
-      <p class="hero-note">开放合作 · 可远程 · 可现场演示</p>
+      <p class="hero-note">广州 · 企业级 AI Agent 开发 / FDE</p>
 
       <h1 class="hero-title">
         <span class="hero-name">Jav1es<span class="dot">·</span>黄家辉</span>
         <span class="hero-role">企业级 AI Agent 开发工程师 / FDE 前线部署工程师</span>
       </h1>
 
-      <p class="lede" id="intro">6 年+ 企业科技服务，主导 300+ 项目、服务 100+ 企业（项目申报口径）。AI 工程实践 27 个月：把 AI Agent 从 Demo 推到能评测、能观测、能落地。</p>
+      <p class="lede" id="intro">我做企业级 AI Agent：把「客户一句话的需求」变成能跑、能验收、能观测的系统。
+        下面三件事是我最近做成的，点进去能看到代码和报告。</p>
 
-      <!-- 核心指标：brief P2-1 —— 原先 6 张卡片在桌面独占约 1/3 屏、视觉权重压过
-           核心项目，改为**一行轻量文字**。口径与 resume-data.js 的 metrics 同源，
-           改这里必须同步改那边（反之亦然）。
-           「3 个含 CI 门禁」是现行措辞（2026-10-16 实测：9 个仓库里仅 3 个接入 GitHub Actions）。禁止写「CI 全绿」；「CI 运行中」也已停用 —— portfolio 只有 Pages 部署，另 5 个仓库没有 workflow。 -->
-      <p class="hero-nums" aria-label="核心指标">
-        RAG 检索 <b>93.3%</b> @3（30 题分层评测，报告可点开）· <b>9</b> 个 MIT 开源仓库（3 个含 CI 门禁）· <b>35</b> pytest 用例通过
+      <!-- 首屏三件事（2026-10-19 重写）：
+           原来是一行压缩的指标文字（93.3% / 9 仓库 / 35 用例），
+           数字是真的，但访客不知道这些数字意味着什么。
+           改成「做了什么 + 结果如何」的三条，每条对应一个真实作品，
+           并且都能在首屏读完 —— 不需要点开任何链接。
+           数字口径：93.3% = 30 题分层评测；52/52 = 外贸询盘数字员工验收；
+           3 个含 CI = 9 个仓库里仅 3 个接入 GitHub Actions（禁止写「CI 全绿」）。 -->
+      <ul class="hero-proof" aria-label="三个代表成果">
+        <li>
+          <b>30 题评测，检索准确率 93.3%</b>
+          <span>给企业 Agent 配的知识库，逐题跑过、失败原因也写清楚了</span>
+        </li>
+        <li>
+          <b>52 条验收样本，六轮优化后全部通过</b>
+          <span>外贸询盘数字员工，通过率 88.5% → 100%，每次失败都查到了具体原因</span>
+        </li>
+        <li>
+          <b>9 个 MIT 开源仓库</b>
+          <span>3 个接了 CI 门禁；工具能给别人用，不只是自己跑得起来</span>
+        </li>
+      </ul>
+
+      <!-- 首屏直达联系方式：HR 想联系你时不该让他去页脚找 -->
+      <p class="hero-contact">
+        <a href="mailto:1459393754@qq.com">1459393754@qq.com</a>
+        <span aria-hidden="true">·</span>
+        <a href="tel:13501519949">135 0151 9949</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub @Jav1es ↗</a>
       </p>
 
       <!-- 转型说明条（brief P0-4 / §5.2）：这是全站最重要的新增内容。
@@ -186,7 +210,8 @@
 
       <!-- 三个 CTA（文案对齐 brief §5.4）-->
       <div class="cta-row">
-        <a class="btn btn-primary" href="./resume.html">下载 PDF 简历（两版可选）</a>
+        <a class="btn btn-primary" href="mailto:1459393754@qq.com?subject=%E6%9D%A5%E8%87%AA%E4%BD%9C%E5%93%81%E9%9B%86%E7%9A%84%E8%81%94%E7%B3%BB">邮件联系我</a>
+        <a class="btn btn-ghost" href="./resume.html">下载 PDF 简历</a>
         <a class="btn btn-ghost" href="#works-featured">看 3 个核心项目</a>
         <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub（9 仓库）↗</a>
       </div>
@@ -360,7 +385,7 @@
             <span class="num">04</span>
             <div>
               <b>造工具而非只用工具</b>
-              <span>9 个公开开源仓库，3 个含 CI 门禁</span>
+              <span>9 个公开开源仓库，3 个含 <span class="nowrap">CI 门禁</span></span>
             </div>
           </div>
         </li>
@@ -499,11 +524,12 @@
           </div>
           <p class="lab-desc">
             请求进来后经过意图识别、任务拆解、工具选择、调用、校验、组装六步，
-            每一步都留 trace。这里故意让第 4 步超时——你会看到它按设计 fail-closed，
-            而不是编一个答案出来。
+            每一步都留 trace。想看重试机制就点「看失败分支」——
+            第 4 步会超时，你会看到它按设计 fail-closed，而不是编一个答案出来。
           </p>
           <div class="lab-actions">
             <button type="button" class="lab-btn lab-run">跑一遍</button>
+            <button type="button" class="lab-btn lab-btn-ghost lab-run-fail">看失败分支</button>
           </div>
           <div class="lab-flow"></div>
           <div class="lab-result">准备就绪，点击「跑一遍」开始。</div>
@@ -555,23 +581,33 @@
   <div class="wrap">
     <div class="footer-v2">
       <div class="footer-v2__brand">
-        <span class="footer-v2__name">黄家辉<span class="dot">.</span></span>
+        <span class="footer-v2__name">黄家辉</span>
         <p class="footer-v2__tagline">企业级 AI Agent 开发工程师 / FDE<br>6 年+ 企业科技服务（2021.04 至今）· 9 个公开开源仓库</p>
       </div>
 
       <div class="footer-v2__col">
         <span class="footer-v2__label">联系</span>
         <ul class="footer-v2__list">
-          <li>
+          <li class="contact-row">
+            <span class="contact-row__k">邮箱</span>
             <a href="mailto:1459393754@qq.com">1459393754@qq.com</a>
             <button class="copy-mail" type="button" data-copy-mail
                     data-copy-value="1459393754@qq.com"
                     aria-label="复制邮箱地址 1459393754@qq.com">复制</button>
             <span class="copy-mail__status" role="status" aria-live="polite" data-copy-status></span>
           </li>
-          <li><a href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub @Jav1es ↗</a></li>
-          <li><span>微信 13501519949</span></li>
-          <li><span>广州</span></li>
+          <li class="contact-row">
+            <span class="contact-row__k">GitHub</span>
+            <a href="https://github.com/Jav1es" target="_blank" rel="noopener">@Jav1es ↗</a>
+          </li>
+          <li class="contact-row">
+            <span class="contact-row__k">微信</span>
+            <a href="tel:13501519949">13501519949</a>
+          </li>
+          <li class="contact-row">
+            <span class="contact-row__k">城市</span>
+            <span>广州 · 可远程</span>
+          </li>
         </ul>
       </div>
 
@@ -602,7 +638,7 @@
 
     <div class="footer-v2__base">
       <span>© 2026 黄家辉 · 个人作品集</span>
-      <span>纯 HTML5 + CSS3 + 原生 JS 构建 · 无框架无外部依赖</span>
+      <span>本站为手写 HTML / CSS / JS，未使用前端框架</span>
     </div>
   </div>
 </footer>

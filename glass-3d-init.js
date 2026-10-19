@@ -144,16 +144,22 @@
      ========================================================================== */
 
   // 技术栈节点：x/y/z 是空间位置，label 是显示名，main 标记核心节点
-  // 2026-10-19 调优：外围节点半径从 ~80 拉到 ~105，拉开间距避免标签打架
   // tone 是按类别分的克制冷色，用于区分「模型 / 数据 / 评测 / 部署 / 工具」
+  //
+  // 2026-10-19 第二次调优：图四反馈「分得不够开、字体重叠」。
+  // 根因是节点分布在三维空间里，旋转到某些角度时两个节点的屏幕投影会靠得很近，
+  // 标签就叠在一起。加大半径能缓解，但根治要两条一起做：
+  //   ① 半径再拉大（外圈约 105 → 135），让投影间距有更大余量
+  //   ② 给每个节点一个「标签方向」dir，避免标签一律画在节点正下方
+  //      （正下方最容易和下面那个节点的标签撞）
   var TECH_NODES = [
-    { label: 'Agent 编排', x: 0, y: 0, z: 0, main: true, tone: '#1d4ed8' },
-    { label: '大模型', x: 104, y: -62, z: 34, tone: '#2563eb' },
-    { label: 'RAG / 知识库', x: -108, y: -52, z: 40, tone: '#7c3aed' },
-    { label: '工具链 / MCP', x: 84, y: 70, z: -46, tone: '#0891b2' },
-    { label: '评测与断言', x: -92, y: 74, z: -38, tone: '#059669' },
-    { label: '数据管线', x: 8, y: -112, z: -62, tone: '#7c3aed' },
-    { label: '部署与观测', x: -14, y: 118, z: 54, tone: '#d97706' }
+    { label: 'Agent 编排', x: 0, y: 0, z: 0, main: true, tone: '#1d4ed8', dir: 'down' },
+    { label: '大模型', x: 132, y: -78, z: 44, tone: '#2563eb', dir: 'right' },
+    { label: 'RAG / 知识库', x: -138, y: -66, z: 52, tone: '#7c3aed', dir: 'left' },
+    { label: '工具链 / MCP', x: 108, y: 90, z: -58, tone: '#0891b2', dir: 'right' },
+    { label: '评测与断言', x: -118, y: 94, z: -48, tone: '#059669', dir: 'left' },
+    { label: '数据管线', x: 10, y: -142, z: -78, tone: '#7c3aed', dir: 'up' },
+    { label: '部署与观测', x: -18, y: 150, z: 68, tone: '#d97706', dir: 'down' }
   ];
 
   // 连线：从中心（0）连到每个外围节点
@@ -201,7 +207,10 @@
       var ang = rotY;
       var cx = w / 2, cy = h / 2;
       // 舞台比首屏大，缩放系数单独算
-      var scale = Math.min(w / 620, h / 460) * (sc.scale / 1.5);
+      // 2026-10-19：节点半径从 ~105 拉到 ~135 后，分母同步放大，
+      // 否则节点会被画到画布外（标签跟着出界）。
+      // 620/460 是原来的「参考尺寸」，现在结构更大，改为 780/560。
+      var scale = Math.min(w / 780, h / 560) * (sc.scale / 1.5);
 
       // 投影所有节点
       var pts = [];
@@ -311,28 +320,56 @@
         ctx.globalAlpha = 0.78 + nr * 0.22;
         ctx.font = (nd.main ? '700 ' : '600 ') + (nd.main ? 16 : 14) + 'px ' +
           '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
 
         // 标签底：一层更实的白，保证压在网格和连线上也读得清
         var tw = ctx.measureText(nd.label).width;
-        var ty = q.y + r + 6;
         var lh = nd.main ? 19 : 17;
         var padX = 6, padY = 3;
+
+        // 按 dir 决定标签落在节点的哪一侧（2026-10-19：避免标签一律在正下方而互相重叠）
+        var dir = nd.dir || 'down';
+        var bx, by, tx, ty;   // bx/by = 底框左上角；tx/ty = 文字起点
+        if (dir === 'right') {
+          ctx.textAlign = 'left';
+          bx = q.x + r + 8;
+          by = q.y - lh / 2 - padY;
+          tx = bx + padX;
+          ty = q.y - lh / 2;
+        } else if (dir === 'left') {
+          ctx.textAlign = 'right';
+          bx = q.x - r - 8 - tw - padX * 2;
+          by = q.y - lh / 2 - padY;
+          tx = bx + padX + tw;
+          ty = q.y - lh / 2;
+        } else if (dir === 'up') {
+          ctx.textAlign = 'center';
+          ty = q.y - r - 6 - lh;
+          bx = q.x - tw / 2 - padX;
+          by = ty - padY;
+          tx = q.x;
+        } else {
+          ctx.textAlign = 'center';
+          ty = q.y + r + 6;
+          bx = q.x - tw / 2 - padX;
+          by = ty - padY;
+          tx = q.x;
+        }
+
+        ctx.textBaseline = 'top';
         ctx.globalAlpha = (0.72 + nr * 0.28);
         ctx.fillStyle = 'rgba(255, 255, 255, .92)';
         ctx.beginPath();
         if (ctx.roundRect) {
-          ctx.roundRect(q.x - tw / 2 - padX, ty - padY, tw + padX * 2, lh + padY * 2, 5);
+          ctx.roundRect(bx, by, tw + padX * 2, lh + padY * 2, 5);
         } else {
-          ctx.rect(q.x - tw / 2 - padX, ty - padY, tw + padX * 2, lh + padY * 2);
+          ctx.rect(bx, by, tw + padX * 2, lh + padY * 2);
         }
         ctx.fill();
 
         // 文字：颜色加深（评估指出外围标签偏浅）
         ctx.globalAlpha = 0.88 + nr * 0.12;
         ctx.fillStyle = nd.main ? '#0b1220' : '#1e293b';
-        ctx.fillText(nd.label, q.x, ty);
+        ctx.fillText(nd.label, tx, ty);
       }
       ctx.globalAlpha = 1;
     }
