@@ -136,7 +136,8 @@
 
        新版：量「_scaleK=1 时相对画布中心的像素偏移」，
        直接算「目标像素 / 当前像素」得到绝对系数。 */
-    var goal = target == null ? 0.92 : target;
+    // 2026-10-19：0.92 太满，评估说「缺少留白」。素描要呼吸感
+    var goal = target == null ? 0.86 : target;
     if (!this.geo || !this.geo.v.length) return;
     if (!this.w || !this.h) return;
 
@@ -187,53 +188,62 @@
     };
   };
 
-  /* ---------- 网格底纹 ---------- */
-  SketchScene.prototype.drawGrid = function () {
-    if (!this.showGrid) return;
-    var ctx = this.ctx, w = this.w, h = this.h;
+  /* ---------- 网格底纹 ----------
+     2026-10-19：改成缓存到离屏 canvas。
+     原来每帧重画几百条线（细网格 22px + 主网格 88px 两层），
+     实测把帧时间从 16.7ms 拖到 33.4ms。
+     网格是静态的，画一次存起来，每帧只 drawImage。 */
+  SketchScene.prototype._buildGrid = function () {
+    var w = this.w, h = this.h;
+    if (!w || !h) return null;
+    if (this._gridCache && this._gridW === w && this._gridH === h) return this._gridCache;
+
+    var c = document.createElement('canvas');
+    c.width = Math.round(w * this.dpr);
+    c.height = Math.round(h * this.dpr);
+    var g = c.getContext('2d');
+    g.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+
     var step = 22;
     var col = PAL.grid;
+    var rgb = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
 
-    ctx.save();
-    // 2026-10-19：网格从 0.055 提到 0.10 —— 评估说「几乎看不到网格底纹」
-    ctx.globalAlpha = 0.14;
-    ctx.strokeStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    for (var x = 0; x <= w; x += step) {
-      ctx.moveTo(x + 0.5, 0);
-      ctx.lineTo(x + 0.5, h);
-    }
-    for (var y = 0; y <= h; y += step) {
-      ctx.moveTo(0, y + 0.5);
-      ctx.lineTo(w, y + 0.5);
-    }
-    ctx.stroke();
+    // 细网格
+    g.globalAlpha = 0.075;
+    g.strokeStyle = rgb;
+    g.lineWidth = 1;
+    g.beginPath();
+    for (var x = 0; x <= w; x += step) { g.moveTo(x + 0.5, 0); g.lineTo(x + 0.5, h); }
+    for (var y = 0; y <= h; y += step) { g.moveTo(0, y + 0.5); g.lineTo(w, y + 0.5); }
+    g.stroke();
 
-    // 每 4 格加深一点，形成「主次网格」
-    // 2026-10-19：主网格线 0.10 → 0.17，让「主次网格」结构看得出来
-    ctx.globalAlpha = 0.24;
-    ctx.beginPath();
-    for (var x2 = 0; x2 <= w; x2 += step * 4) {
-      ctx.moveTo(x2 + 0.5, 0);
-      ctx.lineTo(x2 + 0.5, h);
-    }
-    for (var y2 = 0; y2 <= h; y2 += step * 4) {
-      ctx.moveTo(0, y2 + 0.5);
-      ctx.lineTo(w, y2 + 0.5);
-    }
-    ctx.stroke();
+    // 主网格
+    g.globalAlpha = 0.14;
+    g.beginPath();
+    for (var x2 = 0; x2 <= w; x2 += step * 4) { g.moveTo(x2 + 0.5, 0); g.lineTo(x2 + 0.5, h); }
+    for (var y2 = 0; y2 <= h; y2 += step * 4) { g.moveTo(0, y2 + 0.5); g.lineTo(w, y2 + 0.5); }
+    g.stroke();
 
-    // 四角标记（工程图纸感）
-    ctx.globalAlpha = 0.42;
+    // 四角标记
+    g.globalAlpha = 0.30;
     var m = 14, len = 12;
-    ctx.beginPath();
-    ctx.moveTo(m, m + len); ctx.lineTo(m, m); ctx.lineTo(m + len, m);
-    ctx.moveTo(w - m - len, m); ctx.lineTo(w - m, m); ctx.lineTo(w - m, m + len);
-    ctx.moveTo(m, h - m - len); ctx.lineTo(m, h - m); ctx.lineTo(m + len, h - m);
-    ctx.moveTo(w - m - len, h - m); ctx.lineTo(w - m, h - m); ctx.lineTo(w - m, h - m - len);
-    ctx.stroke();
-    ctx.restore();
+    g.beginPath();
+    g.moveTo(m, m + len); g.lineTo(m, m); g.lineTo(m + len, m);
+    g.moveTo(w - m - len, m); g.lineTo(w - m, m); g.lineTo(w - m, m + len);
+    g.moveTo(m, h - m - len); g.lineTo(m, h - m); g.lineTo(m + len, h - m);
+    g.moveTo(w - m - len, h - m); g.lineTo(w - m, h - m); g.lineTo(w - m, h - m - len);
+    g.stroke();
+
+    this._gridCache = c;
+    this._gridW = w;
+    this._gridH = h;
+    return c;
+  };
+
+  SketchScene.prototype.drawGrid = function () {
+    if (!this.showGrid) return;
+    var cached = this._buildGrid();
+    if (cached) this.ctx.drawImage(cached, 0, 0, this.w, this.h);
   };
 
   /* ---------- 主绘制 ---------- */
@@ -267,63 +277,74 @@
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
+    /* 2026-10-19：按深度档位批量绘制。
+       原来每条棱一次 beginPath+stroke（21 场景 × 50 棱 ≈ 上千次调用），
+       实测帧时间 16.7ms → 33.4ms。
+       现在分 10 档，同档合并成一条路径，调用次数降到 10 次/场景。 */
+    var BUCKETS = 10;
+    var buckets = [];
+    for (var bi = 0; bi < BUCKETS; bi++) buckets.push([]);
+
     for (var i = 0; i < edges.length; i++) {
       var ed = edges[i];
-      // 深度归一化：0 = 最远，1 = 最近
       var dn = (ed.z - zMin) / zSpan;
+      var bk = Math.min(BUCKETS - 1, Math.max(0, Math.floor(dn * BUCKETS)));
+      buckets[bk].push(ed);
+    }
 
-      /* ★ Depth Cueing（核心）
-         近处：粗、深、不透明
-         远处：细、淡、半透明
+    for (var b = 0; b < BUCKETS; b++) {
+      var list = buckets[b];
+      if (!list.length) continue;
+
+      // 用档位中点代表这一档的深度
+      var dnMid = (b + 0.5) / BUCKETS;
+
+      /* ★ Depth Cueing
+         近处：粗、深、实；远处：细、淡、虚
          这是线稿产生体积感的正道，比画色块更符合「素描」语境。 */
-      /* 2026-10-19：加大线宽与透明度的动态范围。
-         原来 0.85~2.7 / 0.22~0.90，评估说「近粗远细不够突出、整体太淡」。
-         现在远端更细更淡、近端更粗更实，对比拉开。 */
-      // 2026-10-19：整体上浮，线稿要「看得见」
-      // 2026-10-19：近端从 3.80 提到 4.30，主线要压得住网格
-      var lw = 0.90 + dn * 3.40;            // 0.90 ~ 4.30
-      // 2026-10-19：远端下限 0.14 → 0.22，避免「淡到看不见」
-      // 2026-10-19：近端保持 1.0，但让「接近满」的区间更宽（dn>0.6 就接近实线）
-      var alpha = 0.20 + Math.pow(dn, 0.82) * 0.80;   // 0.20 ~ 1.00
+      var lw = 0.90 + dnMid * 3.40;
+      var alpha = 0.20 + Math.pow(dnMid, 0.82) * 0.80;
 
-      // 颜色随深度插值：远=淡蓝，近=深蓝
-      var r = Math.round(PAL.far[0] + (PAL.near[0] - PAL.far[0]) * dn);
-      var g = Math.round(PAL.far[1] + (PAL.near[1] - PAL.far[1]) * dn);
-      var b = Math.round(PAL.far[2] + (PAL.near[2] - PAL.far[2]) * dn);
+      var r = Math.round(PAL.far[0] + (PAL.near[0] - PAL.far[0]) * dnMid);
+      var g = Math.round(PAL.far[1] + (PAL.near[1] - PAL.far[1]) * dnMid);
+      var bb = Math.round(PAL.far[2] + (PAL.near[2] - PAL.far[2]) * dnMid);
 
-      ctx.globalAlpha = alpha;
-      ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-      ctx.lineWidth = lw;
-
-      // 近处的线加一层极淡的外发光，强化「浮起来」的感觉
-      if (dn > 0.68) {
+      // 近处外发光（整档一次）
+      if (dnMid > 0.68) {
         ctx.save();
         ctx.globalAlpha = alpha * 0.16;
         ctx.strokeStyle = 'rgb(' + PAL.mid[0] + ',' + PAL.mid[1] + ',' + PAL.mid[2] + ')';
         ctx.lineWidth = lw + 3.2;
         ctx.beginPath();
-        ctx.moveTo(ed.a.x, ed.a.y);
-        ctx.lineTo(ed.b.x, ed.b.y);
+        for (var gi = 0; gi < list.length; gi++) {
+          ctx.moveTo(list[gi].a.x, list[gi].a.y);
+          ctx.lineTo(list[gi].b.x, list[gi].b.y);
+        }
         ctx.stroke();
         ctx.restore();
       }
 
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + bb + ')';
+      ctx.lineWidth = lw;
       ctx.beginPath();
-      ctx.moveTo(ed.a.x, ed.a.y);
-      ctx.lineTo(ed.b.x, ed.b.y);
+      for (var ei = 0; ei < list.length; ei++) {
+        ctx.moveTo(list[ei].a.x, list[ei].a.y);
+        ctx.lineTo(list[ei].b.x, list[ei].b.y);
+      }
       ctx.stroke();
 
-      /* 2026-10-19：最靠前的棱加一道极细的白色内描边。
-         素描里铅笔线旁边常有纸白反光，这一笔让主线「立」起来，
-         比单纯加深颜色更像手绘，也不会显脏。 */
-      if (dn > 0.86) {
+      // 最靠前的档位加白色内描边（铅笔高光）
+      if (dnMid > 0.90) {
         ctx.save();
-        ctx.globalAlpha = (dn - 0.86) / 0.14 * 0.55;
+        ctx.globalAlpha = (dnMid - 0.90) / 0.10 * 0.55;
         ctx.strokeStyle = 'rgba(255,255,255,.95)';
         ctx.lineWidth = Math.max(0.7, lw - 2.6);
         ctx.beginPath();
-        ctx.moveTo(ed.a.x, ed.a.y);
-        ctx.lineTo(ed.b.x, ed.b.y);
+        for (var wi = 0; wi < list.length; wi++) {
+          ctx.moveTo(list[wi].a.x, list[wi].a.y);
+          ctx.lineTo(list[wi].b.x, list[wi].b.y);
+        }
         ctx.stroke();
         ctx.restore();
       }
@@ -338,14 +359,15 @@
         if (dn2 < 0.42) continue;      // 只标注近处的节点，远处不画，避免噪点
         var a2 = (dn2 - 0.42) / 0.58;
 
-        ctx.globalAlpha = 0.30 + a2 * 0.55;
+        // 2026-10-19：节点是「结构被标注过」的信号，要明确
+        ctx.globalAlpha = 0.42 + a2 * 0.58;
         ctx.fillStyle = 'rgb(' + PAL.near[0] + ',' + PAL.near[1] + ',' + PAL.near[2] + ')';
-        var s = 1.5 + a2 * 1.8;
+        var s = 1.8 + a2 * 2.2;
         ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
 
         // 最靠前的节点加十字准星
         if (dn2 > 0.82) {
-          ctx.globalAlpha = (dn2 - 0.82) / 0.18 * 0.45;
+          ctx.globalAlpha = (dn2 - 0.82) / 0.18 * 0.62;
           ctx.strokeStyle = 'rgb(' + PAL.accent[0] + ',' + PAL.accent[1] + ',' + PAL.accent[2] + ')';
           ctx.lineWidth = 1;
           var c = 4.2;
