@@ -1259,8 +1259,8 @@
         "FDE"
       ],
       "links": [
-        "Discovery Brief|./10-retro-reports/",
-        "验收回归报告|./10-retro-reports/"
+        "交付物仓库（D1–D13）|https://github.com/Jav1es/digital-employee-delivery",
+        "验收回归报告（D12）|https://github.com/Jav1es/digital-employee-delivery/blob/main/deliverables/D12_测试询盘样本集与验收回归报告.md"
       ],
       "shot": "",
       "metric": "52 条验收样本全量通过（52/52）；意图识别 96.2%（Wilson 95% 下界 87.0%）；报价金额 6/6 全部容差内；A6 三项行为正确率均 100%；人工介入降幅 50.0%",
