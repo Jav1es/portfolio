@@ -31,6 +31,14 @@
       case 'sphere': return GLASS3D.sphere(62, 5);
       case 'lattice': return GLASS3D.lattice(2, 46, 26);
       case 'cluster': return GLASS3D.cluster(58);
+      // 技术栈特征几何体（2026-10-19）：每个作品按实际技术栈选形状
+      case 'pipeline': return GLASS3D.pipeline(58, 4);   // 流水线：4 段
+      case 'graph': return GLASS3D.graph(56);            // 图/网络：中心 + 两圈
+      case 'layers': return GLASS3D.layers(52, 4);       // 分层：4 层
+      case 'ring': return GLASS3D.ring(56, 14);          // 环：14 段
+      case 'tree': return GLASS3D.tree(56);              // 树：1 根 + 3×3
+      case 'mesh': return GLASS3D.mesh(48, 4);           // 网格：4×4 点阵
+      case 'helix': return GLASS3D.helix(56, 2);         // 螺旋：2 圈
       case 'cube': default: return GLASS3D.cube(96);
     }
   }
@@ -96,6 +104,11 @@
     if (!nodes.length) return;
     Array.prototype.forEach.call(nodes, function (el) {
       if (el.__glass3d) return;          // 幂等：重复调用不重复创建
+      // 技术栈画布由 initInteractive 专门接管（需要拖拽/键盘/语义节点），
+      // 这里跳过，避免同一个 canvas 被创建两个 Scene —— 2026-10-19 实测
+      // 曾出现 tech3d-canvas 在 scenes 里出现两次（一个自动轮播、一个交互），
+      // 白白多跑一个 rAF 循环。
+      if (el.id === 'tech3d-canvas') { el.__glass3d = true; return; }
       el.__glass3d = initOne(el) || true;
     });
   }
@@ -174,23 +187,16 @@
       showDots: false
     });
 
-    // 完整重写 draw：画节点 + 连线 + 标签
-    sc.draw = function (t) {
+    // ---- 渲染：纯绘制，不推进角度 ----
+    // 关键设计（2026-10-19 修）：把「推进角度」和「绘制」拆开。
+    // 原实现把惯性/自转写进 draw 里，导致只有每帧循环时角度才会变；
+    // 一旦因 prefers-reduced-motion 不启动 rAF，拖拽改了 rotX/rotY 也不重绘，
+    // 表现为「鼠标拖了、方向键按了，画面纹丝不动」。
+    // 拆开后：draw 只负责把当前 rotX/rotY 画出来，谁改角度谁调 requestRender()。
+    function renderFrame() {
       var ctx = sc.ctx, w = sc.w, h = sc.h;
       if (!w || !h) return;
       ctx.clearRect(0, 0, w, h);
-
-      // 惯性衰减
-      if (!dragging) {
-        rotY += velY;
-        rotX += velX;
-        velY *= 0.93;
-        velX *= 0.93;
-        if (Math.abs(velY) < 0.0005) velY = 0;
-        if (Math.abs(velX) < 0.0005) velX = 0;
-        // 停止操作 2.5 秒后恢复极慢自转
-        if (autoRotate) rotY += 0.0016;
-      }
 
       var ang = rotY;
       var cx = w / 2, cy = h / 2;
@@ -329,7 +335,53 @@
         ctx.fillText(nd.label, q.x, ty);
       }
       ctx.globalAlpha = 1;
-    };
+    }
+
+    // ---- 调度：把「要重绘」和「真的重绘」分开 ----
+    // 两种模式：
+    //  · 正常动效：常驻 rAF 循环，每帧推进惯性/自转 + 绘制
+    //  · 减少动效：不跑循环，只在用户操作后按需重绘一次（按需渲染）
+    // 这样减少动效下自动旋转是停的（尊重系统设置），但拖拽/键盘一定响应。
+    var rafId = 0;
+    var lastT = 0;
+
+    function tick(now) {
+      rafId = 0;
+      var dt = lastT ? Math.min(now - lastT, 64) : 16;
+      lastT = now;
+
+      // 推进角度：惯性衰减 + 自转
+      if (!dragging) {
+        rotY += velY * (dt / 16);
+        rotX += velX * (dt / 16);
+        velY *= 0.93;
+        velX *= 0.93;
+        if (Math.abs(velY) < 0.0005) velY = 0;
+        if (Math.abs(velX) < 0.0005) velX = 0;
+        if (autoRotate) rotY += 0.0016 * (dt / 16);
+      }
+
+      renderFrame();
+
+      // 正常模式：继续循环；减少动效：只画这一帧就停
+      if (!reduceMotion) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        lastT = 0;
+      }
+    }
+
+    // 请求重绘：减少动效时用这个按需渲染，不会启动常驻循环
+    function requestRender() {
+      if (rafId) return;
+      rafId = requestAnimationFrame(tick);
+    }
+
+    // 给外部（拖拽/键盘/悬停）用的入口
+    sc.requestRender = requestRender;
+    sc.renderFrame = renderFrame;
+    // 保持 sc.draw 兼容旧调用（例如 resize 后重绘）
+    sc.draw = function () { renderFrame(); };
 
     scenes.push(sc);
 
@@ -340,6 +392,8 @@
       var pt = e.touches ? e.touches[0] : e;
       lastX = pt.clientX; lastY = pt.clientY;
       velX = velY = 0;
+      // 拖拽期间在减少动效模式下也要连续重绘（手指在动，必须跟手）
+      if (reduceMotion) requestRender();
     }
     function move(e) {
       if (!dragging) return;
@@ -352,6 +406,9 @@
       // 记录速度用于松手后的惯性
       velY = dx * 0.006 * 0.35;
       velX = dy * 0.004 * 0.35;
+      // 关键：改完角度立刻请求重绘 —— 原实现只在 rAF 循环里重绘，
+      // 减少动效下没有循环，所以拖了没反应。
+      requestRender();
       if (e.cancelable && e.touches) e.preventDefault();
     }
     function up() {
@@ -361,6 +418,7 @@
       autoRotate = false;
       clearTimeout(autoRotateTimer);
       autoRotateTimer = setTimeout(function () { autoRotate = true; }, 2500);
+      requestRender();
     }
 
     canvas.addEventListener('mousedown', down);
@@ -375,10 +433,13 @@
       var r = canvas.getBoundingClientRect();
       mouseX = e.clientX - r.left;
       mouseY = e.clientY - r.top;
+      // 减少动效模式下没有常驻循环，悬停高亮需要显式重绘
+      requestRender();
     });
     canvas.addEventListener('mouseleave', function () {
       mouseX = -9999; mouseY = -9999;
       hoverIdx = -1;
+      requestRender();
     });
 
     // ---- 键盘（可访问性：不用鼠标也能转） ----
@@ -396,7 +457,11 @@
         case 'Home': rotX = 0; rotY = 0; break;
         default: handled = false;
       }
-      if (handled) e.preventDefault();
+      if (handled) {
+        e.preventDefault();
+        // 关键：减少动效模式下没有 rAF 循环，必须显式请求重绘
+        requestRender();
+      }
     });
 
     // ---- 重置 ----
@@ -404,27 +469,41 @@
       resetBtn.addEventListener('click', function () {
         rotX = 0; rotY = 0; velX = 0; velY = 0;
         canvas.focus();
+        requestRender();
       });
     }
 
     // 尺寸变化重算
     if (global.ResizeObserver) {
-      new ResizeObserver(function () { sc.resize(); }).observe(canvas);
+      new ResizeObserver(function () {
+        sc.resize();
+        requestRender();
+      }).observe(canvas);
     }
 
-    // 懒启动：滚到附近才开 rAF
+    // 启动策略：
+    //  · 正常动效 → 视口内跑常驻 rAF 循环
+    //  · 减少动效 → 不跑循环，只画一帧；用户操作时按需重绘
+    //    （自动旋转停止是尊重系统设置，但交互必须仍然可用）
     if (!reduceMotion && global.IntersectionObserver) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          if (e.isIntersecting) sc.start();
-          else sc.stop();
+          if (e.isIntersecting) {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(tick);
+          } else {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = 0;
+            lastT = 0;
+          }
         });
       }, { rootMargin: '200px 0px' });
       io.observe(canvas);
     } else if (reduceMotion) {
-      sc.draw(0);
+      // 只画静态一帧，不启动循环
+      renderFrame();
     } else {
-      sc.start();
+      rafId = requestAnimationFrame(tick);
     }
   }
 

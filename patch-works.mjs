@@ -207,12 +207,16 @@ const GROUP_OF_NO = {
   '14': 'core',   // AI 评测与可观测性（评测集进 CI + OTel/Jaeger）
   '11': 'core',   // FDE 交付物模板 Discovery Brief × Eval Plan
 
-  // eng AI 工程化（5）：Prompt 工程、工具链、业务落地、数据口径
+  // eng AI 工程化（6）：Prompt 工程、工具链、业务落地、数据口径
   '07': 'eng',    // Prompt 工程与评测体系
   '01': 'eng',    // AI 工具体系 0-1 搭建规划包
   '02': 'eng',    // 企业智能问答与申报文档 AIGC
   '03': 'eng',    // 财务 / 行政 / 外贸跟单
   '05': 'eng',    // 业务数据库与数据监测报告（SQL + BI/ChatBI）
+  '23': 'eng',    // 外贸询盘数字员工（FDE 五段闭环端到端交付）
+                  // 2026-10-19：它 cat=flow 会按 CAT_TO_GROUP 自动落到 core，
+                  // 让 core 变 6 个（上限 5）。按语义它是「工程化落地交付」，
+                  // 归 eng 更准；改后 core=5 / eng=6，两者都在区间内。
 
   // oss 开源工具（5）：能造工具、能被别人用
   '12': 'oss',    // dsh-bridge（开源）

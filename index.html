@@ -449,7 +449,10 @@
   <section class="section" id="tech3d">
     <div class="wrap">
       <div class="section-head">
-        <span class="sec-tag">03 · 技术栈</span>
+        <!-- 用 .kicker 而不是 .sec-tag + 序号：首页其它区块（个人优势 / 能力主线 /
+             精选作品）都是纯文字小标签，没有编号。之前这里写了「03 · 技术栈」，
+             但 01/02 并不存在 —— 序号是凭空造的（2026-10-19 用户指出）。 -->
+        <p class="kicker">技术栈关系</p>
         <h2>把技术栈连成一张网</h2>
         <p>不是罗列名词，而是看它们怎么咬合：Agent 编排在中心，数据与评测在两侧，工具链在底层。
            拖拽可以转动这个结构，看清每个节点之间的关系。</p>
@@ -470,6 +473,77 @@
             重置视角
           </button>
           <p class="tech3d-hint">拖拽旋转 · 方向键微调</p>
+        </div>
+      </div>
+
+      <!-- 作品运行逻辑演示：三个可交互小演示，各对应一个真实作品的实际机制。
+           数据取自作品里已公开的真实数字（93.3% = 28/30、六轮 88.5%→100%），
+           不是编造的游戏化包装。 -->
+      <div class="lab" id="work-lab">
+        <div class="lab-tabs" role="tablist" aria-label="作品运行逻辑演示">
+          <button type="button" class="lab-tab" role="tab" data-lab="agent" aria-selected="true">
+            Agent 工具调用
+          </button>
+          <button type="button" class="lab-tab" role="tab" data-lab="rag" aria-selected="false">
+            RAG 检索评测
+          </button>
+          <button type="button" class="lab-tab" role="tab" data-lab="regression" aria-selected="false">
+            验收回归
+          </button>
+        </div>
+
+        <div class="lab-panel" role="tabpanel" data-lab="agent">
+          <div class="lab-head">
+            <h3>一次工具调用怎么走完全程</h3>
+            <span class="lab-src">对应作品 04 · 企业系统接入 Agent</span>
+          </div>
+          <p class="lab-desc">
+            请求进来后经过意图识别、任务拆解、工具选择、调用、校验、组装六步，
+            每一步都留 trace。这里故意让第 4 步超时——你会看到它按设计 fail-closed，
+            而不是编一个答案出来。
+          </p>
+          <div class="lab-actions">
+            <button type="button" class="lab-btn lab-run">跑一遍</button>
+          </div>
+          <div class="lab-flow"></div>
+          <div class="lab-result">准备就绪，点击「跑一遍」开始。</div>
+        </div>
+
+        <div class="lab-panel" role="tabpanel" data-lab="rag" hidden>
+          <div class="lab-head">
+            <h3>30 道题是怎么跑出 93.3% 的</h3>
+            <span class="lab-src">对应作品 13 · 30 题分层评测</span>
+          </div>
+          <p class="lab-desc">
+            先走一遍检索流程（切分 → 向量召回 → 重排 → 命中判定），再逐题跑 30 道。
+            结果会是 28 通过、2 失败——失败的两类是「跨文档推理」和「时效性问题」，
+            所以准确率是 93.3% 而不是 100%。
+          </p>
+          <div class="lab-actions">
+            <button type="button" class="lab-btn lab-run">跑一遍</button>
+          </div>
+          <div class="lab-flow"></div>
+          <div class="lab-grid" aria-label="30 道题的通过情况"></div>
+          <p class="lab-tip">把鼠标移到格子上可以看每道题的结果。</p>
+          <div class="lab-result">30 道题逐题跑一遍，统计检索命中率。</div>
+        </div>
+
+        <div class="lab-panel" role="tabpanel" data-lab="regression" hidden>
+          <div class="lab-head">
+            <h3>52 条样本，六轮从 88.5% 打到 100%</h3>
+            <span class="lab-src">对应作品 23 · 外贸询盘数字员工</span>
+          </div>
+          <p class="lab-desc">
+            每格是一条验收样本，红色是失败。跑一轮修复一批，六轮下来全绿。
+            重点不是最后那个 100%，而是每一轮的失败都定位到了机制层根因。
+          </p>
+          <div class="lab-actions">
+            <button type="button" class="lab-btn lab-run">跑一遍</button>
+          </div>
+          <div class="lab-grid" aria-label="52 条验收样本的通过情况"></div>
+          <p class="lab-tip">把鼠标移到方块上可以看是哪一条样本。</p>
+          <div class="lab-flow"></div>
+          <div class="lab-result">52 条验收样本，跑六轮回归。</div>
         </div>
       </div>
     </div>
@@ -539,6 +613,7 @@
 <script src="./effects.js"></script>
   <script src="./glass-3d.js"></script>
   <script src="./glass-3d-init.js"></script>
+<script src="./lab.js"></script>
 <script src="./agent-graph.js" defer></script>
 <script src="./menu.js" defer></script>
 <script>

@@ -63,7 +63,7 @@
       "star": true,
       "status": "方案规划",
       "jd": "AI 项目经理",
-      "pitch": "企业AI用得乱、没规划。我按一份高分子新材料行业的真实招聘 JD 做规划演练时，先盘场景、用价值×难度排优先级、算ROI给老板看——这套方法是历年项目可研与立项里练出来的，不是 PPT。",
+      "pitch": "企业AI用得乱、没规划。我做企业 AI 规划演练时，先盘场景、用价值×难度排优先级、算 ROI 给老板看——这套方法是历年项目可研与立项里练出来的，不是 PPT。",
       "highlights": [
         {
           "num": "8",
@@ -111,7 +111,7 @@
       "star": false,
       "status": "自建 Demo",
       "jd": "AI 项目经理 / FDE",
-      "pitch": "政策问答、材料预审、文档编写重复又易错。我用Coze+多维表搭出AI先做、人只审的双层流，demo已跑通方法，效率翻倍、可迁到任意业务。",
+      "pitch": "政策问答、材料预审、文档编写重复又易错。我用Coze+多维表搭出AI先做、人只审的双层流，demo 已跑通方法，生成效率提升 50% 以上（测算口径），可迁到任意业务。",
       "highlights": [
         {
           "num": "≥50%",
@@ -165,11 +165,11 @@
       "star": true,
       "status": "已交付",
       "jd": "FDE / AI 项目经理",
-      "pitch": "高企和加计扣除卡在研发费用与财务口径。我做过研发费用归集、技术鉴定、单年24家（含复审）高企通过，能把财务和技术口径拉齐、合规自查到点。",
+      "pitch": "财务、行政、外贸跟单的审核流程重复又易错。我把 RPA 与 AI 拼成一条审核流：RPA 负责取数与搬运，AI 负责单据识别与规则判断，人工只处理异常单。",
       "highlights": [
         {
-          "num": "24家",
-          "label": "单年高企认定通过（含复审）"
+          "num": "RPA+AI",
+          "label": "审核流双层分工"
         },
         {
           "num": "70%",
@@ -276,19 +276,19 @@
       "star": true,
       "status": "已交付",
       "jd": "AI 项目经理（数据）/ FDE",
-      "pitch": "项目数据散在Excel、决策没数。我自建业务库、用SQL固化报表、定期出《项目监测报告》，帮团队砍掉40%以上重复活。",
+      "pitch": "项目数据散在 Excel、决策没数。我沉淀了一套指标体系 + BI 看板模板 + ChatBI 配置 + ETL 示例链路的方法论件，把「取数」从临时问人变成按口径自助查。",
       "highlights": [
         {
-          "num": "约40%",
-          "label": "减少团队重复工作"
+          "num": "1 套",
+          "label": "指标体系与看板模板"
         },
         {
-          "num": "1套",
-          "label": "自建业务数据库"
+          "num": "1 套",
+          "label": "ETL 示例链路（含演示脚本）"
         },
         {
-          "num": "SQL",
-          "label": "报表固化/存储过程"
+          "num": "ChatBI",
+          "label": "自然语言取数配置"
         }
       ],
       "tags": [
@@ -325,12 +325,12 @@
     },
     {
       "no": "06",
-      "t": "办公流程自动化（Open Claw + Python 脚本）",
+      "t": "办公流程自动化（影刀 / UiBot RPA + Python 脚本）",
       "cat": "flow",
       "star": false,
       "status": "自建 Demo",
       "jd": "FDE / AI 项目经理",
-      "pitch": "采集、清洗、汇总这些重复活太吃人。我用Open Claw+Python脚本自动跑起来，异常再交人复核，稳且可维护。",
+      "pitch": "采集、清洗、汇总这些重复活太吃人。我用影刀 / UiBot 这类 RPA 工具配 Python 脚本自动跑起来，异常再交人复核，稳且可维护。",
       "highlights": [
         {
           "num": "自动化",
@@ -346,7 +346,8 @@
         }
       ],
       "tags": [
-        "Open Claw",
+        "影刀 RPA",
+        "UiBot",
         "Python",
         "大模型 API",
         "Coze",
@@ -359,13 +360,13 @@
       ],
       "shot": "",
       "metric": "替代人工时长 / 错误率下降为核心度量",
-      "role": "部署调试 Open Claw 自动化工作流框架，并用 Python 编写自动化脚本批量完成文档处理与数据清洗，配合 Coze 编排，把重复流程改为自动执行 + 异常人工复核（影刀/钉钉 RPA 为方法储备）。",
-      "arch": "触发（定时/事件）→ Open Claw / Python 自动化脚本（信息采集 / 文档处理 / 数据清洗 / 汇总）→ 大模型增强 → 结果汇总 → 异常告警 → 人工复核。",
+      "role": "部署调试影刀 / UiBot 自动化流程，并用 Python 编写自动化脚本批量完成文档处理与数据清洗，配合 Coze 编排，把重复流程改为自动执行 + 异常人工复核（影刀/钉钉 RPA 为方法储备）。",
+      "arch": "触发（定时/事件）→ RPA 流程（影刀 / UiBot）+ Python 脚本（信息采集 / 文档处理 / 数据清洗 / 汇总）→ 大模型增强 → 结果汇总 → 异常告警 → 人工复核。",
       "pain": "信息采集、文档处理、数据清洗、报表与对账汇总等跨系统重复操作靠人工，慢且易错。",
       "steps": [
         "盘点高频重复的跨系统操作",
         "设计自动化流程（触发→执行→汇总→告警）",
-        "用 Open Claw 编排 + Python 脚本实现",
+        "用影刀 / UiBot 编排 + Python 脚本实现",
         "加异常处理、失败重试与人工复核兜底",
         "试点 → 统计替代人工时长与错误率 → 推广",
         "输出 SOP 与运维文档"
@@ -515,7 +516,9 @@
         "部署文档|./09-tech-ops/部署文档.docx",
         "监控看板（设计稿）|./09-tech-ops/监控截图.png",
         "压测报告|./09-tech-ops/压测报告.docx",
-        "监控与告警方案|./09-tech-ops/监控与告警方案.docx"
+        "监控与告警方案|./09-tech-ops/监控与告警方案.docx",
+        "docker-compose.yml（真实实现）|https://github.com/Jav1es/enterprise-agents/blob/main/docker-compose.yml",
+        "熔断器实现|https://github.com/Jav1es/enterprise-agents/blob/main/src/enterprise_agent/middleware/circuit_breaker.py"
       ],
       "shot": "",
       "metric": "系统可用性 / 故障恢复时间为核心度量",
@@ -591,8 +594,8 @@
           "label": "签单到申报交付最快记录"
         },
         {
-          "num": "60+",
-          "label": "单年通过项目数"
+          "num": "约 30 家",
+          "label": "单年通过客户数（台账口径）"
         }
       ],
       "tags": [
@@ -633,12 +636,12 @@
       "pitch": "两个 AI 助手各干各的，能力接不起来。我写了一个 MCP Server 把本机 DSH 接进 Marvis：先出派工单、再按建议调技能与工具，零依赖、可复现。",
       "highlights": [
         {
-          "num": "3",
+          "num": "5",
           "label": "MCP 工具（零依赖手写协议）"
         },
         {
-          "num": "241×77",
-          "label": "技能 × MCP 工具本地检索"
+          "num": "本地检索",
+          "label": "技能 × MCP 工具索引"
         },
         {
           "num": "10 秒",
@@ -782,7 +785,7 @@
       ],
       "shot": "",
       "metric": "CI：每次 push 自动跑 30 题评测，断言检索准确率≥60%/引用准确率≥60%/拒答率≤40%，报告作为 artifact 保存",
-      "role": "为 enterprise-agent 补齐生产化双能力：① 将 examples/rag_demo 内置评测集纳入 CI（新增 eval-rag job），每次 push 自动跑 6 条评测并断言阈值、上传指标报告产物；② 基于 OpenTelemetry 实现全链路观测（observability 模块），对 Router/Planner/Retrieve/Tool/Reviewer/Respond 各节点打点，docker-compose 内置 Jaeger，真实运行会话抓取 Jaeger trace 截图与方案文档。",
+      "role": "为 enterprise-agent 补齐生产化双能力：① 将 examples/rag_demo 内置评测集纳入 CI（新增 eval-rag job），每次 push 自动跑 30 题评测并断言阈值、上传指标报告产物；② 基于 OpenTelemetry 实现全链路观测（observability 模块），对 Router/Planner/Retrieve/Tool/Reviewer/Respond 各节点打点，docker-compose 内置 Jaeger，真实运行会话抓取 Jaeger trace 截图与方案文档。",
       "arch": "评测回归：GitHub Actions（push 触发）→ uv 装依赖 → rag_demo.py --eval（无 Key 降级）→ 断言检索准确率≥60%/引用准确率≥60%/拒答率≤40% → upload-artifact 保存报告。可观测性：Agent 会话根 span（agent.workflow.invoke，trace_id 贯穿）→ 各节点 span（agent.node.router/planner/retrieve/tool_call/reviewer/respond，记录 duration_ms）→ OTLP HTTP(4318) → Jaeger all-in-one（UI 16686）按 trace 聚合展示阶段耗时。",
       "pain": "智能体系统迭代缺少自动回归防线，评测依赖人工跑；生产环境一次会话跨多阶段（路由/规划/工具/评审），故障与慢节点无法按请求链路定位。",
       "steps": [
@@ -816,8 +819,8 @@
           "label": "自研 DSH 插件"
         },
         {
-          "num": "100%",
-          "label": "离线可跑 · 零云依赖"
+          "num": "推送 / 预览 / 待办",
+          "label": "三类能力，均开源"
         },
         {
           "num": "MIT",
@@ -922,8 +925,8 @@
           "label": "可复用检索规程"
         },
         {
-          "num": "100%",
-          "label": "零云依赖 · 纯 Markdown"
+          "num": "纯 MD",
+          "label": "零构建 · 零运行时依赖"
         },
         {
           "num": "MIT",
@@ -975,7 +978,7 @@
       "pitch": "Draft 粗糙、Prompt 全靠手写。我把编译能力做成插件：诊断缺什么→交互式澄清→结构化合成，既服务人（澄清+评分+教学），也通过 ctx.promptCompiler 与 prompt_compile 工具服务插件与 Agent，跨 DSH / Claude Code。",
       "highlights": [
         {
-          "num": "v0.2.1",
+          "num": "v0.4.1",
           "label": "npm + GitHub 已发布"
         },
         {
@@ -983,7 +986,7 @@
           "label": "诊断→澄清→合成三阶段"
         },
         {
-          "num": "43",
+          "num": "192",
           "label": "自动化测试 · CI 已接入"
         }
       ],
@@ -1002,8 +1005,8 @@
         "CHANGELOG：v0.2.0 更新内容（逐个 bug 的根因与修法）|https://github.com/Jav1es/dsh-prompt-compiler/blob/main/CHANGELOG.md"
       ],
       "shot": "./18-prompt-compiler/compile-result.png",
-      "metric": "已发布 v0.2.1：npm（dsh-prompt-compiler，带 npm provenance 签名）+ GitHub（CI 已接入，Node 22/24 双版本矩阵）",
-      "role": "我独立设计并实现了一个 DSH 插件 dsh-prompt-compiler：把粗糙 draft 编译成精确完整 prompt 的「可编程编译层」。三阶段（诊断分析 → 交互式澄清 → 结构化合成）既服务人（澄清 + 评分 + 教学），也通过 ctx.promptCompiler 服务与 prompt_compile 工具服务其他插件与 Agent，跨 DSH / Claude Code；已发布 v0.2.1（npm + GitHub，CI 已接入 + npm provenance 签名），并提供插件设置页统一管理模型来源、编译风格、输出格式与诊断开关。",
+      "metric": "已发布 v0.4.1：npm（dsh-prompt-compiler，带 npm provenance 签名）+ GitHub（CI 已接入，Node 22/24 双版本矩阵）",
+      "role": "我独立设计并实现了一个 DSH 插件 dsh-prompt-compiler：把粗糙 draft 编译成精确完整 prompt 的「可编程编译层」。三阶段（诊断分析 → 交互式澄清 → 结构化合成）既服务人（澄清 + 评分 + 教学），也通过 ctx.promptCompiler 服务与 prompt_compile 工具服务其他插件与 Agent，跨 DSH / Claude Code；已发布 v0.4.1（npm + GitHub，CI 已接入 + npm provenance 签名），并提供插件设置页统一管理模型来源、编译风格、输出格式与诊断开关。",
       "arch": "draft → 诊断分析（识别缺失：目标 / 上下文 / 约束 / 验证标准 / 歧义）→ 交互式澄清（ctx.userQuestions.ask 插件内提问，不走 agent loop；用户拒绝时输出「自动推断」）→ 结构化合成（强制含验收标准字段，逐字保留路径 / 命令 / 版本号）→ Compiled Prompt。服务化：ctx.provide('promptCompiler') 注册服务，lib/ 内零 @deepseek-ai 运行时 import。",
       "pain": "用户给的 draft 常缺目标 / 上下文 / 约束 / 验证标准，直接写 Prompt 全凭手感、不可复现；其他插件与 Agent 也缺少一套可复用的编译能力，只能各自手搓。",
       "steps": [
@@ -1013,7 +1016,7 @@
         "D 组 UI 完整链路：composer 工具栏「✨ 编译」按钮（conversation.input.right）→ /api/analyze → /api/elicit 澄清卡 → /api/compile → overlay 预览四段 → 「采用并回填」走 inputActions.setDraft（仅回填不 submit），实调闭环",
         "E 组 LLM 智能接入：analyze / compile 接 ctx.llm.stream（标 source:{kind:'plugin'}），extractJson 增强（剥代码块围栏 / 抓首尾 {…} / 容忍前后缀）；elicit 按设计保留规则实现（更快更可预测）；llm 缺失或异常安全回落规则、不抛错",
         "F 组插件设置页（v0.2.0）：注册官方插槽 settings.section（DSH 设置 → Prompt Compiler），五组配置全部落到宿主本机 ~/.dsh/prompt-compiler/settings.json，client / host 两侧读同一份；外部模型支持 OpenAI 兼容端点与本地 ollama，宿主优先 / 外部优先两种优先级可选",
-        "v0.2.0 排障与发布：定位并修掉 LLM 链路上 7 个真 bug（消息契约用错导致静默降级、思维链泄漏进正文、输出重复两遍、reasoning-only 模型丢正文、LLM markdown 被草稿清洗器摧毁结构、设置浅合并清空同组字段、设置页最后一行被 sticky 操作条遮住）；补 package-lock.json 修复 CI（此前每次 run 都在 setup-node 阶段失败、一次测试都没跑到），新增 release.yml 实现推 tag 自动发布并带 npm provenance 签名"
+        "v0.2.0 排障与发布：定位并修掉 LLM 链路上 8 个真 bug（消息契约用错导致静默降级、思维链泄漏进正文、输出重复两遍、reasoning-only 模型丢正文、LLM markdown 被草稿清洗器摧毁结构、设置浅合并清空同组字段、设置页最后一行被 sticky 操作条遮住）；补 package-lock.json 修复 CI（此前每次 run 都在 setup-node 阶段失败、一次测试都没跑到），新增 release.yml 实现推 tag 自动发布并带 npm provenance 签名"
       ],
       "hard": "难点有三处。一是宿主插件无官方文档可循，注册点（工具、服务、UI slot）签名全靠读源码反推——写错不报错、只是「没反应」。二是服务化初版用 require('@deepseek-ai/cordis') 拿 Service 基类 extends，在 link 包下与宿主 asar 形成 cordis 双实例，导致服务注册失效；最终改为纯工厂函数 + 宿主 ctx.provide 注册，也验证了红线「lib/ 内零 @deepseek-ai 运行时 import」的必要性。三是 LLM 返回常带 ```json 围栏或前后缀，extractJson 需要先剥围栏再抓首尾 JSON；另外 exports.inject 漏 'llm' 会让 ctx.llm 为 undefined 并静默降级，补 inject:['tools','systemPrompt','llm'] 后打通。v0.2.0 又踩到一个更隐蔽的：宿主契约要求 messages[].content 是内容块数组、我传了字符串，宿主投影消息时 content.some(...) 抛 TypeError 被包成 finish/error chunk —— 表面症状是「模型不生效」，前几轮全在怀疑 provider / model 白名单策略拦截，实际是契约用错；教训是宿主回 finish/error 时必须先读 reason.failure.message 原文再下结论。同批还修了 StreamChunk 判别联合（见到 .text 就取会把思维链拼进正文；block-end.block.text 是整块全文不是增量，直接累加会让输出重复两遍）、以及 reasoning-only 模型正文块只有 block-end 没有 text-delta 时兜底不能看「全局是否已有输出」而要按 chunk.index 记账。",
       "retro": "如果重做，我会在一开始就把服务化（ctx.promptCompiler）当作核心目标而不是后期补——它才是与 dsh-prompt-enhancer 差异化的真正落点。cordis 双实例这个坑也提醒我：宿主运行时依赖必须显式声明并单例化，红线「lib/ 内零 @deepseek-ai 运行时 import」应该更早立起来，而不是踩完坑才固化。v0.2.0 又补了一课：排查「模型不生效」时我前几轮都在猜 provider / model 白名单的策略拦截，实际是消息形状不符合宿主契约——报错原文一直躺在 finish chunk 的 reason.failure.message 里，先读它比任何推测都快。",
@@ -1066,7 +1069,7 @@
         "实现兼容性预检工具：纯 PowerShell 写 semver 判定（预发布版本窗口规则，对照 node-semver 验证），本地缓存 npm 元数据，无网络也能判定大部分场景，退出码 0/1/3 分别表示通过 / 不兼容 / 无法核实",
         "定位 cost-meter 余额为空的根因：插件只实现 API Key 取数路径，而本机是账号登录态（请求头应为 x-dsh-auth-token）",
         "写补丁给 queryBalance 增加账号 token 回退分支（有 Key 走 Bearer、无 Key 回退账号 token，API Key 用户行为不变），令牌只在签发来源与目标 origin 一致时返回",
-        "补幂等打补丁 / 回滚 / 端到端验证三个脚本：对锚点做唯一性检查，插件升级导致源码结构一变就 FATAL 退出，绝不静默改错",
+        "补幂等打补丁与端到端验证两个脚本（回滚靠幂等重跑，不单独出脚本）：对锚点做唯一性检查，插件升级导致源码结构一变就 FATAL 退出，绝不静默改错",
         "写 app.asar 只读探针：DSH 大量内置包不在 node_modules 而是打包在 app.asar 内，普通 grep 看不到，需要能按路径列出与读取",
         "做社区插件目录全量调研：4382 条逐条取 npm manifest，判定函数直接调用 dshmarket 自带实现（不自行重写规则），区分「社区市场口径」与「宿主真实安装门」两套口径并标注前者偏乐观",
         "脱敏与入库：清理脚本里所有机器相关路径，改为环境变量或按当前用户推导；确认全仓库无凭据后开源"
@@ -1218,7 +1221,7 @@
         "反向对照：给脚手架注入 min-width:900px + console.error，发现「375px 无横向滚动」仍然 PASS",
         "定位到两个叠加原因：overflow-x:hidden 让 scrollWidth 恒等于 clientWidth（内容被裁掉但量不出来）；且检查跑在空列表状态（列表项根本不存在，注入样式无从显现）",
         "修复：增加「解除裁剪后重量」检测（内容未被裁剪成为独立断言），响应式检查改为两阶段（初始 + 内容填充后）",
-        "回归：74 项断言全 PASS，并确认修复后的检测能准确报出 li.item(right=914)",
+        "回归：74 项断言全 PASS，并确认修复后的检测能准确报出 article.card(right=914)",
         "把 devflow 插件安装的 4 个坑整理成排查手册（profile 选错、版本不兼容、豁免要给 19 个包、pnpm 非零退出中断 reconcile）"
       ],
       "hard": "最难的是一开始根本不知道自己测错了。番茄钟的提示音断言在「AudioContext 可创建」这一层写得很像样，跑了也是绿的——直到我用 CDP 虚拟时间试图加速倒计时失败，才被迫换成改常量做临时副本的办法，才发现之前那条断言是空的。第二个更难发现：反向对照时注入的溢出样式没有生效，我第一反应是「检测逻辑写错了」，实际是页面处于空列表状态、根本没有 .item 元素。这两个坑的共同点是「测试通过」本身就是个假象，而只有主动去证伪（注入缺陷、逼它走完整路径）才能暴露。另外 devflow 那 4 个坑里有 3 个是静默失败——尤其「只豁免 bundle 外壳、17 个子包全被拒」这件事，启动日志一个字都不报，如果不去翻 .plugin-manager/logs 和 compatibility.json，会一直以为装好了。",
@@ -1276,7 +1279,7 @@
       ],
       "hard": "四个真实踩坑：① N9 节点 docstring 里写正则示例 `\\{`，触发 Python SyntaxWarning，被 Dify 沙箱升级为节点失败，18 条样本全炸且报错不指向代码；② 纯 SKU 码做检索 query 时，规则类文档抢占 top_k 名额把价格表挤出，一度误判为「知识库缺数据」，靠正对照实验才纠正；③ 给检索 query 拼「底价」二字，被下游 LLM 判定为索要商业秘密，把报价单拦成转人工；④ 验收指标「闭环率 ≥40%」在 52 条样本上数学不可达（上限 38.5%），需重新设计为按期望行为分组计分。",
       "retro": "如果重做：① 一开始就把「检索 query 会进下游 LLM 上下文」写进设计约束，避免拼增强词污染业务判定；② 改 DSL 不整块重新序列化 code 字段（PyYAML 用 width≈68 保持折行风格），否则 Dify 导入器会拒绝；③ 验收指标在写样本集之前就先算理论上限，避免追一个数学上不存在的目标。",
-      "group": "core",
+      "group": "eng",
       "motif": "pipeline",
       "boundary": "个人自演示 Demo，客户画像（广州星航贸易有限公司）为虚构典型客户，非真实客户交付；现状基线为假设值，人力节省为演示测算模型口径（月 880 条基线、保守档 29.3 工时/月）；实施止于 Phase 1（搭建+验收已收口），Phase 2 企微接入与 Phase 3 现场部署为方案态、未实操；演示素材待录制。"
     }

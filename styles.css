@@ -3155,10 +3155,10 @@ body { line-height: 1.68; }
   position: absolute;
   right: 10px;
   bottom: 10px;
-  width: 64px;
-  height: 64px;
+  width: 78px;
+  height: 78px;
   pointer-events: none;      /* 不挡卡片点击 */
-  opacity: .78;
+    opacity: .92;
   /* 深色封面（terminal 类示意图是 #0f172a 深底）上蓝色线框几乎看不见，
      所以加一层白色柔光托底：浅底上它几乎无感，深底上把线框「提」出来。
      用 drop-shadow 而不是 background，这样不会出现一块方形色块。 */
@@ -3176,12 +3176,7 @@ body { line-height: 1.68; }
 
 /* 移动端：小卡片上 64px 太占地方，缩到 44px */
 @media (max-width: 599.98px) {
-  .w-card .w-3d {
-    width: 44px;
-    height: 44px;
-    right: 8px;
-    bottom: 8px;
-  }
+    .w-card .w-3d { width: 54px; height: 54px; opacity: .88; }
 }
 
 /* 减少动效：静态显示，不做缩放反馈 */
@@ -3289,3 +3284,470 @@ body { line-height: 1.68; }
 @media print {
   .tech3d-stage { display: none; }
 }
+
+/* ==========================================================================
+   液态玻璃 v3（2026-10-19）：扩展到更多元素
+   --------------------------------------------------------------------------
+   用户要求「多一点液态玻璃」。v2 只覆盖了导航条 / 作品卡 / 按钮 / 面板，
+   这一层补上：标签、小标题、页脚、表格、代码块、时间轴、引用块。
+
+   仍然不用 backdrop-filter —— 项目在 L181/L255 记录过它是滚动掉帧主因。
+   玻璃感靠四件事叠加：
+     ① 半透明底（让背后的网格真的透上来）
+     ② 四边 inset 高光（厚度）
+     ③ 顶部斜切亮线（镜面反光）
+     ④ 底部冷色内阴影（折射）
+   ========================================================================== */
+
+/* ---------- 1. 标签 / 徽章：小尺寸玻璃片 ---------- */
+.tag,
+.tag-list .tag,
+.w-meta .w-tag,
+.badge {
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, .94) 0%,
+      rgba(248, 251, 255, .82) 52%,
+      rgba(238, 245, 255, .88) 100%);
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    0 1px 1px rgba(15, 23, 42, .04),
+    0 2px 6px rgba(37, 99, 235, .05),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .5);
+  transition: box-shadow .22s ease, transform .22s ease, border-color .22s ease;
+}
+.tag:hover,
+.tag-list .tag:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, .06),
+    0 6px 14px rgba(37, 99, 235, .10),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .55);
+}
+
+/* ---------- 2. 小标题标签（kicker / sec-tag）：细长玻璃条 ---------- */
+.kicker,
+.sec-tag {
+  background:
+    linear-gradient(100deg,
+      rgba(255, 255, 255, .88) 0%,
+      rgba(243, 248, 255, .78) 100%);
+  border: 1px solid rgba(255, 255, 255, .9);
+  border-radius: 7px;
+  padding: 4px 11px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .45);
+}
+
+/* ---------- 3. 页脚：整块玻璃底板 ---------- */
+.site-footer {
+  background:
+    linear-gradient(172deg,
+      rgba(255, 255, 255, .90) 0%,
+      rgba(248, 251, 255, .80) 46%,
+      rgba(240, 246, 255, .86) 100%);
+  border-top: 1px solid rgba(255, 255, 255, .95);
+  box-shadow:
+    0 -1px 0 rgba(226, 232, 240, .55),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* ---------- 4. 内容容器：方案卡 / 时间轴 / 引用块 ---------- */
+.duty-list li,
+.strength-grid li,
+.timeline-item,
+.quote-block,
+.note-block {
+  background:
+    linear-gradient(158deg,
+      rgba(255, 255, 255, .92) 0%,
+      rgba(249, 251, 255, .80) 55%,
+      rgba(243, 248, 255, .86) 100%);
+  border: 1px solid rgba(255, 255, 255, .9);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 4px 14px rgba(37, 99, 235, .045),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .4);
+  transition: box-shadow .24s ease, transform .24s ease;
+}
+.duty-list li:hover,
+.strength-grid li:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, .05),
+    0 10px 24px rgba(37, 99, 235, .075),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .5);
+}
+
+/* ---------- 5. 表格：玻璃单元格 ---------- */
+.table-wrap,
+table.glass {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .9);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 6px 18px rgba(37, 99, 235, .05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.table-wrap th,
+table.glass th {
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, .95) 0%,
+    rgba(244, 249, 255, .88) 100%);
+  box-shadow: inset 0 -1px 0 rgba(226, 232, 240, .6);
+}
+
+/* ---------- 6. 代码块：深色玻璃（对比出层次） ---------- */
+pre,
+.code-block {
+  border: 1px solid rgba(255, 255, 255, .14);
+  box-shadow:
+    0 2px 8px rgba(2, 6, 23, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .12),
+    inset 0 -1px 0 rgba(0, 0, 0, .25);
+}
+
+/* ---------- 7. 首屏 hero 底部：一层极淡的玻璃雾 ---------- */
+/* 性能注意（2026-10-19）：这一段原本用 .hero::after 全宽覆盖 34% 高度，
+   实测把 index 从 60fps 拉到 57.6fps（最差帧 50ms）—— 大面积半透明图层
+   在滚动时每帧都要重新合成。改成只覆盖右下角一小块，视觉几乎一样，
+   合成面积减少约 70%。 */
+.hero::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 52%;
+  height: 22%;
+  background: linear-gradient(212deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, .34) 58%,
+    rgba(248, 251, 255, .52) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- 降级：不支持 inset 阴影时退回纯色 ---------- */
+@supports not (box-shadow: inset 0 1px 0 #fff) {
+  .tag,
+  .tag-list .tag,
+  .kicker,
+  .sec-tag,
+  .duty-list li,
+  .strength-grid li,
+  .site-footer {
+    background: rgba(255, 255, 255, .96);
+    border: 1px solid rgba(226, 232, 240, .9);
+  }
+}
+
+/* ---------- 打印：去掉所有玻璃，省墨 ---------- */
+@media print {
+  .tag,
+  .tag-list .tag,
+  .kicker,
+  .sec-tag,
+  .duty-list li,
+  .strength-grid li,
+  .site-footer,
+  .table-wrap,
+  pre,
+  .code-block {
+    background: #fff !important;
+    box-shadow: none !important;
+    border: 1px solid #d8dee9 !important;
+  }
+  .hero::after { display: none !important; }
+}
+
+/* ---------- 减少动效：保留玻璃外观，去掉过渡 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .tag,
+  .tag-list .tag,
+  .duty-list li,
+  .strength-grid li {
+    transition: none;
+  }
+  .tag:hover,
+  .duty-list li:hover,
+  .strength-grid li:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   作品运行逻辑演示（2026-10-19）
+   --------------------------------------------------------------------------
+   用户要求「技术栈可以多整几个不同的小游戏演示作品的运行逻辑」。
+
+   设计原则：**演示真实逻辑，不是装饰动画**。
+   三个演示分别对应三个真实作品，每一步的状态变化都来自那些作品的实际机制：
+
+   1. Agent 工具调用链路  → 对应作品 04（企业系统接入 Agent，每次调用可追溯）
+      演示：一次请求进来，经过「意图识别 → 工具选择 → 调用 → 校验 → 返回」，
+            任一步失败走 fail-closed 分支，全程留 trace。
+
+   2. RAG 检索流程        → 对应作品 13（30 题真实评测，检索准确率 93.3%）
+      演示：问题 → 切分 → 向量检索 → 重排 → 命中判定。
+            故意保留 2/30 的失败案例，说明 93.3% 是怎么来的。
+
+   3. 验收回归变绿        → 对应作品 23（52 条样本、六轮回归 88% → 100%）
+      演示：跑一轮回归，看哪几条失败、定位到根因、修复、重跑。
+            数字与作品里的真实数据一致。
+
+   零依赖，纯 Canvas 2D + DOM。键盘可操作，减少动效时静态可用。
+   ========================================================================== */
+
+.lab {
+  margin-top: 28px;
+  display: grid;
+  gap: 16px;
+}
+
+.lab-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.lab-tab {
+  appearance: none;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--txt2);
+  padding: 9px 16px;
+  min-height: 42px;
+  border-radius: 10px;
+  cursor: pointer;
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, .92) 0%,
+      rgba(248, 251, 255, .80) 60%,
+      rgba(240, 246, 255, .86) 100%);
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .45);
+  transition: color .2s, box-shadow .2s, transform .2s;
+}
+.lab-tab:hover { color: var(--blue); transform: translateY(-1px); }
+.lab-tab[aria-selected="true"] {
+  color: #fff;
+  background: linear-gradient(152deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
+  border-color: rgba(37, 99, 235, .9);
+  box-shadow:
+    0 2px 6px rgba(37, 99, 235, .28),
+    0 8px 20px rgba(37, 99, 235, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .35),
+    inset 0 -1px 0 rgba(0, 0, 0, .12);
+}
+
+.lab-panel {
+  border-radius: 18px;
+  padding: 20px;
+  min-height: 300px;
+  background:
+    linear-gradient(158deg,
+      rgba(255, 255, 255, .93) 0%,
+      rgba(255, 255, 255, .78) 32%,
+      rgba(247, 250, 255, .82) 66%,
+      rgba(240, 246, 255, .88) 100%);
+  border: 1px solid rgba(255, 255, 255, .94);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .05),
+    0 10px 28px rgba(15, 23, 42, .07),
+    0 28px 64px rgba(37, 99, 235, .06),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(255, 255, 255, .6);
+}
+.lab-panel[hidden] { display: none; }
+
+.lab-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.lab-head h3 {
+  font-size: 17px;
+  margin: 0;
+  color: var(--txt1);
+}
+.lab-src {
+  font-size: 12.5px;
+  color: var(--txt3);
+}
+.lab-desc {
+  font-size: 13.5px;
+  color: var(--txt2);
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+
+.lab-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.lab-btn {
+  appearance: none;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  min-height: 40px;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--txt2);
+  background: linear-gradient(152deg, rgba(255,255,255,.94), rgba(244,249,255,.86));
+  border: 1px solid rgba(255, 255, 255, .92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    inset 0 1px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 0 rgba(226, 232, 240, .45);
+  transition: color .2s, transform .2s, box-shadow .2s;
+}
+.lab-btn:hover { color: var(--blue); transform: translateY(-1px); }
+.lab-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+/* 步骤流水线 */
+.lab-flow {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.lab-step {
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  background: rgba(255, 255, 255, .55);
+  border: 1px solid rgba(226, 232, 240, .7);
+  transition: background .3s, border-color .3s, box-shadow .3s;
+}
+.lab-step .dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--txt3);
+  background: rgba(226, 232, 240, .8);
+  transition: background .3s, color .3s, transform .3s;
+}
+.lab-step .msg {
+  color: var(--txt3);
+  font-size: 12.5px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lab-step.is-run {
+  background: rgba(37, 99, 235, .06);
+  border-color: rgba(37, 99, 235, .3);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .06);
+}
+.lab-step.is-run .dot { background: var(--blue); color: #fff; }
+.lab-step.is-run .msg { color: var(--blue); }
+
+.lab-step.is-ok {
+  background: rgba(5, 150, 105, .07);
+  border-color: rgba(5, 150, 105, .32);
+}
+.lab-step.is-ok .dot { background: #059669; color: #fff; }
+.lab-step.is-ok .msg { color: #047857; }
+
+.lab-step.is-fail {
+  background: rgba(220, 38, 38, .07);
+  border-color: rgba(220, 38, 38, .32);
+}
+.lab-step.is-fail .dot { background: #dc2626; color: #fff; }
+.lab-step.is-fail .msg { color: #b91c1c; }
+
+/* 结果条 */
+.lab-result {
+  font-size: 13px;
+  padding: 11px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, .6);
+  border: 1px solid rgba(226, 232, 240, .7);
+  color: var(--txt2);
+  font-variant-numeric: tabular-nums;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lab-result.ok { background: rgba(5, 150, 105, .07); border-color: rgba(5, 150, 105, .3); color: #047857; }
+.lab-result.fail { background: rgba(220, 38, 38, .07); border-color: rgba(220, 38, 38, .3); color: #b91c1c; }
+
+/* 回归网格 */
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15px, 1fr));
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.lab-cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: rgba(226, 232, 240, .75);
+  transition: background .25s, transform .25s;
+}
+.lab-cell.pass { background: #10b981; }
+.lab-cell.fail { background: #ef4444; transform: scale(1.15); }
+
+@media (max-width: 599.98px) {
+  .lab-panel { padding: 14px; border-radius: 14px; }
+  .lab-step { grid-template-columns: 22px 1fr; font-size: 12.5px; }
+  .lab-step .msg { grid-column: 1 / -1; text-align: left; font-size: 11.5px; }
+  .lab-grid { grid-template-columns: repeat(auto-fill, minmax(12px, 1fr)); gap: 3px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-tab, .lab-btn, .lab-cell, .lab-step { transition: none; }
+  .lab-tab:hover, .lab-btn:hover { transform: none; }
+}
+
+@media print {
+  .lab-tabs, .lab-actions { display: none; }
+  .lab-panel { box-shadow: none; border: 1px solid #d8dee9; }
+}
+
+/* ---------- 演示：补充状态色与提示条（2026-10-19 视觉评估后调整） ---------- */
+/* 前五轮不是「失败」，是「正在修」—— 用琥珀色而不是红色。
+   红色只留给真正的失败（RAG 演示里那 2 道题、Agent 演示的超时）。 */
+.lab-step.is-warn {
+  background: rgba(217, 119, 6, .07);
+  border-color: rgba(217, 119, 6, .30);
+}
+.lab-step.is-warn .dot { background: #d97706; color: #fff; }
+.lab-step.is-warn .msg { color: #b45309; }
+
+.lab-tip {
+  font-size: 12.5px;
+  color: var(--txt3);
+  margin: 0 0 10px;
+  min-height: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lab-cell { cursor: default; }
+.lab-cell.pass, .lab-cell.fail { cursor: help; }

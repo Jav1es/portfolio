@@ -298,6 +298,155 @@
     this.draw(2600);
   };
 
+  /* ======================================================================
+     技术栈特征几何体（2026-10-19 新增）
+     ----------------------------------------------------------------------
+     用户要求「根据每个作品的不同技术栈给每个作品做一个 3D 视觉效果模型」。
+     原来是按 cat 粗分 5 种，22 张卡只有 5 种造型，同类的作品长得一样，
+     看不出技术栈差异。
+
+     这一组按「技术栈形态」设计，每种对应一类真实的技术结构：
+       pipeline  流水线  多个立方体串成一条线（RPA / ETL / 工作流）
+       graph     图/网络  中心球 + 两圈放射连接（Agent 编排 / LangGraph）
+       layers    分层    水平堆叠的薄板（六层架构 / 部署栈）
+       ring      环      闭合环 + 辐条（循环流程 / 回归迭代）
+       tree      树      根 + 两层分叉（知识库 / 分类体系）
+       mesh      网格    规整点阵 + 横纵连线（指标体系 / 数据矩阵）
+       helix     螺旋    双螺旋 + 横档（迭代演进 / 版本序列）
+     ====================================================================== */
+
+  // 流水线：N 个立方体沿 X 轴排列，相邻相连
+  function pipeline(size, count) {
+    count = count || 4;
+    var v = [], e = [], s = size * 0.32, gap = size * 1.15;
+    var startX = -gap * (count - 1) / 2;
+    var corners = [
+      [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+      [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1]
+    ];
+    for (var i = 0; i < count; i++) {
+      var cx = startX + i * gap;
+      var base = v.length;
+      for (var k = 0; k < 8; k++) {
+        v.push({ x: cx + corners[k][0] * s, y: corners[k][1] * s, z: corners[k][2] * s });
+      }
+      e.push([base, base + 1], [base + 1, base + 2], [base + 2, base + 3], [base + 3, base],
+             [base + 4, base + 5], [base + 5, base + 6], [base + 6, base + 7], [base + 7, base + 4],
+             [base, base + 4], [base + 1, base + 5], [base + 2, base + 6], [base + 3, base + 7]);
+      if (i > 0) {
+        e.push([base - 8 + 1, base + 0], [base - 8 + 2, base + 3]);
+      }
+    }
+    return { v: v, e: e };
+  }
+
+  // 图/网络：中心 + 内外两圈放射节点
+  function graph(size) {
+    var v = [{ x: 0, y: 0, z: 0 }], e = [];
+    var inner = 6, outer = 10, i, a;
+    for (i = 0; i < inner; i++) {
+      a = (i / inner) * Math.PI * 2;
+      v.push({ x: Math.cos(a) * size * 0.62, y: Math.sin(a) * size * 0.62, z: Math.sin(a * 2) * size * 0.2 });
+      e.push([0, v.length - 1]);
+    }
+    for (i = 0; i < outer; i++) {
+      a = (i / outer) * Math.PI * 2 + 0.3;
+      v.push({ x: Math.cos(a) * size * 1.05, y: Math.sin(a) * size * 1.05, z: Math.cos(a * 3) * size * 0.34 });
+      e.push([1 + (i % inner), v.length - 1]);
+    }
+    return { v: v, e: e };
+  }
+
+  // 分层：N 层薄板堆叠
+  function layers(size, count) {
+    count = count || 4;
+    var v = [], e = [], w = size * 0.88, d = size * 0.58;
+    var stepY = size * 0.62, startY = -stepY * (count - 1) / 2;
+    for (var i = 0; i < count; i++) {
+      var y = startY + i * stepY;
+      var base = v.length;
+      v.push({ x: -w, y: y, z: -d }, { x: w, y: y, z: -d }, { x: w, y: y, z: d }, { x: -w, y: y, z: d });
+      e.push([base, base + 1], [base + 1, base + 2], [base + 2, base + 3], [base + 3, base]);
+      if (i > 0) {
+        e.push([base - 4, base], [base - 3, base + 1]);
+      }
+    }
+    return { v: v, e: e };
+  }
+
+  // 环：闭合环 + 辐条
+  function ring(size, seg) {
+    seg = seg || 14;
+    var v = [], e = [], i, a;
+    for (i = 0; i < seg; i++) {
+      a = (i / seg) * Math.PI * 2;
+      v.push({ x: Math.cos(a) * size, y: Math.sin(a) * size, z: Math.sin(a * 2) * size * 0.24 });
+    }
+    for (i = 0; i < seg; i++) e.push([i, (i + 1) % seg]);
+    v.push({ x: 0, y: 0, z: 0 });
+    var c = v.length - 1;
+    for (i = 0; i < seg; i += 3) e.push([c, i]);
+    return { v: v, e: e };
+  }
+
+  // 树：根 + 两层分叉
+  function tree(size) {
+    var v = [{ x: 0, y: size, z: 0 }], e = [];
+    var lv2 = 3, lv3 = 3, i, j;
+    for (i = 0; i < lv2; i++) {
+      var x2 = (i - (lv2 - 1) / 2) * size * 0.78;
+      v.push({ x: x2, y: size * 0.12, z: 0 });
+      e.push([0, v.length - 1]);
+      for (j = 0; j < lv3; j++) {
+        var x3 = x2 + (j - (lv3 - 1) / 2) * size * 0.34;
+        v.push({ x: x3, y: -size * 0.82, z: (j - 1) * size * 0.22 });
+        e.push([i + 1, v.length - 1]);
+      }
+    }
+    return { v: v, e: e };
+  }
+
+  // 网格：规整点阵 + 横纵连线
+  function mesh(size, n) {
+    n = n || 5;
+    var v = [], e = [], step = (size * 2) / (n - 1), half = size, i, j;
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < n; j++) {
+        v.push({
+          x: -half + i * step,
+          y: -half + j * step,
+          z: Math.sin(i * 0.9) * Math.cos(j * 0.9) * size * 0.22
+        });
+      }
+    }
+    for (i = 0; i < n; i++) {
+      for (j = 0; j < n; j++) {
+        var idx = i * n + j;
+        if (i < n - 1) e.push([idx, idx + n]);
+        if (j < n - 1) e.push([idx, idx + 1]);
+      }
+    }
+    return { v: v, e: e };
+  }
+
+  // 螺旋：双螺旋 + 横档
+  function helix(size, turns) {
+    turns = turns || 2;
+    var v = [], e = [], seg = 18, i;
+    for (i = 0; i <= seg; i++) {
+      var t = (i / seg) * Math.PI * 2 * turns;
+      var y = -size + (i / seg) * size * 2;
+      var r = size * 0.62;
+      v.push({ x: Math.cos(t) * r, y: y, z: Math.sin(t) * r });
+      v.push({ x: Math.cos(t + Math.PI) * r, y: y, z: Math.sin(t + Math.PI) * r });
+      if (i > 0) {
+        e.push([i * 2 - 2, i * 2], [i * 2 - 1, i * 2 + 1]);
+      }
+      e.push([i * 2, i * 2 + 1]);
+    }
+    return { v: v, e: e };
+  }
+
   global.GLASS3D = {
     Scene: Scene,
     cube: cube,
@@ -305,6 +454,13 @@
     sphere: sphere,
     lattice: lattice,
     cluster: cluster,
+    pipeline: pipeline,
+    graph: graph,
+    layers: layers,
+    ring: ring,
+    tree: tree,
+    mesh: mesh,
+    helix: helix,
     rotY: rotY, rotX: rotX, rotZ: rotZ
   };
 })(window);

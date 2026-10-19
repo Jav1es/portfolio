@@ -377,22 +377,47 @@
     metrics: '#0e7490', terminal: '#2563eb', grid: '#0e7490'
   };
 
-  // 分类 → 3D 几何体（2026-10-19）
-  // 让每类作品有辨识度：不必读文字，看封面形状就知道是哪一类。
-  // 只在「没有真实截图」的卡片上用 —— 有截图的卡片要展示真实界面，
-  // 叠 3D 图标会挡住证据本身（当前 22 张里 21 张是示意图，2 张有截图）。
+  // 每个作品的技术栈 → 专属 3D 几何体（2026-10-19 改）
+  //
+  // 原来按 cat 粗分 5 种（plan/flow/agent/data/oss/industry），23 张卡只有 5 种
+  // 造型，同类作品长得一模一样，看不出技术栈差异。用户要求「根据每个作品的
+  // 不同技术栈做一个 3D 模型」，所以改成逐条按实际技术栈分配。
+  //
+  // 每条的依据来自 works-data.json 里的 tags / arch / pitch（不是凭感觉挑）：
+  var STACK_3D = {
+    '01': 'mesh',      // 8 业务域 × 6 个月路线图 → 多维规划矩阵
+    '02': 'layers',    // Coze + 多维表双层流（AI 先做 / 人只审）→ 分层
+    '03': 'pipeline',  // 影刀/UiBot RPA + AI 审核：取数→识别→判断→异常 → 流水线
+    '04': 'graph',     // LangGraph 编排 + 六层架构 + MCP + RAG → 图拓扑
+    '05': 'mesh',      // 指标体系 + BI 看板 + ChatBI + ETL → 指标矩阵
+    '06': 'pipeline',  // 影刀/UiBot RPA + Python 脚本 → 流水线
+    '07': 'layers',    // Prompt 三阶段（诊断→澄清→合成）+ 评测集 → 分层
+    '08': 'tree',      // 培训 → SOP → 推广的分层体系 → 树
+    '09': 'layers',    // Docker Compose 服务栈 + 熔断 + 健康检查 → 分层
+    '10': 'ring',      // 复盘卡片 + 基线 + 数据看板（复盘是循环）→ 环
+    '11': 'octa',      // FDE 两份标准件（Discovery Brief / Eval Plan）→ 八面体
+    '12': 'graph',     // MCP Server 5 工具 + PowerShell 零依赖 → 工具拓扑
+    '13': 'pipeline',  // RAG 30 题：检索→重排→命中判定 → 流水线
+    '14': 'ring',      // OTel + Jaeger + CI 回归（持续观测循环）→ 环
+    '15': 'cluster',   // 三个独立插件（推送 / 预览 / 待办）→ 晶体簇
+    '16': 'cluster',   // 三个 MCP Server → 晶体簇
+    '17': 'tree',      // TiddlyWiki 知识库 + Markdown 规程 → 知识树
+    '18': 'helix',     // prompt 编译 + 192 测试 + 版本迭代 → 双螺旋
+    '19': 'mesh',      // 自检 / 预检 / 补丁 / 调研四件工具 → 工具矩阵
+    '20': 'octa',      // 高企评分：8 条一票否决 + 雷达图 → 多面体维度
+    '21': 'graph',     // MCP 桥接（单工具 run_workbuddy_task）→ 图
+    '22': 'ring',      // 原型工厂：引擎 + 断言回归（循环验证）→ 环
+    '23': 'graph'      // Dify 31 节点 / 33 边工作流 + 52 条验收 → 工作流拓扑
+  };
+  // 兜底：新增作品若还没映射，按类目给一个
   var CAT_3D = {
-    plan: 'lattice',    // 规划：网格阵列，像排布好的路线
-    flow: 'cube',       // 工作流：立方体，结构规整
-    agent: 'sphere',    // 智能体：节点球，神经网络
-    data: 'lattice',    // 数据：柱状/矩阵
-    oss: 'cluster',     // 开源：晶体簇，多个独立件组合
-    industry: 'octa'    // 行业：八面体，稳固
+    plan: 'mesh', flow: 'pipeline', agent: 'graph',
+    data: 'mesh', oss: 'cluster', industry: 'octa'
   };
 
   function coverSVG(it) {
     var motif = (MOTIFS[it.motif] || MOTIFS.grid)('c' + it.no, MOTIF_HUE[it.motif] || '#2563eb');
-    var geo = CAT_3D[it.cat] || 'cube';
+    var geo = STACK_3D[it.no] || CAT_3D[it.cat] || 'cube';
     return '<svg class="w-cover" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' +
       esc(it.t + ' 的示意图：' + it.pitch.slice(0, 46) + '…') + '" preserveAspectRatio="xMidYMid meet">' +
       '<rect width="' + W + '" height="' + H + '" fill="#f8fafc"/>' +
