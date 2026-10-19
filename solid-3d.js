@@ -177,7 +177,7 @@
      固定 scale 会让一部分模型过小、另一部分溢出。
      这里量出模型的真实包围盒，反推一个正好占目标比例的 scale。 */
   SolidScene.prototype.autoFit = function (target) {
-    var goal = target == null ? 0.82 : target;   // 目标：占短边 82%
+    var goal = target == null ? 0.72 : target;
     if (!this.boxes.length) return;
 
     // 在「无缩放」下量包围盒（scale 设 1，stretchX 设 1）
