@@ -4426,3 +4426,44 @@ body.nav-open {
   .hero-proof li { box-shadow: none; border: 1px solid #d8dee9; }
   .hero-contact a { border: 1px solid #d8dee9; background: none; }
 }
+
+/* ---------- 二级菜单箭头：放大 + 加深（2026-10-19） ---------- */
+/* 实测箭头确实渲染了（9×9px，rgb(110,110,110)，已旋转 45°），
+   但 9px 的细线在手机截图里几乎看不见 —— 用户找不到「怎么展开子菜单」。
+   放大到 12px、边框 2.5px、颜色改深，并给按钮加一点可见的底色。 */
+@media (max-width: 859.98px) {
+  .nav-sub-toggle::before {
+    width: 12px;
+    height: 12px;
+    border-right-width: 2.5px;
+    border-bottom-width: 2.5px;
+    border-right-color: #475569;
+    border-bottom-color: #475569;
+  }
+  .nav-sub-toggle:hover::before,
+  .nav-sub-toggle[aria-expanded="true"]::before {
+    border-right-color: var(--blue);
+    border-bottom-color: var(--blue);
+  }
+
+  /* 按钮本身给一层极浅的底，让人看出这里可点 */
+  .nav-sub-toggle {
+    background: rgba(241, 245, 249, .9);
+    border: 1px solid rgba(226, 232, 240, .9);
+  }
+  .nav-sub-toggle:hover,
+  .nav-sub-toggle[aria-expanded="true"] {
+    background: rgba(37, 99, 235, .10);
+    border-color: rgba(37, 99, 235, .28);
+  }
+
+  /* 子项文字再往右一点，层级更明显（评估说 33px 不够） */
+  .site-nav .nav-menu a {
+    padding-left: 42px !important;
+  }
+  .site-nav .nav-menu a::before {
+    left: 26px;
+    width: 5px;
+    height: 5px;
+  }
+}
