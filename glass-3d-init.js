@@ -66,13 +66,30 @@
   function initOne(el) {
     var canvas = el.tagName === 'CANVAS' ? el : el.querySelector('canvas');
     if (!canvas) return null;
+    // 实体渲染的画布不归 GLASS3D 管（否则会互相清屏）
+    if (canvas.getAttribute && canvas.getAttribute('data-solid') === 'true') return null;
 
     var kind = el.getAttribute('data-3d') || 'cube';
     var sc = new GLASS3D.Scene(canvas, {
       geo: makeGeo(kind),
       speed: parseFloat(el.getAttribute('data-speed')) || 0.00022,
       tilt: parseFloat(el.getAttribute('data-tilt')) || 0.42,
+      // 2026-10-19：封面 3D 铺满后需要更大的 scale。
+      // 原来 0.62 是按 96px 小图标调的，铺满 370×200 后模型只占中间一小块。
       scale: parseFloat(el.getAttribute('data-scale')) || 1,
+      // 2026-10-19：封面是 362×204 的宽扁比例（约 1.78:1），模型接近方形，
+      // 等比放大时「高度先顶满、宽度还空着」。这里给横向拉伸系数，
+      // 让模型铺满宽画布。data-stretch-x 未指定时按画布宽高比自动算。
+      stretchX: parseFloat(el.getAttribute('data-stretch-x')) || 1,
+      stretchY: parseFloat(el.getAttribute('data-stretch-y')) || 1,
+      /* 2026-10-19：封面开实体面渲染。
+         视觉评估：「只有轮廓线，没有实面、光影，像 CAD 线框草图，偏平」。
+         纯线框在浅色底上缺乏体积感是渲染方式的限制。
+         开启后每个面按法线算明暗并填充，配合线框形成玻璃实体感。
+         只对封面（data-faces="true"）开启，其它地方保持轻量线框。 */
+      showFaces: el.getAttribute('data-faces') === 'true',
+      faceColor: [37, 99, 235],
+      faceAlpha: 0.22,
       showDots: el.getAttribute('data-dots') !== 'false',
       // 卡片小图标开白色衬底，深色封面上才看得清
       underlay: el.getAttribute('data-underlay') === 'true',
@@ -91,7 +108,36 @@
     // 2026-10-19：阈值从 80 提到 100 —— 卡片图标放大到 96px 后，
     // 原阈值会让它们全部掉出优化范围，性能反而回退。
     var cw = canvas.getBoundingClientRect().width;
-    if (cw > 0 && cw <= 100) sc.minFrameMs = 33;
+
+    /* 2026-10-19：封面 3D 从 96px 装饰图标升级为满铺主视觉。
+       尺寸跨了一个数量级，绘制参数要跟着分档，不能一套参数打天下：
+
+       小画布（≤100px，旧的小图标用法）：
+         · 30fps 限帧省开销
+         · lineBoost 1.9× 让细线在小尺寸下可见
+
+       大画布（>160px，现在的封面主视觉）：
+         · 正常帧率（大画布上 30fps 会看出卡顿）
+         · 关掉 lineBoost —— 大尺寸下 1.9× 线宽会糊成一团
+         · scale 交给 data-scale（works.js 里已调大） */
+    if (cw > 0 && cw <= 100) {
+      sc.minFrameMs = 33;
+    } else if (cw > 160) {
+      // 大画布：恢复默认线宽，避免放大后线条过粗
+      sc.lineBoost = 1;
+
+      /* 宽扁画布（作品封面 362×204 ≈ 1.78:1）自动横向拉伸。
+         不设上限会让极端宽画布把模型拉变形，所以夹在 1..1.75。
+         显式写了 data-stretch-x 就以它为准。 */
+      if (!el.hasAttribute('data-stretch-x')) {
+        var ch2 = canvas.getBoundingClientRect().height;
+        if (ch2 > 0) {
+          var ratio = cw / ch2;                 // 封面约 1.78
+          var sx = Math.max(1, Math.min(1.75, ratio / 1.35));
+          sc.stretchX = sx;
+        }
+      }
+    }
 
     scenes.push(sc);
 
@@ -180,6 +226,10 @@
       // 曾出现 tech3d-canvas 在 scenes 里出现两次（一个自动轮播、一个交互），
       // 白白多跑一个 rAF 循环。
       if (el.id === 'tech3d-canvas') { el.__glass3d = true; return; }
+      /* 2026-10-19：封面 canvas 同时有 data-3d 和 data-solid="true"，
+         由 SOLID3D 负责实体渲染。GLASS3D 必须跳过，
+         否则两个渲染器交替 clearRect，画面只剩残片（实测填充率 1.6%）。 */
+      if (el.getAttribute('data-solid') === 'true') { el.__glass3d = true; return; }
 
       var r = el.getBoundingClientRect();
       if (r.bottom > -60 && r.top < vh + 60) immediate.push(el);

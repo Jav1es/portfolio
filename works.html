@@ -209,9 +209,13 @@
 <script src="./works-data.js"></script>
 <script src="./works-previews-index.js"></script>
 <script src="./works.js"></script>
+  <script src="./cover-tilt.js"></script>
 <script src="./effects.js"></script>
   <script src="./glass-3d.js"></script>
   <script src="./glass-3d-init.js"></script>
+  <script src="./solid-3d.js"></script>
+  <script src="./solid-models.js"></script>
+  <script src="./solid-init.js"></script>
 <script src="./menu.js" defer></script>
 <script>
   // 渲染完成后初始化 3D 倾斜 / 进场动画 / 阅读进度条（卡片为动态插入）
@@ -231,6 +235,12 @@
 
     // 卡片渲染完成后初始化封面 3D 图标（幂等：已初始化的会跳过）
     if (window.GLASS3D_INIT) window.GLASS3D_INIT.init(document);
+    // 封面实体 3D（2026-10-19）
+    if (window.SOLID_INIT) window.SOLID_INIT.init(document);
+
+    // 封面 3D 倾斜（2026-10-19）：卡片此刻才真正在 DOM 里，
+    // 必须在这里显式绑定 —— cover-tilt.js 执行时卡片还不存在。
+    if (window.COVER_TILT) window.COVER_TILT.scan();
 
 
     bootEffects();

@@ -425,8 +425,15 @@
       '</svg>' +
       // 叠在 SVG 之上的 3D 小图标（纯装饰，aria-hidden）
       // data-underlay=true：白色衬底描边，深色示意图上才看得清
-      '<canvas class="w-3d" data-3d="' + geo + '" data-scale="0.62" data-dots="false"' +
-      ' data-underlay="true" data-speed="0.00016" data-tilt="0.38" aria-hidden="true"></canvas>';
+      /* 2026-10-19：封面改用实体 3D 渲染。
+         线框方案连续 3 轮被判「偏平、像 CAD 草图」——GLASS3D 只画线段不画面，
+         纯线稿在浅色底上无法产生体积感，这是渲染方式的限制，不是调色能解决的。
+         现在由 SOLID3D 渲染实体方块（6 个实面 + 法线光照 + 画家算法遮挡），
+         模型按每个作品的真实技术结构拼装（见 solid-models.js）。
+         data-3d 保留为模型名，data-solid="true" 标记走新渲染器。 */
+      '<canvas class="w-3d" data-solid="true" data-3d="' + geo + '" data-solid-model="' + geo + '"'
+      + ' data-solid-scale="1.0" data-speed="0.00016" data-tilt="0.30"'
+      + ' data-stretch-x="1.15" aria-hidden="true"></canvas>';
   }
 
   // ==========================================================================

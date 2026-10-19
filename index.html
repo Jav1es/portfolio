@@ -477,33 +477,55 @@
        悬停显示作品名与分组，点击直达详情。
        进入视口才初始化（IntersectionObserver），不拖慢首屏。
        reduced-motion 下只画一帧静态图。 -->
-  <section class="section" id="whale">
+  <!-- ==================== 作品全生命周期 · 3D 轨道环 ====================
+       23 个作品按分组分布在三条同心轨道上：
+         内环（半径 0.78）= 核心案例 5 个，离中心最近、块最大 → 权重最高
+         中环（半径 1.35）= AI 工程化 6 + 开源工具 6
+         外环（半径 1.92）= 实验与 VibeCoding 6
+       每个作品是一个实体方块（6 个实面 + 法线光照 + 遮挡），
+       环体由细密小方块拼成 —— 全部是实面，不是线框。
+
+       交互：悬停高亮 + 显示标题、点击直达详情、拖拽旋转、方向键微调。
+       进入视口才初始化，reduced-motion 只画一帧静态图。 -->
+  <section class="section" id="orbit">
     <div class="wrap">
       <div class="section-head">
         <p class="kicker">作品全生命周期</p>
-        <h2>23 个作品，一条鲸鱼</h2>
-        <p>每个光点是一个作品：越靠头越成熟（核心交付），越靠尾越是探索（实验）。
-           悬停看名字，点进去看细节。拖拽可以转动它。</p>
+        <h2>23 个作品，三条轨道</h2>
+        <p>越靠内环权重越高，越靠外环越是实验；颜色表示分组。
+           两个维度分开看，悬停看名字，点进去看细节，拖拽可以转动它。</p>
       </div>
 
-      <div class="whale-stage">
-        <canvas id="whale-canvas"
+      <div class="orbit-stage">
+        <canvas id="orbit-canvas"
                 role="img"
-                aria-label="作品生命周期三维示意图：23 个光点组成一条鲸鱼，每点代表一个作品，头部是核心交付，尾部是实验探索。可拖拽旋转，点击光点查看作品。"
+                aria-label="作品三维轨道示意图：23 个作品分布在三条同心轨道上，内环是核心交付，中环是工程与开源，外环是实验探索。可拖拽旋转，点击方块查看作品。"
                 tabindex="0"></canvas>
 
-        <div class="whale-legend" aria-hidden="true">
-          <span class="whale-legend__item"><i class="whale-dot whale-dot--head"></i>核心交付</span>
-          <span class="whale-legend__item"><i class="whale-dot whale-dot--mid"></i>工程与开源</span>
-          <span class="whale-legend__item"><i class="whale-dot whale-dot--tail"></i>实验探索</span>
+        <div class="orbit-tip" hidden></div>
+
+        <div class="orbit-legend" aria-hidden="true">
+          <div class="orbit-legend__row">
+            <span class="orbit-legend__label">轨道</span>
+            <span class="orbit-legend__item"><i class="orbit-ring orbit-ring--in"></i>内环 · 最核心</span>
+            <span class="orbit-legend__item"><i class="orbit-ring orbit-ring--mid"></i>中环</span>
+            <span class="orbit-legend__item"><i class="orbit-ring orbit-ring--out"></i>外环 · 最实验</span>
+          </div>
+          <div class="orbit-legend__row">
+            <span class="orbit-legend__label">分组</span>
+            <span class="orbit-legend__item"><i class="orbit-dot orbit-dot--core"></i>核心案例</span>
+            <span class="orbit-legend__item"><i class="orbit-dot orbit-dot--eng"></i>AI 工程化</span>
+            <span class="orbit-legend__item"><i class="orbit-dot orbit-dot--oss"></i>开源工具</span>
+            <span class="orbit-legend__item"><i class="orbit-dot orbit-dot--lab"></i>实验探索</span>
+          </div>
         </div>
 
-        <div class="whale-ui">
-          <button type="button" class="btn btn-ghost whale-reset">重置视角</button>
-          <p class="whale-hint">拖拽旋转 · 方向键微调 · 点击光点查看作品</p>
+        <div class="orbit-ui">
+          <button type="button" class="btn btn-ghost orbit-reset">重置视角</button>
+          <p class="orbit-hint">拖拽旋转 · 方向键微调 · 点击方块查看作品</p>
         </div>
 
-        <p class="whale-fallback" hidden>
+        <p class="orbit-fallback" hidden>
           这个 3D 视图需要 JavaScript。23 个作品可以直接在
           <a href="./works.html">作品列表</a>查看。
         </p>
@@ -582,12 +604,16 @@
 <script src="./works-data.js"></script>
 <script src="./works-previews-index.js"></script>
 <script src="./works.js"></script>
+  <script src="./cover-tilt.js"></script>
 <script src="./effects.js"></script>
   <script src="./glass-3d.js"></script>
   <script src="./glass-3d-init.js"></script>
+  <script src="./solid-3d.js"></script>
+  <script src="./solid-models.js"></script>
+  <script src="./solid-init.js"></script>
 <script src="./lab.js"></script>
-  <script src="./whale-3d.js"></script>
-  <script src="./whale-3d-init.js"></script>
+  <script src="./orbit-3d.js"></script>
+  <script src="./orbit-init.js"></script>
 <script src="./agent-graph.js" defer></script>
 <script src="./menu.js" defer></script>
 <script>
@@ -658,6 +684,12 @@
 
     // 卡片渲染完成后初始化封面 3D 图标（幂等：已初始化的会跳过）
     if (window.GLASS3D_INIT) window.GLASS3D_INIT.init(document);
+    // 封面实体 3D（2026-10-19）
+    if (window.SOLID_INIT) window.SOLID_INIT.init(document);
+
+    // 封面 3D 倾斜（2026-10-19）：卡片此刻才真正在 DOM 里，
+    // 必须在这里显式绑定 —— cover-tilt.js 执行时卡片还不存在。
+    if (window.COVER_TILT) window.COVER_TILT.scan();
 
 
 

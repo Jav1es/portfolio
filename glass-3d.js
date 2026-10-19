@@ -155,6 +155,131 @@
   }
 
   /* ---------------------------------------------------------------- 渲染器 */
+  /* ======================================================================
+     实体面渲染（2026-10-19）
+     ----------------------------------------------------------------------
+     背景：GLASS3D 原来只画棱（stroke），不画面（fill）。
+     纯线框在浅色底上天然缺乏体积感 —— 视觉评估反复说「像 CAD 线框草图、
+     偏平、没有光影」，这是渲染方式的限制，调色解决不了。
+
+     做法：从几何体的棱推出三角面，用 Lambert 漫反射算明暗，
+     画家算法按 z 排序，填充半透明色。与线框共用同一套投影，绝不错位。
+     ====================================================================== */
+
+  // 棱 → 三角面：三角的三条边都必须真实存在，避免跨空腔连面
+  function buildFaces(geo) {
+    var v = geo.v, e = geo.e, n = v.length;
+    var adj = [];
+    for (var i = 0; i < n; i++) adj.push([]);
+    for (var k = 0; k < e.length; k++) {
+      var a = e[k][0], b = e[k][1];
+      if (adj[a].indexOf(b) < 0) adj[a].push(b);
+      if (adj[b].indexOf(a) < 0) adj[b].push(a);
+    }
+
+    // 边集合，用于 O(1) 查询
+    var eset = {};
+    for (var m = 0; m < e.length; m++) {
+      eset[e[m][0] + ',' + e[m][1]] = 1;
+      eset[e[m][1] + ',' + e[m][0]] = 1;
+    }
+    function has(x, y) { return eset[x + ',' + y] === 1; }
+
+    var faces = [], seen = {};
+    for (var p = 0; p < n; p++) {
+      var nb = adj[p];
+      if (nb.length < 2) continue;
+      for (var q = 0; q < nb.length - 1; q++) {
+        for (var r = q + 1; r < nb.length; r++) {
+          var t0 = p, t1 = nb[q], t2 = nb[r];
+          if (!has(t0, t1) || !has(t1, t2) || !has(t2, t0)) continue;
+          var key = [t0, t1, t2].sort(function (x, y) { return x - y; }).join(',');
+          if (seen[key]) continue;
+          seen[key] = 1;
+          faces.push([t0, t1, t2]);
+        }
+      }
+    }
+    return faces;
+  }
+
+  // 面法线
+  function faceNormal(p0, p1, p2) {
+    var ux = p1.x - p0.x, uy = p1.y - p0.y, uz = p1.z - p0.z;
+    var vx = p2.x - p0.x, vy = p2.y - p0.y, vz = p2.z - p0.z;
+    var nx = uy * vz - uz * vy;
+    var ny = uz * vx - ux * vz;
+    var nz = ux * vy - uy * vx;
+    var len = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+    return { x: nx / len, y: ny / len, z: nz / len };
+  }
+
+  // 画所有面（pts 是已经投影好的屏幕坐标）
+  function drawFaces(sc, pts, faces, ang) {
+    if (!faces.length) return;
+    var ctx = sc.ctx;
+    var geo = sc.geo;
+
+    // 光源方向（左上前方），归一化
+    var Lx = -0.45, Ly = -0.72, Lz = 0.53;
+    var ll = Math.sqrt(Lx * Lx + Ly * Ly + Lz * Lz);
+    Lx /= ll; Ly /= ll; Lz /= ll;
+
+    var rgb = sc.faceColor;
+    var baseAlpha = sc.faceAlpha;
+
+    // 旋转函数（与 draw 里一致，用于把法线转到视线空间）
+    function rY(p, a) { var c = Math.cos(a), s = Math.sin(a); return { x: p.x * c + p.z * s, y: p.y, z: -p.x * s + p.z * c }; }
+    function rX(p, a) { var c = Math.cos(a), s = Math.sin(a); return { x: p.x, y: p.y * c - p.z * s, z: p.y * s + p.z * c }; }
+    function rZ(p, a) { var c = Math.cos(a), s = Math.sin(a); return { x: p.x * c - p.y * s, y: p.x * s + p.y * c, z: p.z }; }
+
+    var list = [];
+    for (var f = 0; f < faces.length; f++) {
+      var tri = faces[f];
+      var a0 = pts[tri[0]], a1 = pts[tri[1]], a2 = pts[tri[2]];
+      if (!a0 || !a1 || !a2) continue;
+
+      // 世界法线 → 视线空间
+      var nrm = faceNormal(geo.v[tri[0]], geo.v[tri[1]], geo.v[tri[2]]);
+      var n2 = rZ(rX(rY(nrm, ang), ang * 0.62), sc.tilt || 0.42);
+      var lam = Math.abs(n2.x * Lx + n2.y * Ly + n2.z * Lz);  // 双面光照
+
+      var area = Math.abs((a1.x - a0.x) * (a2.y - a0.y) - (a2.x - a0.x) * (a1.y - a0.y)) / 2;
+
+      list.push({
+        z: (a0.z + a1.z + a2.z) / 3,
+        a0: a0, a1: a1, a2: a2,
+        // 0.30 环境光 + 0.70 漫反射
+        shade: 0.30 + lam * 0.70,
+        area: area
+      });
+    }
+
+    // 画家算法：远的先画
+    list.sort(function (p, q) { return q.z - p.z; });
+
+    var maxArea = 1;
+    for (var m = 0; m < list.length; m++) if (list[m].area > maxArea) maxArea = list[m].area;
+
+    for (var k = 0; k < list.length; k++) {
+      var it = list[k];
+      var rr = Math.round(rgb[0] * it.shade);
+      var gg = Math.round(rgb[1] * it.shade);
+      var bb = Math.round(rgb[2] * it.shade);
+      // 碎面降低不透明度，避免密集区域糊成一片
+      var af = baseAlpha * (0.40 + 0.60 * Math.min(1, it.area / (maxArea * 0.35)));
+      ctx.globalAlpha = Math.max(0.02, Math.min(0.60, af));
+      ctx.fillStyle = 'rgb(' + rr + ',' + gg + ',' + bb + ')';
+      ctx.beginPath();
+      ctx.moveTo(it.a0.x, it.a0.y);
+      ctx.lineTo(it.a1.x, it.a1.y);
+      ctx.lineTo(it.a2.x, it.a2.y);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function Scene(canvas, opts) {
     opts = opts || {};
     this.canvas = canvas;
@@ -164,6 +289,17 @@
     this.tilt = opts.tilt == null ? 0.42 : opts.tilt;   // Z 轴倾斜
     this.fov = opts.fov || 420;
     this.scale = opts.scale || 1;
+    // 2026-10-19：宽扁画布（作品封面）用非等比缩放，让模型横向铺满
+    this.stretchX = opts.stretchX || 1;
+    this.stretchY = opts.stretchY || 1;
+    /* 2026-10-19：实体面渲染开关。
+       视觉评估指出封面「只有轮廓线，没有实面、光影，像 CAD 线框草图」，
+       纯线框在浅色底上缺乏体积感是渲染方式的限制，调色解决不了。
+       开这个开关后，draw 会先铺面（带 Lambert 光照）再画棱。 */
+    this.showFaces = opts.showFaces === true;
+    this.faceColor = opts.faceColor || [37, 99, 235];
+    this.faceAlpha = opts.faceAlpha == null ? 0.20 : opts.faceAlpha;
+    this._faces = null;
     this.lineColor = opts.lineColor || 'rgba(37, 99, 235, .52)';
     this.accentColor = opts.accentColor || 'rgba(29, 78, 216, .92)';
     this.dotColor = opts.dotColor || 'rgba(37, 99, 235, .78)';
@@ -202,7 +338,14 @@
 
     var ang = t * this.speed;
     var cx = w / 2, cy = h / 2;
-    var scale = Math.min(w, h) / 260 * this.scale;
+    /* 2026-10-19：宽画布适配。
+       原来固定用 Math.min(w, h)（短边）算比例，宽画布横向空间全浪费。
+       实测 379×212 上模型放大到 1.75 时高度已溢出 92%，宽度才 55%。
+       新增 stretchX / stretchY（默认 1，对既有调用零影响），
+       让封面这类宽扁画布可以把模型横向铺开。 */
+    var stretchX = this.stretchX || 1;
+    var stretchY = this.stretchY || 1;
+    var baseScale = Math.min(w, h) / 260 * this.scale;
 
     // 变换所有顶点
     var pts = [];
@@ -215,12 +358,21 @@
       // 透视投影
       var d = this.fov / (this.fov + p.z);
       pts.push({
-        x: cx + p.x * d * scale,
-        y: cy + p.y * d * scale,
+        x: cx + p.x * d * baseScale * stretchX,
+        y: cy + p.y * d * baseScale * stretchY,
         z: p.z,
         d: d
       });
     }
+
+    /* 2026-10-19：实体面渲染。
+       必须在棱之前铺面（面在下、棱在上），且复用同一套投影后的 pts，
+       保证面与线框严丝合缝，不会出现「两层错位」的观感。 */
+    /* 2026-10-19：三角面方案对「线段型」几何体无效。
+       实测 workflow / triphase / roadmap / layers / helix 的面数都是 0 ——
+       它们的棱是独立线段，不构成闭合三角。
+       改为「棱的立体化」（见下方 drawEdges3D），对所有造型都生效。 */
+    var use3DEdges = this.showFaces;
 
     // 按 z 排序棱：远的先画，近的后画（画家算法）
     var edges = this.geo.e.slice().sort(function (a, b) {
@@ -240,6 +392,44 @@
       var lwBase = this.lineBoost || 1;
       ctx.lineWidth = (0.7 + near * 1.5) * lwBase;
       ctx.globalAlpha = 0.42 + near * 0.58;
+
+      /* 2026-10-19：立体笔画（use3DEdges）。
+         线框类几何体推不出三角面（实测 5/8 的面数是 0），
+         所以用「多层描边」制造体积：深色底层给厚度，主色中层给形体，
+         细高光层给受光面。三层叠起来，线就成了一根有体积的管子。 */
+      if (use3DEdges) {
+        var w0 = (0.7 + near * 1.5) * lwBase;
+
+        // ① 厚度层：比主色深、比主色粗，像线投在底面上的暗部
+        ctx.globalAlpha = 0.22 + near * 0.20;
+        ctx.strokeStyle = 'rgba(30, 58, 138, 1)';
+        ctx.lineWidth = w0 + 2.6;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        // ② 主体层
+        ctx.globalAlpha = 0.52 + near * 0.44;
+        ctx.strokeStyle = near > 0.58 ? this.accentColor : this.lineColor;
+        ctx.lineWidth = w0 + 0.5;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        // ③ 高光层：只给近处的线，模拟受光的那一侧
+        if (near > 0.46) {
+          ctx.globalAlpha = (near - 0.46) * 1.1;
+          ctx.strokeStyle = 'rgba(224, 242, 254, 1)';
+          ctx.lineWidth = Math.max(0.7, w0 * 0.42);
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+        continue;
+      }
 
       // 白色衬底描边：深色封面上蓝线会糊掉，先描一层白再描蓝，
       // 相当于给线框加「描边高光」，深浅底都能看清（成本很低，

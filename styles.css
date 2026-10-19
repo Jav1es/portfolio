@@ -4750,3 +4750,358 @@ body.nav-open {
 @media print {
   .whale-stage { display: none; }
 }
+
+
+/* ==========================================================================
+   封面 3D 化 v2（2026-10-19）
+   --------------------------------------------------------------------------
+   用户：「既然是 3D 模型就应该让封面变成 3D 的」。
+
+   原状：封面 = 2D SVG 示意图（满铺）+ 右下角 96px 3D 小图标（占 4%）。
+   现在：整个封面是一个透视舞台，3D 模型成为主视觉，示意图退为底层纹理。
+
+   分层（translateZ 从深到浅）：
+     -60px  底层网格/光晕
+       0px  2D 示意图（退为背景纹理，降低不透明度）
+      40px  3D 线框模型（主视觉）
+      70px  模块标签 / 光斑
+
+   交互：鼠标进入卡片 → 按指针位置整体倾斜（rotateX/rotateY），
+   各层按不同 translateZ 自然产生视差。离开时回正。
+   ========================================================================== */
+
+/* ---------- 透视容器 ---------- */
+.w-card .w-thumb {
+  position: relative;
+  perspective: 900px;
+  perspective-origin: 50% 50%;
+  transform-style: preserve-3d;
+  /* 封面本身也随指针轻微倾斜（由 JS 写 --tilt-x / --tilt-y） */
+  transform:
+    rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+  transition: transform .45s cubic-bezier(.22, .61, .36, 1);
+  will-change: transform;
+  /* 隔离渲染，避免倾斜时把卡片外的东西也带上 */
+  contain: paint;
+}
+
+/* 倾斜时不要再叠 hover 的 scale，两者会打架（scale 会放大倾斜的失真） */
+.w-card:hover .w-thumb {
+  transform:
+    rotateX(var(--tilt-x, 0deg))
+    rotateY(var(--tilt-y, 0deg));
+}
+
+/* ---------- 底层：2D 示意图退为纹理 ---------- */
+.w-card .w-thumb .w-cover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* 往后退，让它明确处于 3D 模型之下 */
+  transform: translateZ(-30px) scale(1.06);
+  /* 降低存在感：它现在是背景纹理，不是主角 */
+  opacity: .42;
+  filter: saturate(.75);
+  transition: opacity .4s ease, filter .4s ease;
+}
+
+.w-card:hover .w-thumb .w-cover {
+  opacity: .55;
+  filter: saturate(.9);
+}
+
+/* ---------- 中层：3D 模型成为主视觉 ---------- */
+.w-card .w-thumb .w-3d {
+  position: absolute;
+  /* 从「右下角 96px 装饰」改为「铺满封面」 */
+  inset: 0;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  height: 100%;
+  transform: translateZ(40px);
+  /* 模型本身不抢示意图的边，留一点呼吸 */
+  padding: 6px;
+  pointer-events: none;
+  /* 轻微投影，让它从底板上「浮起来」 */
+  filter:
+    drop-shadow(0 6px 14px rgba(37, 99, 235, .16))
+    drop-shadow(0 1px 2px rgba(15, 23, 42, .08));
+  transition: filter .4s ease;
+}
+
+.w-card:hover .w-thumb .w-3d {
+  filter:
+    drop-shadow(0 10px 22px rgba(37, 99, 235, .24))
+    drop-shadow(0 2px 4px rgba(15, 23, 42, .10));
+}
+
+/* ---------- 顶层：模块标签浮在最前 ---------- */
+.w-card .w-thumb .w-cover-tag {
+  transform: translateZ(70px);
+  /* 原来 z-index:2 就够了，现在在 3D 空间里要单独提层 */
+  z-index: auto;
+}
+
+/* 封面右下角加一层柔光，托住 3D 模型 */
+.w-card .w-thumb::before {
+  content: '';
+  position: absolute;
+  right: -10%;
+  bottom: -20%;
+  width: 70%;
+  height: 90%;
+  background: radial-gradient(ellipse at 60% 70%,
+    rgba(37, 99, 235, .10) 0%,
+    rgba(37, 99, 235, .04) 42%,
+    transparent 72%);
+  transform: translateZ(10px);
+  pointer-events: none;
+}
+
+/* ---------- 手机：不做倾斜，保持性能与稳定 ---------- */
+@media (max-width: 859.98px) {
+  .w-card .w-thumb {
+    perspective: none;
+    transform: none !important;
+  }
+  .w-card .w-thumb .w-cover {
+    transform: none;
+    opacity: .40;
+  }
+  .w-card .w-thumb .w-3d {
+    transform: none;
+  }
+  .w-card .w-thumb .w-cover-tag {
+    transform: none;
+  }
+  .w-card .w-thumb::before { display: none; }
+}
+
+/* ---------- 减少动效：完全静态 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .w-card .w-thumb {
+    transition: none;
+    transform: none !important;
+  }
+  .w-card .w-thumb .w-cover,
+  .w-card .w-thumb .w-3d,
+  .w-card .w-thumb .w-cover-tag {
+    transform: none;
+  }
+}
+
+/* ---------- 打印：不显示 3D 层 ---------- */
+@media print {
+  .w-card .w-thumb .w-3d { display: none; }
+}
+
+
+/* ==========================================================================
+   作品全生命周期 · 3D 轨道环（2026-10-19）
+   --------------------------------------------------------------------------
+   替代之前的「鲸鱼」。用户反馈鲸鱼「太丑太草率」——
+   鲸鱼是有机曲线造型，手写参数方程很难做可信；
+   环是几何造型，三条同心轨道天然有层次，且能直接表达「权重」。
+
+   与封面同一套视觉语言：实面方块 + 冷色 + 无 backdrop-filter。
+   ========================================================================== */
+
+.orbit-stage {
+  position: relative;
+  margin-top: 22px;
+  border-radius: 18px;
+  background:
+    linear-gradient(168deg,
+      rgba(255, 255, 255, .97) 0%,
+      rgba(249, 251, 255, .94) 44%,
+      rgba(241, 247, 255, .96) 100%);
+  border: 1px solid rgba(255, 255, 255, .96);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 10px 30px rgba(37, 99, 235, .07),
+    0 26px 64px rgba(15, 23, 42, .05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  overflow: hidden;
+}
+
+#orbit-canvas {
+  display: block;
+  width: 100%;
+  height: 460px;
+  touch-action: pan-y;
+  cursor: default;
+  outline: none;
+}
+#orbit-canvas:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -3px;
+  border-radius: 18px;
+}
+
+/* ---------- 悬停气泡 ---------- */
+.orbit-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  pointer-events: none;
+  padding: 9px 13px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .98);
+  border: 1px solid rgba(37, 99, 235, .22);
+  box-shadow:
+    0 8px 24px rgba(15, 23, 42, .10),
+    0 2px 6px rgba(37, 99, 235, .08);
+  max-width: 260px;
+}
+.orbit-tip b {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.4;
+}
+.orbit-tip span {
+  display: block;
+  margin-top: 3px;
+  font-size: 11.5px;
+  color: #64748b;
+  letter-spacing: .01em;
+}
+
+/* ---------- 图例 ---------- */
+.orbit-legend {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+.orbit-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--txt3);
+  letter-spacing: .01em;
+}
+.orbit-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  display: inline-block;
+  flex: none;
+}
+/* 与 orbit-3d.js 里的 LAYER_COLOR 对应：内环 amber、中环 blue、外环 violet */
+.orbit-dot--core { background: #d97706; box-shadow: 0 0 0 3px rgba(217, 119, 6, .13); }
+.orbit-dot--eng  { background: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, .12); }
+.orbit-dot--lab  { background: #7c3aed; box-shadow: 0 0 0 3px rgba(124, 58, 237, .12); }
+
+/* ---------- 底部控制条 ---------- */
+.orbit-ui {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.orbit-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--txt3);
+  letter-spacing: .01em;
+}
+
+.orbit-fallback {
+  margin: 0;
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--txt3);
+  font-size: 14px;
+}
+.orbit-fallback a { color: var(--blue); }
+
+/* ---------- 平板 ---------- */
+@media (max-width: 1023.98px) {
+  #orbit-canvas { height: 400px; }
+}
+
+/* ---------- 手机 ---------- */
+@media (max-width: 599.98px) {
+  .orbit-stage { border-radius: 14px; margin-top: 16px; }
+  #orbit-canvas { height: 320px; border-radius: 14px; }
+  .orbit-legend { top: 10px; left: 12px; gap: 10px; }
+  .orbit-legend__item { font-size: 11px; gap: 5px; }
+  .orbit-dot { width: 8px; height: 8px; }
+  .orbit-ui { left: 12px; right: 12px; bottom: 10px; gap: 8px; }
+  .orbit-ui .btn { font-size: 12.5px; padding: 6px 12px; }
+  .orbit-hint { font-size: 11px; }
+  .orbit-tip { max-width: 200px; padding: 7px 11px; }
+  .orbit-tip b { font-size: 12px; }
+}
+
+/* ---------- 打印 ---------- */
+@media print {
+  .orbit-stage { display: none; }
+}
+
+
+/* ---------- 轨道环图例 v2：两行（轨道 / 分组）2026-10-19 ----------
+   评估指出「轨道层级和作品分类两个概念混合」，
+   所以图例明确分成两个维度，并加上维度标签。 */
+.orbit-legend {
+  flex-direction: column;
+  gap: 7px;
+  align-items: flex-start;
+}
+.orbit-legend__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.orbit-legend__label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: #94a3b8;
+  text-transform: uppercase;
+  min-width: 28px;
+}
+/* 轨道标记：空心环，深浅表示层级 */
+.orbit-ring {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+  border: 2px solid currentColor;
+  background: transparent;
+}
+.orbit-ring--in  { color: #1d4ed8; }
+.orbit-ring--mid { color: #60a5fa; }
+.orbit-ring--out { color: #c7d2fe; }
+
+/* 分组标记：实心方块，与 3D 里的方块呼应 */
+.orbit-dot {
+  border-radius: 2.5px;
+  width: 9px;
+  height: 9px;
+}
+.orbit-dot--oss { background: #0e7490; box-shadow: 0 0 0 3px rgba(14, 116, 144, .12); }
+
+/* 手机：图例两行压紧 */
+@media (max-width: 599.98px) {
+  .orbit-legend { gap: 5px; }
+  .orbit-legend__row { gap: 9px; }
+  .orbit-legend__label { font-size: 9.5px; min-width: 24px; }
+  .orbit-ring { width: 9px; height: 9px; border-width: 1.8px; }
+}
