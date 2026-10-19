@@ -175,6 +175,9 @@
       sc.start();
     }
 
+    // 挂到 canvas 上：便于调试与外部验证（也方便将来做「跳到某个作品」的 API）
+    canvas.__whaleScene = sc;
+
     return sc;
   }
 
