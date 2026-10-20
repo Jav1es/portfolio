@@ -82,6 +82,15 @@
     this.zoom = 1;
     this.minZoom = 0.55;
     this.maxZoom = 2.6;
+
+    /* 2026-10-20：对象池。
+       draw() 每帧要投影 N 个顶点、M 条棱，原来每帧都 map 出新对象，
+       21 个场景就是每秒十几万个临时对象 —— 弱机器上 GC 停顿明显。
+       现在第一帧分配一次，之后复用，只改字段值。 */
+    this._poolPts = [];      // 投影点池
+    this._poolEdges = [];    // 棱池
+    this._poolBuckets = [];  // 分桶池
+    this._poolBucketMap = {};
     this.showGrid = this.opts.grid !== false;
     // 2026-10-20：模型占短边的比例。封面用默认 0.86，
     // 轨道环这种宽扁结构需要更多留白（0.74）
@@ -444,8 +453,16 @@
     var geo = this.geo;
     if (!geo || !geo.v.length) return;
 
-    // 投影所有顶点
-    var pts = geo.v.map(function (v) { return this.project(v, ang); }, this);
+    /* 2026-10-20：投影复用对象池，不再每帧新建。
+       原来 geo.v.map 每帧分配 N 个对象，现在只改已有对象的字段。 */
+    var pts = this._poolPts;
+    var vn = geo.v.length;
+    while (pts.length < vn) pts.push({ x: 0, y: 0, z: 0 });
+    for (var pi = 0; pi < vn; pi++) {
+      var pr = this.project(geo.v[pi], ang);
+      pts[pi].x = pr.x; pts[pi].y = pr.y; pts[pi].z = pr.z;
+    }
+    if (pts.length > vn) pts.length = vn;
     // 2026-10-20：存起来供 hitTest（多方块模式）
     this._lastPts = pts;
 
@@ -456,11 +473,20 @@
 
     // 棱按深度排序（远的先画，近的后画 → 近的压在上面）
     var self = this;
-    var edges = geo.e.map(function (e, i) {
-      var a = pts[e[0]], b = pts[e[1]];
-      // weight：形状可以指定「这条线画多细」，轨道弧线用很小的值
-      return { a: a, b: b, z: (a.z + b.z) / 2, i: i, color: null, weight: 1 };
-    });
+    /* 2026-10-20：棱也复用对象池 */
+    var edges = this._poolEdges;
+    var en = geo.e.length;
+    while (edges.length < en) edges.push({ a: null, b: null, z: 0, i: 0, color: null, weight: 1 });
+    for (var ei = 0; ei < en; ei++) {
+      var eo = edges[ei];
+      var ea = pts[geo.e[ei][0]], eb = pts[geo.e[ei][1]];
+      eo.a = ea; eo.b = eb;
+      eo.z = (ea.z + eb.z) / 2;
+      eo.i = ei;
+      eo.color = null;
+      eo.weight = 1;
+    }
+    if (edges.length > en) edges.length = en;
 
     /* 2026-10-20：多方块模式下，把每个方块的 color 挂到它的棱上。
        轨道环的 23 个作品块有分组色（橙/蓝/青/紫），
@@ -492,10 +518,13 @@
        原来所有棱按深度分 10 桶，颜色由深度插值算出来 ——
        这会把分组色抹掉。现在按 (颜色, 深度) 组合分桶，
        有颜色的用原色相，没颜色的走原来的蓝系渐变。 */
-    var BUCKETS = 10;
+    /* 2026-10-20：分桶也复用。
+       原来每帧新建 buckets 数组 + 每个桶一个对象 + 每个桶一个 list 数组，
+       一帧能有十几个桶 → 几十个新对象。现在池化，只清空 list 长度。 */
     var DEPTH_BUCKETS = 4;
-    var buckets = [];   // buckets[key] = { list, color, dnMid }
-    var bucketMap = {};
+    var buckets = this._poolBuckets;
+    var bucketMap = this._poolBucketMap;
+    var bcount = 0;
 
     for (var i = 0; i < edges.length; i++) {
       var ed = edges[i];
@@ -504,17 +533,33 @@
       var ckey = ed.color ? (ed.color[0] + '_' + ed.color[1] + '_' + ed.color[2]) : 'auto';
       var key = ckey + '|' + db + '|' + ed.weight;
 
-      if (!bucketMap[key]) {
-        bucketMap[key] = {
-          list: [],
-          color: ed.color,
-          weight: ed.weight,
-          dnMid: (db + 0.5) / DEPTH_BUCKETS
-        };
-        buckets.push(bucketMap[key]);
+      var bucket = bucketMap[key];
+      if (!bucket) {
+        // 池里还有就复用，否则新建
+        if (bcount < buckets.length) {
+          bucket = buckets[bcount];
+          bucket.list.length = 0;
+        } else {
+          bucket = { list: [], color: null, weight: 1, dnMid: 0 };
+          buckets.push(bucket);
+        }
+        bucket.color = ed.color;
+        bucket.weight = ed.weight;
+        bucket.dnMid = (db + 0.5) / DEPTH_BUCKETS;
+        bucketMap[key] = bucket;
+        bcount++;
       }
-      bucketMap[key].list.push(ed);
+      bucket.list.push(ed);
     }
+
+    // 清掉本帧没用到的桶的 map 引用（避免跨帧残留）
+    var usedKeys = Object.keys(bucketMap);
+    for (var uk = 0; uk < usedKeys.length; uk++) {
+      var bk = bucketMap[usedKeys[uk]];
+      var idx = buckets.indexOf(bk);
+      if (idx >= bcount) delete bucketMap[usedKeys[uk]];
+    }
+    buckets.length = bcount;
 
     /* 2026-10-20：多方块模式下，高亮方块单独画一遍。
        做法：先把高亮方块从批量里摘出来，批量画完后再用更深的色加粗画一次，

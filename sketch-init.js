@@ -108,26 +108,89 @@
     if (!deferred.length) return;
     if (!global.IntersectionObserver) { deferred.forEach(initOne); return; }
 
+    /* 2026-10-20：rootMargin 160px → 80px。
+       works.html 卡片高约 220px，160px 意味着视口外 1.6 排都在跑动画。
+       80px 只预加载半排，滚动时视觉上仍然连续，但并发场景少一半。 */
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var el = e.target;
         if (e.isIntersecting) {
           if (!el.__sketch) initOne(el);
           el.__sketch && el.__sketch.start();
+          el.__inView = true;
         } else if (el.__sketch) {
           el.__sketch.stop();
+          el.__inView = false;
         }
       });
-    }, { rootMargin: '160px 0px' });
+      enforceBudget();
+    }, { rootMargin: '80px 0px' });
+
+    /* 2026-10-20：并发上限。
+       快速滚动时可能十几个场景同时进入触发区。
+       限制同时跑动画的场景数，超出的先停掉（保留最后一帧），
+       等有位置了再启动 —— 视口内的优先。 */
+    var MAX_RUNNING = 4;
+
+    function enforceBudget() {
+      var running = [];
+      var waiting = [];
+      Array.prototype.forEach.call(nodes, function (el) {
+        if (!el.__sketch) return;
+        if (el.__sketch.raf) running.push(el);
+        else if (el.__inView) waiting.push(el);
+      });
+
+      // 超预算：从「离视口最远」的开始停
+      if (running.length > MAX_RUNNING) {
+        running.sort(function (a, b) {
+          return Math.abs(a.getBoundingClientRect().top) - Math.abs(b.getBoundingClientRect().top);
+        });
+        // 前 MAX_RUNNING 个保留（离视口最近），后面的停掉
+        for (var i = MAX_RUNNING; i < running.length; i++) {
+          running[i].__sketch.stop();
+        }
+        running.length = MAX_RUNNING;
+      }
+
+      // 有余额就启动等待中的
+      var room = MAX_RUNNING - running.length;
+      if (room > 0 && waiting.length) {
+        waiting.sort(function (a, b) {
+          return Math.abs(a.getBoundingClientRect().top) - Math.abs(b.getBoundingClientRect().top);
+        });
+        for (var j = 0; j < Math.min(room, waiting.length); j++) {
+          waiting[j].__sketch.start();
+        }
+      }
+    }
 
     deferred.forEach(function (el) { io.observe(el); });
   }
 
+  /* 2026-10-20：修「切回标签页全部重启」。
+     原来是切回来就对所有 canvas 调 start()，不管在不在视口内 ——
+     用户从别的标签切回来，21 个场景瞬间全跑起来，立刻卡一下。
+     现在只重启「当前真的在视口内」的那些。 */
   document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      document.querySelectorAll('canvas[data-sketch="true"]').forEach(function (c) {
+        if (c.__sketch) c.__sketch.stop();
+      });
+      return;
+    }
+    if (reduce) return;
+
+    var vh = global.innerHeight || 800;
+    var revived = 0;
     document.querySelectorAll('canvas[data-sketch="true"]').forEach(function (c) {
-      if (!c.__sketch) return;
-      if (document.hidden) c.__sketch.stop();
-      else if (!reduce) c.__sketch.start();
+      if (!c.__sketch || revived >= 4) return;
+      var r = c.getBoundingClientRect();
+      // 只在视口内（含 80px 预加载）才重启，且不超过并发上限
+      if (r.bottom > -80 && r.top < vh + 80) {
+        c.__sketch.start();
+        revived++;
+      }
     });
   });
 
