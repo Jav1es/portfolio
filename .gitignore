@@ -10,18 +10,11 @@ __pycache__/
 *.bak
 *.bak.*
 
-# _book 构建中间产物（print.html 由 build_book.py 生成）
-_book/portfolio-book.print.html
-_book/_pass1.pdf
-_book/_edge_profile_*/
-
-# 🔴 _book 的**成品**一律不进仓库、不上 Pages：
-#    `黄家辉_AI数字化落地作品集.pdf` 按 brief §0 明确「禁止公开下载」。
-#    2026-10-15 实测它曾被 git 跟踪并可从线上直接下载（HTTP 200 / 1.6MB），
-#    且 portfolio-book.html 还带着「5 年+」「8 个 span」等旧口径。
-#    脚本（*.py）保留在仓库，成品输出忽略。
-_book/*.pdf
-_book/portfolio-book.html
+# 🔴 `_book/` 整目录已于 2026-10-20 废弃删除（旧 PDF 书稿链路）。
+#    原因：PDF 按 brief §0「禁止公开下载」却曾被 git 跟踪、线上 HTTP 200 可下（1.6MB）；
+#    且其 HTML 仍带「5 年+」旧口径，与站点「6 年+」矛盾（final_audit.py 反把 6 年列为禁项）。
+#    有效源 = 根目录 *.html。若目录复活，一律不进仓库、不上 Pages。
+_book/
 
 # 🔴 临时探针页一律用 *-probe.html / _old-*.html 命名，并在根目录忽略：
 #    GitHub Pages + .nojekyll 会把仓库里所有文件发布出去，探针页留在根目录

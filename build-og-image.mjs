@@ -98,7 +98,7 @@ writeFileSync(pagePath, HTML, 'utf8');
 
 const pngPath = join(WORK, 'og.png');
 // ⚠️ 本机 Edge 常驻进程会让 headless 报 "Multiple targets are not supported"
-//    并挂到超时 —— 必须独立 user-data-dir（同 _book/build_book.py:121-123）。
+//    并挂到超时 —— 必须独立 user-data-dir（同 build-resume-pdf.mjs）。
 const uri = 'file:///' + pagePath.replace(/\\/g, '/').replace(/ /g, '%20');
 execFileSync(EDGE, [
   '--headless=new', '--disable-gpu', '--no-sandbox', '--hide-scrollbars',

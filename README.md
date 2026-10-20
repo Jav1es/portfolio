@@ -235,7 +235,6 @@ portfolio/
 ├── 12-dsh-bridge/             # 模块 14 附件（图标 / 技能定义 / 设计取舍 / MCP 参考 / 排错手册）
 ├── 15-dsh-plugins/            # 模块 15 附件（插件总览 README）
 ├── 17-knowledge-guide/        # 模块 17 附件（SKILL.md 规程全文 + 说明 README）
-├── _book/                     # 作品集 PDF 书稿与构建脚本（离线投递版）
 └── README.md                  # 本文件
 ```
 
@@ -245,7 +244,9 @@ portfolio/
 > ⚠️ GitHub Pages **不会发布文件名为 `*SKILL.md` 的文件**（模块 14 的 `dsh-bridge-SKILL.md` 同样 404），
 > 因此模块 17 的「规程全文」链接指向 `raw.githubusercontent.com`，`README.md` 链接仍走站内弹层。
 >
-> `_book/` 为可打印的 PDF 书稿（`黄家辉_AI数字化落地作品集.pdf`）与生成脚本，用于面试携带或邮件附件场景。
+> ⚠️ 旧 PDF 书稿链路 `_book/` 已于 2026-10-20 废弃删除（口径「5 年+」与站点「6 年+」矛盾，
+> 且 PDF 按 brief §0 禁止公开下载）。站点的**唯一有效源是根目录 `*.html`**；简历 PDF 由
+> `build-resume-pdf.mjs` 现场生成，不落仓库。
 
 ---
 

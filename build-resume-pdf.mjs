@@ -8,7 +8,8 @@
 //
 // ⚠️ 本机 Edge 有常驻进程，headless 必须用**独立 user-data-dir** 隔离，
 //    否则报 "Multiple targets are not supported in headless mode" 并挂到超时。
-//    这条坑记在 _book/build_book.py:121-123，是仓库里已验证过的调用方式。
+//    这条坑的原始记录在已删除的 _book/build_book.py:121-123；
+//    现行可用调用见本文件下方 execFileSync(EDGE, [...]) 段。
 import { existsSync, statSync, rmSync, mkdirSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
