@@ -70,6 +70,13 @@
     this.userRotY = 0;
     this.userRotX = 0;
     this.autoSpin = true;
+    /* 2026-10-20：多方块模式（轨道环用）。
+       boxes 非空时，绘制会按方块分组做高亮；
+       _boxRanges 记录每个方块在 geo.e 里的棱区间。 */
+    this.boxes = null;
+    this._boxRanges = null;
+    this.highlight = -1;
+    this._lastPts = null;
     this.showGrid = this.opts.grid !== false;
     this.showHidden = this.opts.hidden !== false;
     this.showNodes = this.opts.nodes !== false;
@@ -109,6 +116,69 @@
     // 画布尺寸变了，包围盒也变，重新适配
     if (this.geo && this.geo.v && this.geo.v.length) this.autoFit();
     return true;
+  };
+
+  /* ======================================================================
+     setBoxes — 把「多个方块」转成一个线框 geo
+     ----------------------------------------------------------------------
+     轨道环由 192 个方块组成（三条环体 + 23 个作品块 + 中心块）。
+     每块 8 个顶点、12 条棱，全部合并进同一个 geo，
+     这样一次绘制就能画完整个结构，且共享同一套深度提示。
+
+     _boxRanges 记录每块占用的顶点/棱区间，供 hitTest 和高亮使用。
+     ====================================================================== */
+  SketchScene.prototype.setBoxes = function (boxes) {
+    var V = [], E = [];
+    var ranges = [];
+
+    for (var i = 0; i < boxes.length; i++) {
+      var b = boxes[i];
+      var hw = (b.w || 1) / 2, hh = (b.h || 1) / 2, hd = (b.d || 1) / 2;
+      var cx = b.x || 0, cy = b.y || 0, cz = b.z || 0;
+
+      var v0 = V.length;
+      // 8 个顶点：先下后上，每层 4 个
+      var corners = [
+        [-hw, -hh, -hd], [hw, -hh, -hd], [hw, -hh, hd], [-hw, -hh, hd],
+        [-hw, hh, -hd], [hw, hh, -hd], [hw, hh, hd], [-hw, hh, hd]
+      ];
+      for (var c = 0; c < 8; c++) {
+        V.push({ x: cx + corners[c][0], y: cy + corners[c][1], z: cz + corners[c][2] });
+      }
+
+      // 12 条棱：底面 4 + 顶面 4 + 竖直 4
+      var e0 = E.length;
+      var pairs = [
+        [0,1],[1,2],[2,3],[3,0],   // 底面
+        [4,5],[5,6],[6,7],[7,4],   // 顶面
+        [0,4],[1,5],[2,6],[3,7]    // 竖直
+      ];
+      for (var p = 0; p < pairs.length; p++) {
+        E.push([v0 + pairs[p][0], v0 + pairs[p][1]]);
+      }
+
+      ranges.push({
+        vStart: v0, vEnd: V.length,
+        eStart: e0, eEnd: E.length,
+        box: b,
+        index: i,
+        // 方块中心，用于命中测试和排序
+        cx: cx, cy: cy, cz: cz
+      });
+    }
+
+    this.boxes = boxes;
+    this._boxRanges = ranges;
+    this.geo = { v: V, e: E };
+    this._geoR = 1;
+    var maxR = 0;
+    for (var g = 0; g < V.length; g++) {
+      var rr = Math.sqrt(V[g].x * V[g].x + V[g].y * V[g].y + V[g].z * V[g].z);
+      if (rr > maxR) maxR = rr;
+    }
+    this._geoR = maxR || 1;
+    this.autoFit();
+    return this;
   };
 
   SketchScene.prototype.setGeo = function (geo) {
@@ -261,6 +331,8 @@
 
     // 投影所有顶点
     var pts = geo.v.map(function (v) { return this.project(v, ang); }, this);
+    // 2026-10-20：存起来供 hitTest（多方块模式）
+    this._lastPts = pts;
 
     // 深度范围（用于归一化 depth cueing）
     var zMin = 1e9, zMax = -1e9;
@@ -271,8 +343,24 @@
     var self = this;
     var edges = geo.e.map(function (e, i) {
       var a = pts[e[0]], b = pts[e[1]];
-      return { a: a, b: b, z: (a.z + b.z) / 2, i: i };
-    }).sort(function (p, q) { return q.z - p.z; });
+      return { a: a, b: b, z: (a.z + b.z) / 2, i: i, color: null };
+    });
+
+    /* 2026-10-20：多方块模式下，把每个方块的 color 挂到它的棱上。
+       轨道环的 23 个作品块有分组色（橙/蓝/青/紫），
+       之前被深度插值统一成蓝色了。 */
+    if (this._boxRanges) {
+      for (var ri = 0; ri < this._boxRanges.length; ri++) {
+        var rg = this._boxRanges[ri];
+        var col = rg.box && rg.box.color;
+        if (!col) continue;
+        for (var ei2 = rg.eStart; ei2 < rg.eEnd; ei2++) {
+          if (edges[ei2]) edges[ei2].color = col;
+        }
+      }
+    }
+
+    edges.sort(function (p, q) { return q.z - p.z; });
 
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -281,23 +369,50 @@
        原来每条棱一次 beginPath+stroke（21 场景 × 50 棱 ≈ 上千次调用），
        实测帧时间 16.7ms → 33.4ms。
        现在分 10 档，同档合并成一条路径，调用次数降到 10 次/场景。 */
+    /* 2026-10-20：分桶从「10 档深度」改成「颜色 × 4 档深度」。
+       原来所有棱按深度分 10 桶，颜色由深度插值算出来 ——
+       这会把分组色抹掉。现在按 (颜色, 深度) 组合分桶，
+       有颜色的用原色相，没颜色的走原来的蓝系渐变。 */
     var BUCKETS = 10;
-    var buckets = [];
-    for (var bi = 0; bi < BUCKETS; bi++) buckets.push([]);
+    var DEPTH_BUCKETS = 4;
+    var buckets = [];   // buckets[key] = { list, color, dnMid }
+    var bucketMap = {};
 
     for (var i = 0; i < edges.length; i++) {
       var ed = edges[i];
       var dn = (ed.z - zMin) / zSpan;
-      var bk = Math.min(BUCKETS - 1, Math.max(0, Math.floor(dn * BUCKETS)));
-      buckets[bk].push(ed);
+      var db = Math.min(DEPTH_BUCKETS - 1, Math.max(0, Math.floor(dn * DEPTH_BUCKETS)));
+      var ckey = ed.color ? (ed.color[0] + '_' + ed.color[1] + '_' + ed.color[2]) : 'auto';
+      var key = ckey + '|' + db;
+
+      if (!bucketMap[key]) {
+        bucketMap[key] = {
+          list: [],
+          color: ed.color,
+          dnMid: (db + 0.5) / DEPTH_BUCKETS
+        };
+        buckets.push(bucketMap[key]);
+      }
+      bucketMap[key].list.push(ed);
     }
 
-    for (var b = 0; b < BUCKETS; b++) {
-      var list = buckets[b];
+    /* 2026-10-20：多方块模式下，高亮方块单独画一遍。
+       做法：先把高亮方块从批量里摘出来，批量画完后再用更深的色加粗画一次，
+       这样它一定压在最上层，不会被别的方块盖住。 */
+    var hlEdges = [];
+    if (this.highlight >= 0 && this._boxRanges && this._boxRanges[this.highlight]) {
+      var hr = this._boxRanges[this.highlight];
+      for (var hi = 0; hi < edges.length; hi++) {
+        if (edges[hi].i >= hr.eStart && edges[hi].i < hr.eEnd) hlEdges.push(edges[hi]);
+      }
+    }
+
+    for (var b = 0; b < buckets.length; b++) {
+      var bucket = buckets[b];
+      var list = bucket.list;
       if (!list.length) continue;
 
-      // 用档位中点代表这一档的深度
-      var dnMid = (b + 0.5) / BUCKETS;
+      var dnMid = bucket.dnMid;
 
       /* ★ Depth Cueing
          近处：粗、深、实；远处：细、淡、虚
@@ -305,9 +420,22 @@
       var lw = 0.90 + dnMid * 3.40;
       var alpha = 0.20 + Math.pow(dnMid, 0.82) * 0.80;
 
-      var r = Math.round(PAL.far[0] + (PAL.near[0] - PAL.far[0]) * dnMid);
-      var g = Math.round(PAL.far[1] + (PAL.near[1] - PAL.far[1]) * dnMid);
-      var bb = Math.round(PAL.far[2] + (PAL.near[2] - PAL.far[2]) * dnMid);
+      var r, g, bb;
+      if (bucket.color) {
+        /* 2026-10-20：有分组色的方块，保留色相，只按深度调明暗。
+           远处混入淡蓝（模拟空气透视），近处保持原色。 */
+        var t = dnMid;                      // 0 远 → 1 近
+        var fade = PAL.far;
+        r = Math.round(fade[0] + (bucket.color[0] - fade[0]) * (0.35 + t * 0.65));
+        g = Math.round(fade[1] + (bucket.color[1] - fade[1]) * (0.35 + t * 0.65));
+        bb = Math.round(fade[2] + (bucket.color[2] - fade[2]) * (0.35 + t * 0.65));
+        // 有颜色的方块稍微提一点不透明度，让分组色看得清
+        alpha = Math.min(1, alpha * 1.15);
+      } else {
+        r = Math.round(PAL.far[0] + (PAL.near[0] - PAL.far[0]) * dnMid);
+        g = Math.round(PAL.far[1] + (PAL.near[1] - PAL.far[1]) * dnMid);
+        bb = Math.round(PAL.far[2] + (PAL.near[2] - PAL.far[2]) * dnMid);
+      }
 
       // 近处外发光（整档一次）
       if (dnMid > 0.68) {
@@ -350,6 +478,33 @@
       }
     }
 
+    /* 2026-10-20：高亮方块最后画，保证在最上层 */
+    if (hlEdges.length) {
+      ctx.save();
+      ctx.globalAlpha = 0.98;
+      ctx.strokeStyle = 'rgb(217,119,6)';   // amber，与全站强调色一致
+      ctx.lineWidth = 3.0;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      for (var he = 0; he < hlEdges.length; he++) {
+        ctx.moveTo(hlEdges[he].a.x, hlEdges[he].a.y);
+        ctx.lineTo(hlEdges[he].b.x, hlEdges[he].b.y);
+      }
+      ctx.stroke();
+
+      // 内层再描一道白色，让高亮像「被点亮的线」
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = 'rgba(255,255,255,.9)';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath();
+      for (var he2 = 0; he2 < hlEdges.length; he2++) {
+        ctx.moveTo(hlEdges[he2].a.x, hlEdges[he2].a.y);
+        ctx.lineTo(hlEdges[he2].b.x, hlEdges[he2].b.y);
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
+
     /* ★ 节点：关键顶点画成小方块 + 十字标记
        这是「科技智慧感」的来源 —— 让结构看起来像被测量、被标注过。 */
     if (this.showNodes) {
@@ -380,6 +535,43 @@
     }
 
     ctx.globalAlpha = 1;
+  };
+
+  /* ======================================================================
+     hitTest — 返回被点中的方块索引（多方块模式）
+     ----------------------------------------------------------------------
+     用上一帧投影后的顶点做包围盒判定，从近到远取第一个。
+     同深度时取面积小的（避免大块抢走小块的点击）。
+     ====================================================================== */
+  SketchScene.prototype.hitTest = function (mx, my) {
+    var pts = this._lastPts;
+    var ranges = this._boxRanges;
+    if (!pts || !ranges) return -1;
+
+    var cands = [];
+    for (var i = 0; i < ranges.length; i++) {
+      var rg = ranges[i];
+      var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, z = 0, n = 0;
+      for (var vi = rg.vStart; vi < rg.vEnd; vi++) {
+        var p = pts[vi];
+        if (!p) continue;
+        if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+        z += p.z; n++;
+      }
+      if (!n) continue;
+      z /= n;
+      if (mx >= minX && mx <= maxX && my >= minY && my <= maxY) {
+        cands.push({ i: i, z: z, area: (maxX - minX) * (maxY - minY) });
+      }
+    }
+    if (!cands.length) return -1;
+
+    cands.sort(function (a, b) {
+      if (Math.abs(a.z - b.z) > 0.15) return b.z - a.z;
+      return a.area - b.area;
+    });
+    return cands[0].i;
   };
 
   SketchScene.prototype.tick = function (now) {

@@ -55,13 +55,21 @@
     var reduce = global.matchMedia &&
       global.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* 2026-10-20：改用 SKETCH3D。
+       原来是 SOLID3D，但切封面到素描风格时把 solid-3d.js 移除了，
+       导致这里报 undefined —— 整个轨道环空白。
+       现在和封面共用同一套素描渲染器，风格天然统一。 */
+    if (!global.SKETCH3D || !global.ORBIT3D) return null;
+
     var built = global.ORBIT3D.buildScene(works);
-    var sc = new global.SOLID3D.Scene(canvas, {
-      scale: 1,
+    var sc = new global.SKETCH3D.Scene(canvas, {
+      geo: { v: [], e: [] },
+      rotY: -0.52,
       tilt: 0.38,          // 俯视角略平，减少底部裁切
       speed: 0.00011,
-      stretchX: 1,
-      palette: { base: [37, 99, 235], light: [96, 165, 250], dark: [29, 78, 216] }
+      grid: false,         // 轨道环自己有环线，不需要背景网格
+      nodes: false,        // 192 个方块画节点会太乱
+      hidden: true
     });
     sc.setBoxes(built.blocks);
 
