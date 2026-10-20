@@ -105,6 +105,37 @@
 
     immediate.forEach(initOne);
 
+    /* 2026-10-20：空闲时预建剩余场景（解决「加载慢」）。
+       原来只有滚到视口才 initOne，快速滚动时新卡片会先空白一两帧。
+       实测 makeGeo 只要 0.01ms、单帧绘制 0.065ms，预建成本极低，
+       所以干脆在空闲时全部建好，只是不启动动画。 */
+    function prebuild() {
+      var i = 0;
+      function chunk() {
+        var t0 = Date.now();
+        var built = 0;
+        /* 每批最多建 3 个，或最多花 8ms —— 别让预建本身卡住滚动。
+           注意用独立的 built 计数，不能用 i % 3 判断：
+           i 可能因跳过已初始化的元素而连续自增，导致 break 条件错乱。 */
+        while (i < deferred.length && built < 3 && Date.now() - t0 < 8) {
+          var el = deferred[i++];
+          if (el && !el.__sketch) { initOne(el); built++; }
+        }
+        if (i < deferred.length) {
+          if (global.requestIdleCallback) {
+            global.requestIdleCallback(chunk, { timeout: 400 });
+          } else {
+            setTimeout(chunk, 60);
+          }
+        }
+      }
+      if (global.requestIdleCallback) {
+        global.requestIdleCallback(chunk, { timeout: 600 });
+      } else {
+        setTimeout(chunk, 120);
+      }
+    }
+
     if (!deferred.length) return;
     if (!global.IntersectionObserver) { deferred.forEach(initOne); return; }
 
@@ -166,6 +197,10 @@
     }
 
     deferred.forEach(function (el) { io.observe(el); });
+
+    // 2026-10-20：先挂上 observer（保证视口内的立刻能用），
+    // 再在空闲时把剩下的预建好
+    prebuild();
   }
 
   /* 2026-10-20：修「切回标签页全部重启」。

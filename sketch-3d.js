@@ -518,13 +518,26 @@
        原来所有棱按深度分 10 桶，颜色由深度插值算出来 ——
        这会把分组色抹掉。现在按 (颜色, 深度) 组合分桶，
        有颜色的用原色相，没颜色的走原来的蓝系渐变。 */
-    /* 2026-10-20：分桶也复用。
-       原来每帧新建 buckets 数组 + 每个桶一个对象 + 每个桶一个 list 数组，
-       一帧能有十几个桶 → 几十个新对象。现在池化，只清空 list 长度。 */
+    /* 2026-10-20 重写分桶（修频闪 bug）。
+       上一版按 key 跨帧复用 bucket：命中缓存时不走「新建」分支，
+       于是 bucket.list 从来不清空，每帧都往里追加 ——
+         第1帧 10 条 → 第2帧 20 条 → 第3帧 30 条 ...
+       几百帧后几千条重复的棱被反复 stroke，颜色深度全乱，
+       表现为「所有作品模型持续频闪」，同时越画越慢。
+
+       这一版：桶对象仍然复用（省分配），但**每帧开头无条件清空所有 list**，
+       并用独立的 _bucketCount 记录本帧用到的桶数，池数组永不截断。 */
     var DEPTH_BUCKETS = 4;
     var buckets = this._poolBuckets;
-    var bucketMap = this._poolBucketMap;
+
+    // 关键修复：每帧开头无条件清空池里所有桶的 list
+    for (var cb = 0; cb < buckets.length; cb++) {
+      buckets[cb].list.length = 0;
+    }
+
     var bcount = 0;
+    // 本帧的 key → 桶下标。每帧新建，内容绝不跨帧继承。
+    var bucketIndex = {};
 
     for (var i = 0; i < edges.length; i++) {
       var ed = edges[i];
@@ -533,33 +546,27 @@
       var ckey = ed.color ? (ed.color[0] + '_' + ed.color[1] + '_' + ed.color[2]) : 'auto';
       var key = ckey + '|' + db + '|' + ed.weight;
 
-      var bucket = bucketMap[key];
-      if (!bucket) {
-        // 池里还有就复用，否则新建
+      var bi = bucketIndex[key];
+      if (bi === undefined) {
+        bi = bcount;
+        bucketIndex[key] = bi;
+        var bk;
         if (bcount < buckets.length) {
-          bucket = buckets[bcount];
-          bucket.list.length = 0;
+          bk = buckets[bcount];        // 复用池里的桶（list 刚被清空）
         } else {
-          bucket = { list: [], color: null, weight: 1, dnMid: 0 };
-          buckets.push(bucket);
+          bk = { list: [], color: null, weight: 1, dnMid: 0 };
+          buckets.push(bk);
         }
-        bucket.color = ed.color;
-        bucket.weight = ed.weight;
-        bucket.dnMid = (db + 0.5) / DEPTH_BUCKETS;
-        bucketMap[key] = bucket;
+        bk.color = ed.color;
+        bk.weight = ed.weight;
+        bk.dnMid = (db + 0.5) / DEPTH_BUCKETS;
         bcount++;
       }
-      bucket.list.push(ed);
+      buckets[bi].list.push(ed);
     }
 
-    // 清掉本帧没用到的桶的 map 引用（避免跨帧残留）
-    var usedKeys = Object.keys(bucketMap);
-    for (var uk = 0; uk < usedKeys.length; uk++) {
-      var bk = bucketMap[usedKeys[uk]];
-      var idx = buckets.indexOf(bk);
-      if (idx >= bcount) delete bucketMap[usedKeys[uk]];
-    }
-    buckets.length = bcount;
+    // 记录本帧桶数（池数组不截断，保留对象供下次复用）
+    this._bucketCount = bcount;
 
     /* 2026-10-20：多方块模式下，高亮方块单独画一遍。
        做法：先把高亮方块从批量里摘出来，批量画完后再用更深的色加粗画一次，
@@ -572,7 +579,9 @@
       }
     }
 
-    for (var b = 0; b < buckets.length; b++) {
+    // 2026-10-20：按本帧实际桶数迭代（池数组里可能有上次残留的空桶）
+    var nBuckets = this._bucketCount == null ? buckets.length : this._bucketCount;
+    for (var b = 0; b < nBuckets; b++) {
       var bucket = buckets[b];
       var list = bucket.list;
       if (!list.length) continue;
