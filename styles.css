@@ -5464,3 +5464,450 @@ body.nav-open {
     content: ' · 双指缩放';
   }
 }
+
+
+/* ==========================================================================
+   页脚 v3 · 联系优先（2026-10-20）
+   --------------------------------------------------------------------------
+   用户反馈：「网页结尾排版不协调，没有给人一种想联系的感觉，
+   个人联系方式可以加上微信二维码，导航放在右边」。
+
+   旧版四列平铺（品牌/联系/导航/口径），信息罗列感重，联系不是重点。
+   新版三列 + 底部元信息：
+     左 品牌 + 一句话 + 联系方式（邮箱/微信/GitHub/城市）
+     中 微信二维码（视觉重心，最直接的行动入口）
+     右 导航（用户要求放右边）
+     底 口径 + 版权
+   ========================================================================== */
+
+.footer-v2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) auto minmax(0, .85fr);
+  gap: 48px;
+  align-items: start;
+  padding-bottom: 32px;
+}
+
+/* 左：品牌 + 联系方式 */
+.footer-v2__brand { min-width: 0; }
+
+.footer-v2__name {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -.015em;
+  color: var(--txt);
+  margin-bottom: 8px;
+}
+
+.footer-v2__tagline {
+  margin: 0 0 20px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--txt2);
+}
+
+.footer-v2__contact {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.footer-v2__contact .contact-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  min-width: 0;
+}
+
+.footer-v2__contact .contact-row__k {
+  flex: none;
+  width: 52px;
+  font-size: 12px;
+  color: var(--txt3);
+  font-weight: 600;
+}
+
+.footer-v2__contact .contact-row a,
+.footer-v2__contact .contact-row > span:not(.contact-row__k) {
+  color: var(--txt);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .16s ease, color .16s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.footer-v2__contact .contact-row a:hover {
+  color: var(--blue);
+  border-bottom-color: currentColor;
+}
+
+/* 中：微信二维码 —— 视觉重心 */
+.footer-v2__qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.qr-box {
+  width: 148px;
+  height: 148px;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 8px 24px -12px rgba(15, 23, 42, .12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.qr-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+}
+
+/* 没有二维码图片时的占位（onerror 会加 qr-box--empty 并移除 img） */
+.qr-box__fallback { display: none; }
+.qr-box--empty .qr-box__fallback,
+.qr-box:not(:has(img)) .qr-box__fallback {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--txt3);
+}
+.qr-box--empty .qr-box__fallback small,
+.qr-box:not(:has(img)) .qr-box__fallback small {
+  font-size: 11px;
+  color: var(--txt3);
+  opacity: .85;
+}
+
+.qr-note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--txt3);
+  text-align: center;
+}
+
+/* 右：导航 */
+.footer-v2__nav { min-width: 0; justify-self: end; }
+
+.footer-v2__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  color: var(--txt3);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.footer-v2__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.footer-v2__list--nav {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 28px;
+  row-gap: 9px;
+}
+
+.footer-v2__list a {
+  font-size: 13.5px;
+  color: var(--txt2);
+  text-decoration: none;
+  transition: color .16s ease;
+  display: inline-block;
+}
+.footer-v2__list a:hover { color: var(--blue); }
+
+/* 底部：口径 + 版权 */
+.footer-v2__meta {
+  padding: 20px 0 16px;
+  border-top: 1px solid var(--line);
+}
+
+.footer-v2__list--meta {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 32px;
+  row-gap: 7px;
+}
+.footer-v2__list--meta li span {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--txt3);
+}
+
+.footer-v2__base {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+  color: var(--txt3);
+}
+
+/* 平板：二维码下移，两列 */
+@media (max-width: 1023.98px) {
+  .footer-v2 {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 36px;
+  }
+  .footer-v2__qr {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 18px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .footer-v2__qr .footer-v2__label { display: none; }
+  .qr-note { text-align: left; }
+  .footer-v2__nav { justify-self: start; }
+}
+
+/* 手机：单列 */
+@media (max-width: 599.98px) {
+  .footer-v2 {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+  .footer-v2__qr {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .qr-box { width: 132px; height: 132px; }
+  .footer-v2__list--nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer-v2__list--meta { grid-template-columns: minmax(0, 1fr); }
+  .footer-v2__base { flex-direction: column; gap: 6px; }
+}
+
+
+/* 二维码可点击放大（2026-10-20）
+   手机端长按图片即可识别，桌面端点击看原图。 */
+.qr-box__link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  transition: transform .18s ease;
+}
+.qr-box__link:hover { transform: scale(1.03); }
+.qr-box__link:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.qr-box__link img { display: block; width: 100%; height: 100%; object-fit: contain; }
+
+/* CTA 文案加强 */
+.qr-note {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--txt2);
+  font-weight: 600;
+}
+.qr-note small {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--txt3);
+}
+
+
+/* ==========================================================================
+   能力主线四宫格 + 小标题蓝底白字（2026-10-20）
+   --------------------------------------------------------------------------
+   用户原话：「能力主线这里的排版问题，可以蓝底白字突出，我感觉下面的文字
+   重要一点，不用整大，大标题比小标题的字小这么多很诡异，小标题要么突出
+   蓝底白字，建议……改成四宫格排版」。
+
+   三个问题一起解决：
+     ① 层级倒挂：kicker（小标签）看起来像标题，h2 反而被压。
+        修法：kicker 做成蓝底白字胶囊，明确「这是标签」，h2 保持大字号。
+     ② 只有 3 张卡，2×2 右下空着。修法：加第 4 张，网格 2×2。
+     ③ 新卡需要绿色系和「根基」标签。
+   ========================================================================== */
+
+/* ---------- ① 小标题：蓝底白字胶囊 ---------- */
+.kicker--solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  line-height: 1;
+  box-shadow:
+    0 1px 2px rgba(37, 99, 235, .18),
+    inset 0 1px 0 rgba(255, 255, 255, .18);
+  margin-bottom: 14px;
+}
+/* 蓝底白字胶囊前的小圆点，增加识别度 */
+.kicker--solid::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .85);
+  flex: none;
+}
+
+/* 确保 h2 明确大于 kicker —— 修复「大标题比小标题小」的诡异感 */
+.section-head h2 {
+  font-size: clamp(22px, 2.4vw, 30px);
+  line-height: 1.28;
+  letter-spacing: -.02em;
+  margin: 0 0 10px;
+  color: var(--txt);
+  font-weight: 800;
+}
+
+/* ---------- ② 四宫格 ---------- */
+.entry-grid--quad {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+/* 四宫格里每张卡等高，避免文字多少导致高低不齐 */
+.entry-grid--quad .entry-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.entry-grid--quad .entry-card p {
+  flex: 1;
+  margin-bottom: 14px;
+}
+
+/* ---------- ③ 第 4 张卡：根基（绿色系） ---------- */
+.accent-green {
+  --accent: #059669;
+  --accent-soft: rgba(5, 150, 105, .10);
+}
+.accent-green .card-ico {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.accent-green:hover {
+  border-color: rgba(5, 150, 105, .32);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, .04),
+    0 12px 32px -14px rgba(5, 150, 105, .22);
+}
+
+/* 「根基」标签 */
+.entry-base {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(5, 150, 105, .12);
+  color: #047857;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+/* 第 4 张卡弱化一点（它是背景根基，不是主推方向） */
+.entry-card.is-base {
+  background: linear-gradient(180deg, rgba(5, 150, 105, .025), transparent 60%);
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 859.98px) {
+  .entry-grid--quad { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+
+@media (max-width: 599.98px) {
+  .kicker--solid { font-size: 11.5px; padding: 4px 10px; margin-bottom: 12px; }
+  .section-head h2 { font-size: 20px; }
+}
+
+
+/* ==========================================================================
+   页面底部行动入口（2026-10-20）
+   --------------------------------------------------------------------------
+   用户要求把「邮件联系我 / 下载 PDF 简历 / 看 3 个核心项目 / GitHub」
+   四个按钮从首屏移到最下面。
+
+   设计：作为独立的收尾区块，不是简单堆一排按钮 ——
+   给它标题、一句说明，读完所有内容后自然过渡到「要不要聊聊」。
+   ========================================================================== */
+
+.section--cta-end {
+  padding-top: clamp(56px, 7vw, 88px);
+  padding-bottom: clamp(56px, 7vw, 88px);
+  text-align: center;
+  border-top: 1px solid var(--line);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(37, 99, 235, .045), transparent 62%),
+    linear-gradient(180deg, rgba(255, 255, 255, .5), transparent 40%);
+}
+
+.section--cta-end .kicker--solid {
+  margin-bottom: 18px;
+}
+
+.section--cta-end h2 {
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.32;
+  letter-spacing: -.02em;
+  margin: 0 auto 14px;
+  max-width: 22ch;
+  color: var(--txt);
+  font-weight: 800;
+}
+
+.cta-end__lead {
+  margin: 0 auto 30px;
+  max-width: 46ch;
+  font-size: 14.5px;
+  line-height: 1.75;
+  color: var(--txt2);
+}
+
+.cta-row--end {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.cta-row--end .btn {
+  min-height: 44px;
+  padding-inline: 22px;
+}
+
+@media (max-width: 599.98px) {
+  .cta-row--end {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cta-row--end .btn { width: 100%; justify-content: center; }
+  .section--cta-end h2 { max-width: none; }
+}

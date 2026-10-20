@@ -165,8 +165,19 @@
         <span class="hero-role">企业级 AI Agent 开发工程师 / FDE 前线部署工程师</span>
       </h1>
 
-      <p class="lede" id="intro">我做企业级 AI Agent：把「客户一句话的需求」变成能跑、能验收、能观测的系统。
-        下面三件事是我最近做成的，点进去能看到代码和报告。</p>
+      <!-- 2026-10-20：联系方式上移到职位行正下方（用户要求）
+           箭头指向的位置就是这里 —— 第一眼看到「我是谁」，紧接着就是「怎么联系」。 -->
+      <p class="hero-contact">
+        <a href="mailto:1459393754@qq.com">1459393754@qq.com</a>
+        <span aria-hidden="true">·</span>
+        <a href="tel:13501519949">135 0151 9949</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub @Jav1es ↗</a>
+      </p>
+
+      <p class="lede" id="intro">我做企业级 AI Agent。客户提出一句需求，我把它拆成可实现的方案，
+        交付有验收标准、上线后可观测的系统。
+        下列三项为近期交付成果，对应代码与报告见各模块详情。</p>
 
       <!-- 首屏三件事（2026-10-19 重写）：
            原来是一行压缩的指标文字（93.3% / 9 仓库 / 35 用例），
@@ -178,27 +189,19 @@
       <ul class="hero-proof" aria-label="三个代表成果">
         <li>
           <b>30 题评测，检索准确率 93.3%</b>
-          <span>给企业 Agent 配的知识库，逐题跑过、失败原因也写清楚了</span>
+          <span>为企业 Agent 搭建的知识库，30 道题逐条测试并记录失败原因</span>
         </li>
         <li>
           <b>52 条验收样本，六轮优化后全部通过</b>
-          <span>外贸询盘数字员工，通过率 88.5% → 100%，每次失败都查到了具体原因</span>
+          <span>外贸询盘数字员工，验收通过率由 88.5% 提升至 100%，失败样本均定位到具体原因</span>
         </li>
         <li>
           <b>9 个 MIT 开源仓库</b>
-          <span>3 个接了 CI 门禁；工具能给别人用，不只是自己跑得起来</span>
+          <span>其中 3 个配置了 CI 门禁，可供他人直接复用</span>
         </li>
       </ul>
 
       <!-- 首屏直达联系方式：HR 想联系你时不该让他去页脚找 -->
-      <p class="hero-contact">
-        <a href="mailto:1459393754@qq.com">1459393754@qq.com</a>
-        <span aria-hidden="true">·</span>
-        <a href="tel:13501519949">135 0151 9949</a>
-        <span aria-hidden="true">·</span>
-        <a href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub @Jav1es ↗</a>
-      </p>
-
       <!-- 转型说明条（brief P0-4 / §5.2）：这是全站最重要的新增内容。
            HR 会问「申报咨询和 AI Agent 有什么关系」，技术面试官会问
            「这些是生产交付还是自建」—— 一条答完两个问题，且不滚动即可读到。 -->
@@ -209,13 +212,6 @@
       </aside>
 
       <!-- 三个 CTA（文案对齐 brief §5.4）-->
-      <div class="cta-row">
-        <a class="btn btn-primary" href="mailto:1459393754@qq.com?subject=%E6%9D%A5%E8%87%AA%E4%BD%9C%E5%93%81%E9%9B%86%E7%9A%84%E8%81%94%E7%B3%BB">邮件联系我</a>
-        <a class="btn btn-ghost" href="./resume.html">下载 PDF 简历</a>
-        <a class="btn btn-ghost" href="#works-featured">看 3 个核心项目</a>
-        <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub（9 仓库）↗</a>
-      </div>
-      </div><!-- /.hero-copy -->
 
       <!-- ==================================================================
            首屏 Agent 编排链路（v3 任务一）
@@ -310,9 +306,9 @@
   <section class="section" id="about">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">个人优势</p>
-        <h2>四条能直接兑现的工作方式</h2>
-        <p>每一条都对应可追溯的项目证据，而不是形容词。</p>
+        <p class="kicker kicker--solid">个人优势</p>
+        <h2>四项工作方式</h2>
+        <p>每项均附可追溯的项目证据。</p>
       </div>
 
       <ul class="strength-grid">
@@ -351,7 +347,7 @@
             <span class="num">02</span>
             <div>
               <b>AI 工作流落地</b>
-              <span>把重复流程沉淀成可复用自动化</span>
+              <span>把重复流程做成自动化工具</span>
             </div>
           </div>
         </li>
@@ -397,13 +393,13 @@
   <section class="section" id="entries">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">能力主线</p>
-        <h2>两条主责主线，外加一项工具创造能力</h2>
-        <p>主责是 AI Agent 开发与 FDE 交付；VibeCoding 是支撑前两者的动手能力，单列成页。</p>
+        <p class="kicker kicker--solid">能力主线</p>
+        <h2>四项能力：两项主责、一项支撑、一项业务根基</h2>
+        <p>主责方向为 AI Agent 开发与 FDE 交付；VibeCoding 为支撑上述两项的动手能力；企业科技服务与项目申报是这套方法的来源。</p>
       </div>
 
-      <!-- 三个岗位页的首页入口：主导航改锚点后，这三页仍需 1 次点击可达 -->
-      <div class="entry-grid" id="featured">
+      <!-- 四个入口：2026-10-20 由三卡改四宫格（用户要求） -->
+      <div class="entry-grid entry-grid--quad" id="featured">
 
         <a class="entry-card tilt accent-teal" href="./ai-agent.html">
           <span class="card-ico" aria-hidden="true">AI</span>
@@ -422,8 +418,19 @@
         <a class="entry-card tilt accent-amber is-secondary" href="./vibe-engineer.html">
           <span class="card-ico" aria-hidden="true">VS</span>
           <h3>VibeCoding 工具创造能力 <span class="entry-secondary">支撑</span></h3>
-          <p>用自然语言驱动编码，把验证过的原型沉淀成可复用的开源工具与自动化流程——它服务于上面两条主线，而不是并列的第三条。<span data-owns="vibe">承载 8 个模块</span>。</p>
+          <p>以自然语言驱动编码，将验证过的原型整理为开源工具与自动化流程。<span data-owns="vibe">承载 8 个模块</span>。</p>
           <span class="go" aria-hidden="true">查看开源工具 →</span>
+        </a>
+
+        <!-- 2026-10-20 新增第 4 张（用户要求「根据我的经历和作品加多一个
+             岗位或动手能力的描述」）。这是 2021.04 起的真实主业经历，
+             也是「需求发现 → 验收口径 → 交付标准」这套方法的来源。
+             数字沿用既有口径：300+ 项目 / 100+ 企业（项目申报口径）。 -->
+        <a class="entry-card tilt accent-green is-base" href="./about.html#experience">
+          <span class="card-ico" aria-hidden="true">ES</span>
+          <h3>企业科技服务与项目申报 <span class="entry-base">根基</span></h3>
+          <p>2021.04 起在企业科技服务一线做项目申报与交付管理（300+ 项目 / 100+ 企业，项目申报口径）。需求发现、验收口径与交付标准的方法，来自这段经历。</p>
+          <span class="go" aria-hidden="true">看完整经历 →</span>
         </a>
 
       </div>
@@ -439,9 +446,9 @@
   <section class="section" id="works-featured">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">精选作品</p>
+        <p class="kicker kicker--solid">精选作品</p>
         <h2 id="experience">6 个最能说明问题的模块</h2>
-        <p>先看最强的三个：企业级智能体、RAG 真实评测、MCP 三件套。完整 23 个模块（含四组分类）在<a href="./works.html">作品目录</a>。</p>
+        <p>优先推荐三个模块：企业级智能体、RAG 真实评测、MCP 三件套。完整 23 个模块（含四组分类）见<a href="./works.html">作品目录</a>。</p>
       </div>
 
       <div id="home-featured" class="w-grid w-cards"></div>
@@ -490,10 +497,10 @@
   <section class="section" id="orbit">
     <div class="wrap">
       <div class="section-head">
-        <p class="kicker">作品全生命周期</p>
+        <p class="kicker kicker--solid">作品全生命周期</p>
         <h2>23 个作品，三条轨道</h2>
-        <p>越靠内环权重越高，越靠外环越是实验；颜色表示分组。
-           悬停看名字，滚轮放大看细节，点晶体进作品。</p>
+        <p>内环权重最高，外环偏实验性质；颜色表示所属分组。
+           悬停显示名称，滚轮缩放，点击晶体进入作品。</p>
       </div>
 
       <div class="orbit-stage">
@@ -540,17 +547,32 @@
 
 </main>
 
+<!-- ============ 页面底部行动入口（2026-10-20 从首屏移下来）============
+     用户要求：「红框的内容应该放在最下面」。
+     首屏保留联系方式即可，这四个按钮放在读完所有内容之后更自然。 -->
+<section class="section section--cta-end" aria-label="联系方式与下一步">
+  <div class="wrap">
+    <p class="kicker kicker--solid">进一步了解</p>
+    <h2>想聊项目，或者只是想看看这些是怎么做的</h2>
+    <p class="cta-end__lead">邮件最快，微信也可以。简历里有完整的时间线与项目清单。</p>
+    <div class="cta-row cta-row--end">
+      <a class="btn btn-primary" href="mailto:1459393754@qq.com?subject=%E6%9D%A5%E8%87%AA%E4%BD%9C%E5%93%81%E9%9B%86%E7%9A%84%E8%81%94%E7%B3%BB">邮件联系我</a>
+      <a class="btn btn-ghost" href="./resume.html">下载 PDF 简历</a>
+      <a class="btn btn-ghost" href="#works-featured">看 3 个核心项目</a>
+      <a class="btn btn-ghost" href="https://github.com/Jav1es" target="_blank" rel="noopener">GitHub（9 仓库）↗</a>
+    </div>
+  </div>
+</section>
+
 <footer class="site-footer" id="contact">
   <div class="wrap">
     <div class="footer-v2">
+
       <div class="footer-v2__brand">
         <span class="footer-v2__name">黄家辉</span>
         <p class="footer-v2__tagline">企业级 AI Agent 开发工程师 / FDE<br>6 年+ 企业科技服务（2021.04 至今）· 9 个公开开源仓库</p>
-      </div>
 
-      <div class="footer-v2__col">
-        <span class="footer-v2__label">联系</span>
-        <ul class="footer-v2__list">
+        <ul class="footer-v2__contact">
           <li class="contact-row">
             <span class="contact-row__k">邮箱</span>
             <a href="mailto:1459393754@qq.com">1459393754@qq.com</a>
@@ -560,12 +582,12 @@
             <span class="copy-mail__status" role="status" aria-live="polite" data-copy-status></span>
           </li>
           <li class="contact-row">
-            <span class="contact-row__k">GitHub</span>
-            <a href="https://github.com/Jav1es" target="_blank" rel="noopener">@Jav1es ↗</a>
-          </li>
-          <li class="contact-row">
             <span class="contact-row__k">微信</span>
             <a href="tel:13501519949">13501519949</a>
+          </li>
+          <li class="contact-row">
+            <span class="contact-row__k">GitHub</span>
+            <a href="https://github.com/Jav1es" target="_blank" rel="noopener">@Jav1es ↗</a>
           </li>
           <li class="contact-row">
             <span class="contact-row__k">城市</span>
@@ -574,9 +596,22 @@
         </ul>
       </div>
 
-      <div class="footer-v2__col">
+      <div class="footer-v2__qr">
+        <span class="footer-v2__label">微信扫码</span>
+        <div class="qr-box">
+          <a class="qr-box__link" href="./assets/wechat-qr.png" target="_blank" rel="noopener"
+             aria-label="查看大图：黄家辉的微信二维码">
+            <img src="./assets/wechat-qr.png" alt="黄家辉的微信二维码" width="132" height="132"
+                 onerror="this.closest('.qr-box').classList.add('qr-box--empty');this.remove();">
+          </a>
+          <span class="qr-box__fallback">二维码待补充<br><small>微信号 13501519949</small></span>
+        </div>
+        <p class="qr-note">扫码加微信<br><small>欢迎交流 AI Agent 与项目合作</small></p>
+      </div>
+
+      <div class="footer-v2__nav">
         <span class="footer-v2__label">导航</span>
-        <ul class="footer-v2__list">
+        <ul class="footer-v2__list footer-v2__list--nav">
           <li><a href="./index.html#works-featured">核心项目</a></li>
           <li><a href="./works.html">全部 23 个模块</a></li>
           <li><a href="./index.html#oss">开源作品</a></li>
@@ -588,15 +623,15 @@
         </ul>
       </div>
 
-      <div class="footer-v2__col">
-        <span class="footer-v2__label">口径</span>
-        <ul class="footer-v2__list">
-          <li><span>6 年+ 企业科技服务（2021.04 至今）· AI 工程实践 27 个月</span></li>
-          <li><span>9 个公开开源仓库（全部 MIT）· 3 个含 CI 门禁</span></li>
-          <li><span>成效数字按实测 / 测算模型 / 示例口径标注</span></li>
-          <li><span>客户名称与年度数据已脱敏</span></li>
-        </ul>
-      </div>
+    </div>
+
+    <div class="footer-v2__meta">
+      <ul class="footer-v2__list footer-v2__list--meta">
+        <li><span>6 年+ 企业科技服务（2021.04 至今）· AI 工程实践 27 个月</span></li>
+        <li><span>9 个公开开源仓库（全部 MIT）· 3 个含 CI 门禁</span></li>
+        <li><span>成效数字按实测 / 测算模型 / 示例口径标注</span></li>
+        <li><span>客户名称与年度数据已脱敏</span></li>
+      </ul>
     </div>
 
     <div class="footer-v2__base">

@@ -99,7 +99,7 @@
     <div class="wrap">
       <p class="eyebrow">岗位方向 · VibeCoding / VibeEngineering</p>
       <h1>VibeCoding / VibeEngineering 工程师</h1>
-      <p class="lede">用自然语言驱动编码，把想法快速变成能跑的原型。做创意编码、交互体验与视觉实验：先让效果出现，再用工程手段打磨成稳定、可访问、可交付的东西——最终沉淀成 <mark>开源工具与公共品</mark>。</p>
+      <p class="lede">用自然语言驱动编码，把想法快速做成可运行的原型。做创意编码、交互体验与视觉实验：先让效果出现，再用工程手段打磨为稳定、可访问、可交付的成果，最终整理为 <mark>开源工具与公共品</mark>。</p>
 
       <div class="role-banner accent-amber">
         <span class="rb-ico" aria-hidden="true">✨</span>
@@ -122,7 +122,7 @@
       <ul class="duty-list">
         <li><b>创意编码：</b>以 VibeCoding 方式实现创意原型——先用自然语言快速生成可运行版本，再逐轮收敛细节与性能。</li>
         <li><b>交互体验：</b>设计并打磨动效、状态反馈与信息层级，让每一次点击都有明确、可预期的响应。</li>
-        <li><b>视觉实验：</b>做配色、字体、留白与图形语言上的系统性探索，形成可复用的视觉规范而非一次性调参。</li>
+        <li><b>视觉实验：</b>做配色、字体、留白与图形语言上的系统性探索，整理为可沿用的视觉规范，而非一次性调参。</li>
         <li><b>工程化收尾：</b>用 HTML5、CSS3 与原生 JavaScript 实现，不引入重型框架，保证首屏加载速度与键盘可访问性。</li>
         <li><b>协议与工具链：</b>把重复能力抽象成 MCP Server、跨应用桥接与宿主插件，让能力可被别的智能体直接调用。</li>
         <li><b>公开发布：</b>全部作品 MIT 开源，其中 3 个接入 GitHub Actions 门禁（每次 push 自动跑 lint + 测试），带 README 与可运行截图。</li>
@@ -146,14 +146,12 @@
 <footer class="site-footer" id="contact">
   <div class="wrap">
     <div class="footer-v2">
+
       <div class="footer-v2__brand">
         <span class="footer-v2__name">黄家辉</span>
         <p class="footer-v2__tagline">企业级 AI Agent 开发工程师 / FDE<br>6 年+ 企业科技服务（2021.04 至今）· 9 个公开开源仓库</p>
-      </div>
 
-      <div class="footer-v2__col">
-        <span class="footer-v2__label">联系</span>
-        <ul class="footer-v2__list">
+        <ul class="footer-v2__contact">
           <li class="contact-row">
             <span class="contact-row__k">邮箱</span>
             <a href="mailto:1459393754@qq.com">1459393754@qq.com</a>
@@ -163,12 +161,12 @@
             <span class="copy-mail__status" role="status" aria-live="polite" data-copy-status></span>
           </li>
           <li class="contact-row">
-            <span class="contact-row__k">GitHub</span>
-            <a href="https://github.com/Jav1es" target="_blank" rel="noopener">@Jav1es ↗</a>
-          </li>
-          <li class="contact-row">
             <span class="contact-row__k">微信</span>
             <a href="tel:13501519949">13501519949</a>
+          </li>
+          <li class="contact-row">
+            <span class="contact-row__k">GitHub</span>
+            <a href="https://github.com/Jav1es" target="_blank" rel="noopener">@Jav1es ↗</a>
           </li>
           <li class="contact-row">
             <span class="contact-row__k">城市</span>
@@ -177,9 +175,22 @@
         </ul>
       </div>
 
-      <div class="footer-v2__col">
+      <div class="footer-v2__qr">
+        <span class="footer-v2__label">微信扫码</span>
+        <div class="qr-box">
+          <a class="qr-box__link" href="./assets/wechat-qr.png" target="_blank" rel="noopener"
+             aria-label="查看大图：黄家辉的微信二维码">
+            <img src="./assets/wechat-qr.png" alt="黄家辉的微信二维码" width="132" height="132"
+                 onerror="this.closest('.qr-box').classList.add('qr-box--empty');this.remove();">
+          </a>
+          <span class="qr-box__fallback">二维码待补充<br><small>微信号 13501519949</small></span>
+        </div>
+        <p class="qr-note">扫码加微信<br><small>欢迎交流 AI Agent 与项目合作</small></p>
+      </div>
+
+      <div class="footer-v2__nav">
         <span class="footer-v2__label">导航</span>
-        <ul class="footer-v2__list">
+        <ul class="footer-v2__list footer-v2__list--nav">
           <li><a href="./index.html#works-featured">核心项目</a></li>
           <li><a href="./works.html">全部 23 个模块</a></li>
           <li><a href="./index.html#oss">开源作品</a></li>
@@ -191,15 +202,15 @@
         </ul>
       </div>
 
-      <div class="footer-v2__col">
-        <span class="footer-v2__label">口径</span>
-        <ul class="footer-v2__list">
-          <li><span>6 年+ 企业科技服务（2021.04 至今）· AI 工程实践 27 个月</span></li>
-          <li><span>9 个公开开源仓库（全部 MIT）· 3 个含 CI 门禁</span></li>
-          <li><span>成效数字按实测 / 测算模型 / 示例口径标注</span></li>
-          <li><span>客户名称与年度数据已脱敏</span></li>
-        </ul>
-      </div>
+    </div>
+
+    <div class="footer-v2__meta">
+      <ul class="footer-v2__list footer-v2__list--meta">
+        <li><span>6 年+ 企业科技服务（2021.04 至今）· AI 工程实践 27 个月</span></li>
+        <li><span>9 个公开开源仓库（全部 MIT）· 3 个含 CI 门禁</span></li>
+        <li><span>成效数字按实测 / 测算模型 / 示例口径标注</span></li>
+        <li><span>客户名称与年度数据已脱敏</span></li>
+      </ul>
     </div>
 
     <div class="footer-v2__base">
