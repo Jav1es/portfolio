@@ -1,99 +1,127 @@
 /* ==========================================================================
-   orbit-3d.js — 23 个作品的 3D 轨道环（2026-10-19）
+   orbit-3d.js — 23 个作品的晶体轨道（2026-10-20 重做样式）
    --------------------------------------------------------------------------
-   用户原话：「作品鲸鱼的 3D 模型太丑太草率了」。
+   上一版：192 个小方块拼成三条环体 —— 视觉碎、像噪点。
+   这一版换成「晶体轨道」：
 
-   鲸鱼我做了 6 轮，vision 打分从 4 到 7.5 就卡住了 ——
-   因为鲸鱼是「有机曲线造型」，用手写参数方程逼近，很难做出可信的形。
-   而用户最初就给了三个选项：「一个点组成的圆或者半圆或者鲸鱼」。
-   圆/环是几何造型，天然对称、干净、可精确控制，这正是当前该选的。
+     ① 轨道 = 连续细弧线（不是一串方块）
+        用 72 段线段拼成闭合弧，线宽 0.45 —— 细而连续，像光轨
+        每条环加一圈「外扩虚点」，暗示轨道厚度
 
-   设计：三条同心轨道环，23 个作品按分组分布在环上
-     · 内环（半径小）：核心交付 5 个 —— 离中心最近，权重最高
-     · 中环：AI 工程化 6 个 + 开源工具 6 个
-     · 外环：实验探索 6 个
-   每个作品是一个实体方块（与封面同一套 SOLID3D 渲染器），
-   环体本身用细密方块拼成 —— 全部是实面，有明暗和遮挡。
+     ② 作品节点 = 八面体（不是方块）
+        八面体线框画出来是「菱形轮廓 + 中间十字」，晶体感强
+        比方块有辨识度，也呼应「作品是结晶」的意象
 
-   交互：拖拽旋转、悬停高亮 + 显示标题、点击跳转。
+     ③ 中心 = 双层八面体 + 放射线
+        内层实心感（小八面体），外层大八面体
+        从中心向三条环各发一条放射线，形成「星芒」结构
+
+     ④ 作品节点向外发一条短连接线
+        接到它所在轨道上 —— 让「作品挂在轨道上」这个关系看得见
+
+   交互：拖拽旋转、滚轮缩放、悬停高亮 + 气泡、点击跳转、方向键微调。
    ========================================================================== */
 (function (global) {
   'use strict';
 
-  /* ---------- 环形轨道：用一串小方块拼成 ---------- */
-  function ringBlocks(radius, y, count, color, size, alpha) {
+  var AMBER = [217, 119, 6];
+  var BLUE = [37, 99, 235];
+  var CYAN = [14, 116, 144];
+  var VIOLET = [124, 58, 237];
+  var LIGHT = [96, 165, 250];
+
+  var GROUP_COLOR = {
+    core: AMBER,
+    eng: BLUE,
+    oss: CYAN,
+    lab: VIOLET
+  };
+
+  /* 2026-10-20：外环从 2.28 收到 2.12。
+     评估「下沿贴近面板边界」，投影后外环顶到了画布边缘。
+     三层间距也更均匀：0.86 / 1.50 / 2.12（差 0.64 / 0.62）。 */
+  var RADIUS = [0.86, 1.50, 2.12];
+  var RING_Y = [0.32, 0, -0.32];
+
+  /* ---------- 生成一条闭合弧线（用线段拼） ---------- */
+  function arcSegments(radius, y, segs, color, weight) {
     var out = [];
-    for (var i = 0; i < count; i++) {
-      var a = i / count * Math.PI * 2;
+    for (var i = 0; i < segs; i++) {
+      var a1 = i / segs * Math.PI * 2;
+      var a2 = (i + 1) / segs * Math.PI * 2;
       out.push({
-        x: Math.cos(a) * radius,
-        y: y,
-        z: Math.sin(a) * radius,
-        w: size, h: size * 0.55, d: size,
+        type: 'line',
+        from: [Math.cos(a1) * radius, y, Math.sin(a1) * radius],
+        to: [Math.cos(a2) * radius, y, Math.sin(a2) * radius],
         color: color,
-        alpha: alpha == null ? 1 : alpha
+        weight: weight,
+        pickable: false
       });
     }
     return out;
   }
 
-  /* ---------- 构建整个场景 ---------- */
-  // works: [{ no, t, group, groupName, url }]
+  /* ---------- 生成一圈虚点（外扩，暗示轨道厚度） ---------- */
+  function dotRing(radius, y, count, color) {
+    var out = [];
+    for (var i = 0; i < count; i++) {
+      var a = i / count * Math.PI * 2;
+      out.push({
+        type: 'octa',
+        x: Math.cos(a) * radius,
+        y: y,
+        z: Math.sin(a) * radius,
+        s: 0.022,
+        color: color,
+        weight: 0.5,
+        pickable: false
+      });
+    }
+    return out;
+  }
+
+  /* ---------- 构建场景 ---------- */
   function buildScene(works) {
-    var blocks = [];
+    var shapes = [];
 
-    /* 2026-10-19：颜色与轨道解耦。
-       评估指出「轨道层级和作品分类两个概念混合了」——
-       原来内环=core=橙色，轨道和颜色说的是同一件事，冗余且让人困惑。
-
-       现在：轨道表达「权重/成熟度」，颜色表达「分组」，两者独立。
-       分配方式：每组内部按序号轮转三条轨道，
-       保证每条轨道上都有四组颜色，轨道与颜色不再绑定。 */
-    /* 2026-10-19：半径拉开。
-       评估「三条环经过透视变形后像不规则曲线，局部被遮挡」。
-       原来 0.78/1.35/1.92 间距偏小，放大到 0.72/1.42/2.10，
-       让三环在投影后仍有明显间隙。 */
-    var RADIUS = [0.72, 1.42, 2.10];
-    var RING_Y = [0.30, 0, -0.30];
-
-    var BLUE = [37, 99, 235];
-    var LIGHT = [96, 165, 250];
-    var CYAN = [14, 116, 144];
-    var AMBER = [217, 119, 6];
-    var VIOLET = [124, 58, 237];
-    var GREEN = [5, 150, 105];
-
-    /* 2026-10-19：颜色按「分组」给，不按轨道给。
-       四组四色，与轨道彻底解耦。 */
-    var GROUP_COLOR = {
-      core: AMBER,     // 核心案例 —— 橙
-      eng:  BLUE,      // AI 工程化 —— 蓝
-      oss:  CYAN,      // 开源工具 —— 青
-      lab:  VIOLET     // 实验探索 —— 紫
-    };
-
-    // ① 三条轨道环（细密小方块）
-    /* 2026-10-19：环体降密。
-       评估「视觉密度过高，深青节点、大方块和轨道堆在一起」。
-       小方块从 40/56/72 降到 28/36/44，尺寸 0.075→0.058，
-       透明度 0.72→0.46 —— 让它退为「路径暗示」，不抢作品块的戏。 */
+    /* ① 三条轨道：连续弧线 + 外扩虚点
+       2026-10-20：从「192 个小方块」改成「72 段弧线 + 一圈细点」。
+       方块拼出来的环看起来是断的、碎的；连续弧线才像「轨道」。 */
+    var ARC_COLOR = [[217, 119, 6], [37, 99, 235], [124, 58, 237]];
     for (var L = 0; L < 3; L++) {
-      var cnt = [28, 36, 44][L];
-      blocks = blocks.concat(
-        ringBlocks(RADIUS[L], RING_Y[L], cnt, CYAN, 0.058, 0.46)
-      );
+      // 2026-10-20：0.42 → 0.58，评估说「部分弧线较淡」
+      shapes = shapes.concat(arcSegments(RADIUS[L], RING_Y[L], 72, ARC_COLOR[L], 0.58));
+      // 外扩一点点的一圈虚点，给轨道「厚度感」
+      // 2026-10-20：外环虚点数量收一点（42 → 36），避免边缘噪点
+      shapes = shapes.concat(dotRing(RADIUS[L] + 0.05, RING_Y[L], [24, 30, 36][L], ARC_COLOR[L]));
     }
 
-    // ② 中心：一个较大的实心块，代表「作品全集」
-    /* 2026-10-19：中心块弱化。
-       评估「中央方块过强，抢走大量注意力，作品节点主次不清」。
-       从 0.44 缩到 0.28，颜色改浅，透明度 0.92。 */
-    blocks.push({ x: 0, y: 0, z: 0, w: 0.28, h: 0.28, d: 0.28, color: LIGHT, alpha: 0.92 });
+    /* ② 中心：双层八面体 + 三条放射线 */
+    shapes.push({
+      type: 'octa', x: 0, y: 0, z: 0, s: 0.165,
+      color: LIGHT, weight: 1.3, pickable: false
+    });
+    // 2026-10-20：外层八面体降权（0.7 → 0.45），让中心不那么抢
+    shapes.push({
+      type: 'octa', x: 0, y: 0, z: 0, s: 0.32,
+      color: BLUE, weight: 0.45, pickable: false
+    });
+    /* 2026-10-20：放射线缩短。
+       评估「中央放射线略密」——原来三条都从中心画到外环，
+       中心附近三线交汇成一坨。改成只画到内环（0.86），
+       外面的部分由轨道自己表达。 */
+    for (var R = 0; R < 3; R++) {
+      shapes.push({
+        type: 'line',
+        from: [0, 0, 0],
+        to: [RADIUS[0] * 0.92, RING_Y[R] * 0.5, 0],
+        color: ARC_COLOR[R],
+        weight: 0.34,
+        pickable: false
+      });
+    }
 
-    // ③ 23 个作品：按分组放到对应环上
-    /* 2026-10-19：组内轮转分配到三条轨道。
-       每组按序号 % 3 决定落在内/中/外环，
-       这样每条轨道上都均匀分布着四组的作品 —— 颜色与轨道解耦。 */
+    /* ③ 23 个作品：组内轮转分到三条环 */
     var byLayer = [[], [], []];
     var groupSeen = {};
     works.forEach(function (w) {
@@ -111,30 +139,46 @@
       var y = RING_Y[li];
 
       for (var i = 0; i < list.length; i++) {
-        // 均分角度；不同层加相位偏移，避免三环的点在视觉上排成一条直线
         var a = i / Math.max(1, list.length) * Math.PI * 2 + li * 0.62;
+        var px = Math.cos(a) * r, pz = Math.sin(a) * r;
+        var col = GROUP_COLOR[list[i].group] || BLUE;
 
-        var bx = {
-          x: Math.cos(a) * r,
-          y: y,
-          z: Math.sin(a) * r,
-          // 核心交付的块更大，突出权重
-          /* 2026-10-19：作品块略缩小。
-             评估「后排节点互相覆盖，尤其三色方块交错区域」。
-             内环保持较大（权重高），中/外环缩小到 0.20。 */
-          w: li === 0 ? 0.28 : 0.20,
-          h: li === 0 ? 0.28 : 0.20,
-          d: li === 0 ? 0.28 : 0.20,
-          color: GROUP_COLOR[list[i].group] || BLUE,
-          alpha: 1
+        // 作品节点：八面体，内环更大（权重高）
+        var size = li === 0 ? 0.155 : 0.115;
+        var node = {
+          type: 'octa',
+          x: px, y: y, z: pz,
+          s: size,
+          color: col,
+          weight: li === 0 ? 1.5 : 1.2,
+          pickable: true
         };
-        blocks.push(bx);
-        nodes.push({ work: list[i], block: bx, layer: li, angle: a, radius: r, y: y });
+        shapes.push(node);
+
+        // 连接线：作品 → 它所在轨道（同半径同 y，所以是「落到轨道上」的短线）
+        // 做法：从节点向下（或向环心方向）引一小段，表示「挂在轨道上」
+        shapes.push({
+          type: 'line',
+          from: [px, y, pz],
+          to: [px, y + (li === 0 ? 0.10 : -0.10), pz],
+          color: col,
+          weight: 0.5,
+          pickable: false
+        });
+
+        nodes.push({
+          work: list[i],
+          shape: node,
+          layer: li,
+          angle: a,
+          radius: r,
+          y: y
+        });
       }
     }
 
-    return { blocks: blocks, nodes: nodes };
+    return { shapes: shapes, nodes: nodes };
   }
 
-  global.ORBIT3D = { buildScene: buildScene, ringBlocks: ringBlocks };
+  global.ORBIT3D = { buildScene: buildScene, arcSegments: arcSegments, dotRing: dotRing };
 })(window);

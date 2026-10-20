@@ -493,13 +493,13 @@
         <p class="kicker">作品全生命周期</p>
         <h2>23 个作品，三条轨道</h2>
         <p>越靠内环权重越高，越靠外环越是实验；颜色表示分组。
-           两个维度分开看，悬停看名字，点进去看细节，拖拽可以转动它。</p>
+           悬停看名字，滚轮放大看细节，点晶体进作品。</p>
       </div>
 
       <div class="orbit-stage">
         <canvas id="orbit-canvas"
                 role="img"
-                aria-label="作品三维轨道示意图：23 个作品分布在三条同心轨道上，内环是核心交付，中环是工程与开源，外环是实验探索。可拖拽旋转，点击方块查看作品。"
+                aria-label="作品三维轨道示意图：23 个作品分布在三条同心轨道上，内环是核心交付，中环是工程与开源，外环是实验探索。可拖拽旋转，点击晶体查看作品。"
                 tabindex="0"></canvas>
 
         <div class="orbit-tip" hidden></div>
@@ -521,8 +521,13 @@
         </div>
 
         <div class="orbit-ui">
+          <div class="orbit-zoom" role="group" aria-label="缩放控制">
+            <button type="button" class="orbit-zoom__btn orbit-zoom__out" aria-label="缩小">−</button>
+            <span class="orbit-zoom__val" aria-live="polite">100%</span>
+            <button type="button" class="orbit-zoom__btn orbit-zoom__in" aria-label="放大">+</button>
+          </div>
           <button type="button" class="btn btn-ghost orbit-reset">重置视角</button>
-          <p class="orbit-hint">拖拽旋转 · 方向键微调 · 点击方块查看作品</p>
+          <p class="orbit-hint">滚轮缩放 · 拖拽旋转 · 方向键微调 · 点击晶体查看作品</p>
         </div>
 
         <p class="orbit-fallback" hidden>

@@ -77,7 +77,15 @@
     this._boxRanges = null;
     this.highlight = -1;
     this._lastPts = null;
+    /* 2026-10-20：滚轮缩放。zoom 独立于 autoFit 的 _scaleK，
+       两者相乘 —— autoFit 管「模型适配画布」，zoom 管「用户想看多大」。 */
+    this.zoom = 1;
+    this.minZoom = 0.55;
+    this.maxZoom = 2.6;
     this.showGrid = this.opts.grid !== false;
+    // 2026-10-20：模型占短边的比例。封面用默认 0.86，
+    // 轨道环这种宽扁结构需要更多留白（0.74）
+    this.fitGoal = this.opts.fitGoal == null ? 0.86 : this.opts.fitGoal;
     this.showHidden = this.opts.hidden !== false;
     this.showNodes = this.opts.nodes !== false;
     this.raf = 0;
@@ -181,6 +189,110 @@
     return this;
   };
 
+  /* ======================================================================
+     几何体生成器（2026-10-20）
+     ----------------------------------------------------------------------
+     box  —— 方块，8 顶点 12 棱
+     octa —— 八面体，6 顶点 12 棱。线框画出来是「菱形轮廓 + 中间十字」，
+             晶体感强，比方块有辨识度，适合做作品节点。
+     line —— 纯线段（轨道弧线用），只有棱没有体
+     ====================================================================== */
+
+  function boxVertsEges(cx, cy, cz, w, h, d) {
+    var hw = w / 2, hh = h / 2, hd = d / 2;
+    var V = [
+      { x: cx - hw, y: cy - hh, z: cz - hd },
+      { x: cx + hw, y: cy - hh, z: cz - hd },
+      { x: cx + hw, y: cy - hh, z: cz + hd },
+      { x: cx - hw, y: cy - hh, z: cz + hd },
+      { x: cx - hw, y: cy + hh, z: cz - hd },
+      { x: cx + hw, y: cy + hh, z: cz - hd },
+      { x: cx + hw, y: cy + hh, z: cz + hd },
+      { x: cx - hw, y: cy + hh, z: cz + hd }
+    ];
+    var E = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+    return { V: V, E: E };
+  }
+
+  function octaVertsEdges(cx, cy, cz, s) {
+    // 6 个顶点：±X, ±Y, ±Z
+    var V = [
+      { x: cx + s, y: cy, z: cz },   // 0 +X
+      { x: cx - s, y: cy, z: cz },   // 1 -X
+      { x: cx, y: cy + s, z: cz },   // 2 +Y
+      { x: cx, y: cy - s, z: cz },   // 3 -Y
+      { x: cx, y: cy, z: cz + s },   // 4 +Z
+      { x: cx, y: cy, z: cz - s }    // 5 -Z
+    ];
+    // 每个顶点连到 4 个非对顶点 → 12 条棱
+    var E = [
+      [0,2],[0,3],[0,4],[0,5],
+      [1,2],[1,3],[1,4],[1,5],
+      [2,4],[2,5],[3,4],[3,5]
+    ];
+    return { V: V, E: E };
+  }
+
+  /* ======================================================================
+     setShapes — 通用多形状装配（2026-10-20）
+     ----------------------------------------------------------------------
+     shapes: [
+       { type:'box',  x,y,z, w,h,d, color, alpha },
+       { type:'octa', x,y,z, s,     color, alpha },
+       { type:'line', from:[x,y,z], to:[x,y,z], color, alpha, weight }
+     ]
+     全部合并成一个 geo，共享同一套深度提示。
+     _boxRanges 记录每个形状占用的顶点/棱区间（hitTest 和高亮用）。
+     ====================================================================== */
+  SketchScene.prototype.setShapes = function (shapes) {
+    var V = [], E = [], ranges = [];
+
+    for (var i = 0; i < shapes.length; i++) {
+      var sp = shapes[i];
+      var g, vStart = V.length, eStart = E.length;
+
+      if (sp.type === 'line') {
+        // 纯线段：只有两个顶点一条棱
+        var f = sp.from || [0, 0, 0], t = sp.to || [0, 0, 0];
+        V.push({ x: f[0], y: f[1], z: f[2] });
+        V.push({ x: t[0], y: t[1], z: t[2] });
+        E.push([vStart, vStart + 1]);
+        g = { V: [], E: [] };
+      } else if (sp.type === 'octa') {
+        g = octaVertsEdges(sp.x || 0, sp.y || 0, sp.z || 0, sp.s || 0.2);
+        for (var a = 0; a < g.V.length; a++) V.push(g.V[a]);
+        for (var b = 0; b < g.E.length; b++) E.push([vStart + g.E[b][0], vStart + g.E[b][1]]);
+      } else {
+        g = boxVertsEges(sp.x || 0, sp.y || 0, sp.z || 0, sp.w || 0.2, sp.h || 0.2, sp.d || 0.2);
+        for (var a2 = 0; a2 < g.V.length; a2++) V.push(g.V[a2]);
+        for (var b2 = 0; b2 < g.E.length; b2++) E.push([vStart + g.E[b2][0], vStart + g.E[b2][1]]);
+      }
+
+      ranges.push({
+        vStart: vStart, vEnd: V.length,
+        eStart: eStart, eEnd: E.length,
+        box: sp,
+        index: i,
+        type: sp.type || 'box',
+        // 交互用：只有可点选的形状才参与 hitTest
+        pickable: sp.pickable !== false
+      });
+    }
+
+    this._boxRanges = ranges;
+    this.geo = { v: V, e: E };
+
+    // 半径（归一化用）
+    var maxR = 0;
+    for (var r = 0; r < V.length; r++) {
+      var rr = Math.sqrt(V[r].x * V[r].x + V[r].y * V[r].y + V[r].z * V[r].z);
+      if (rr > maxR) maxR = rr;
+    }
+    this._geoR = maxR || 1;
+    this.autoFit();
+    return this;
+  };
+
   SketchScene.prototype.setGeo = function (geo) {
     // 2026-10-19：几何体换了，半径要重算
     var maxR = 0;
@@ -207,7 +319,8 @@
        新版：量「_scaleK=1 时相对画布中心的像素偏移」，
        直接算「目标像素 / 当前像素」得到绝对系数。 */
     // 2026-10-19：0.92 太满，评估说「缺少留白」。素描要呼吸感
-    var goal = target == null ? 0.86 : target;
+    // 2026-10-20：支持 per-scene 的 fitGoal（轨道环需要更多留白）
+    var goal = target == null ? (this.fitGoal == null ? 0.86 : this.fitGoal) : target;
     if (!this.geo || !this.geo.v.length) return;
     if (!this.w || !this.h) return;
 
@@ -250,9 +363,11 @@
        _scaleK 因此恒在 1 附近，固定像素的线宽/节点始终与模型匹配。 */
     var base = Math.min(this.w, this.h) / (this._geoR * 2.2);
     var k = this._scaleK == null ? 1 : this._scaleK;
+    // 2026-10-20：zoom 与 _scaleK 相乘（autoFit 管适配，zoom 管用户缩放）
+    var zk = k * (this.zoom || 1);
     return {
-      x: this.w / 2 + q.x * d * base * k,
-      y: this.h / 2 - q.y * d * base * k,
+      x: this.w / 2 + q.x * d * base * zk,
+      y: this.h / 2 - q.y * d * base * zk,
       z: q.z,
       d: d
     };
@@ -343,7 +458,8 @@
     var self = this;
     var edges = geo.e.map(function (e, i) {
       var a = pts[e[0]], b = pts[e[1]];
-      return { a: a, b: b, z: (a.z + b.z) / 2, i: i, color: null };
+      // weight：形状可以指定「这条线画多细」，轨道弧线用很小的值
+      return { a: a, b: b, z: (a.z + b.z) / 2, i: i, color: null, weight: 1 };
     });
 
     /* 2026-10-20：多方块模式下，把每个方块的 color 挂到它的棱上。
@@ -353,9 +469,12 @@
       for (var ri = 0; ri < this._boxRanges.length; ri++) {
         var rg = this._boxRanges[ri];
         var col = rg.box && rg.box.color;
-        if (!col) continue;
+        var wt = (rg.box && rg.box.weight) || 1;
+        if (!col && wt === 1) continue;
         for (var ei2 = rg.eStart; ei2 < rg.eEnd; ei2++) {
-          if (edges[ei2]) edges[ei2].color = col;
+          if (!edges[ei2]) continue;
+          if (col) edges[ei2].color = col;
+          edges[ei2].weight = wt;
         }
       }
     }
@@ -383,12 +502,13 @@
       var dn = (ed.z - zMin) / zSpan;
       var db = Math.min(DEPTH_BUCKETS - 1, Math.max(0, Math.floor(dn * DEPTH_BUCKETS)));
       var ckey = ed.color ? (ed.color[0] + '_' + ed.color[1] + '_' + ed.color[2]) : 'auto';
-      var key = ckey + '|' + db;
+      var key = ckey + '|' + db + '|' + ed.weight;
 
       if (!bucketMap[key]) {
         bucketMap[key] = {
           list: [],
           color: ed.color,
+          weight: ed.weight,
           dnMid: (db + 0.5) / DEPTH_BUCKETS
         };
         buckets.push(bucketMap[key]);
@@ -417,7 +537,7 @@
       /* ★ Depth Cueing
          近处：粗、深、实；远处：细、淡、虚
          这是线稿产生体积感的正道，比画色块更符合「素描」语境。 */
-      var lw = 0.90 + dnMid * 3.40;
+      var lw = (0.90 + dnMid * 3.40) * (bucket.weight || 1);
       var alpha = 0.20 + Math.pow(dnMid, 0.82) * 0.80;
 
       var r, g, bb;
@@ -548,30 +668,96 @@
     var ranges = this._boxRanges;
     if (!pts || !ranges) return -1;
 
+    /* 2026-10-20 重写命中判定。
+       旧版用 AABB（轴对齐包围盒）判所有形状，问题是：
+       轨道弧线是斜线段，它的 AABB 会覆盖很大一片区域，
+       把旁边小小的八面体节点吞掉 —— 实测 5 个节点 2 个点不中。
+
+       新版分两种判定：
+         · 有体积的形状（八面体/方块）→ AABB 判定
+         · 纯线段 → 点到线段距离判定（距离 < 6px 才算命中）
+       并且：可点选的形状永远优先于不可点选的。 */
+
     var cands = [];
+
+    function distToSeg(px, py, ax, ay, bx, by) {
+      var dx = bx - ax, dy = by - ay;
+      var len2 = dx * dx + dy * dy;
+      if (len2 === 0) return Math.hypot(px - ax, py - ay);
+      var t = ((px - ax) * dx + (py - ay) * dy) / len2;
+      t = Math.max(0, Math.min(1, t));
+      return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+    }
+
     for (var i = 0; i < ranges.length; i++) {
       var rg = ranges[i];
-      var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity, z = 0, n = 0;
-      for (var vi = rg.vStart; vi < rg.vEnd; vi++) {
-        var p = pts[vi];
-        if (!p) continue;
-        if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
-        if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
-        z += p.z; n++;
+      var isLine = rg.type === 'line';
+      var z = 0, n = 0, hit = false, area = 0;
+
+      if (isLine) {
+        // 线段：点到线段距离
+        var pa = pts[rg.vStart], pb = pts[rg.vStart + 1];
+        if (!pa || !pb) continue;
+        var d2 = distToSeg(mx, my, pa.x, pa.y, pb.x, pb.y);
+        if (d2 <= 6) { hit = true; area = 12; }
+        z = (pa.z + pb.z) / 2; n = 2;
+      } else {
+        var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        for (var vi = rg.vStart; vi < rg.vEnd; vi++) {
+          var p = pts[vi];
+          if (!p) continue;
+          if (p.x < minX) minX = p.x; if (p.x > maxX) maxX = p.x;
+          if (p.y < minY) minY = p.y; if (p.y > maxY) maxY = p.y;
+          z += p.z; n++;
+        }
+        if (!n) continue;
+        z /= n;
+        if (mx >= minX && mx <= maxX && my >= minY && my <= maxY) {
+          hit = true;
+          area = (maxX - minX) * (maxY - minY);
+        }
       }
-      if (!n) continue;
-      z /= n;
-      if (mx >= minX && mx <= maxX && my >= minY && my <= maxY) {
-        cands.push({ i: i, z: z, area: (maxX - minX) * (maxY - minY) });
+
+      if (hit) {
+        cands.push({
+          i: i, z: z, area: area,
+          pickable: rg.pickable !== false
+        });
       }
     }
     if (!cands.length) return -1;
 
+    /* 排序优先级（2026-10-20）：
+       ① 可点选的（作品节点）永远优先
+       ② 同级别按深度：近的优先
+       ③ 同深度按面积：小的优先（避免大块抢走小块的点击） */
     cands.sort(function (a, b) {
+      if (a.pickable !== b.pickable) return a.pickable ? -1 : 1;
       if (Math.abs(a.z - b.z) > 0.15) return b.z - a.z;
       return a.area - b.area;
     });
     return cands[0].i;
+  };
+
+  /* 滚轮缩放（2026-10-20）
+     factor > 1 放大，< 1 缩小。clamp 在 minZoom~maxZoom。
+     返回缩放后的值，方便调用方判断有没有到边界。 */
+  SketchScene.prototype.zoomBy = function (factor) {
+    var z = (this.zoom || 1) * factor;
+    this.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, z));
+    return this.zoom;
+  };
+
+  SketchScene.prototype.setZoom = function (z) {
+    this.zoom = Math.max(this.minZoom, Math.min(this.maxZoom, z));
+    return this.zoom;
+  };
+
+  SketchScene.prototype.resetView = function () {
+    this.zoom = 1;
+    this.userRotY = 0;
+    this.userRotX = 0;
+    this.autoSpin = true;
   };
 
   SketchScene.prototype.tick = function (now) {

@@ -67,16 +67,17 @@
       rotY: -0.52,
       tilt: 0.38,          // 俯视角略平，减少底部裁切
       speed: 0.00011,
-      grid: false,         // 轨道环自己有环线，不需要背景网格
+      fitGoal: 0.74,        // 轨道环是宽扁结构，留白要比封面多
+      grid: false,
       nodes: false,        // 192 个方块画节点会太乱
       hidden: true
     });
-    sc.setBoxes(built.blocks);
+    sc.setShapes(built.shapes);   // 2026-10-20：改用 setShapes（八面体 + 弧线）
 
     // 方块索引 → 作品（只有「作品块」有对应，环体小方块没有）
     var idxToNode = {};
     built.nodes.forEach(function (n) {
-      var i = built.blocks.indexOf(n.block);
+      var i = built.shapes.indexOf(n.shape);
       if (i >= 0) idxToNode[i] = n;
     });
 
@@ -137,6 +138,56 @@
       if (node && node.work.url) global.location.href = node.work.url;
     });
 
+    /* ---------- 滚轮缩放（2026-10-20） ----------
+       用户要求：支持滚轮滑动放大缩小。
+
+       细节：
+         · preventDefault 阻止页面跟着滚（否则缩放时页面乱跳）
+         · passive: false 才能 preventDefault
+         · 缩放步长用指数：factor = exp(-deltaY * 0.0015)
+           这样快滚慢滚的手感一致，不会「滚一下跳太多」
+         · 触控板双指缩放会发 ctrlKey=true 的 wheel 事件，单独处理
+         · 缩放到边界时不阻止页面滚动（让用户能继续往下滚） */
+    canvas.addEventListener('wheel', function (e) {
+      var delta = e.deltaY;
+      // 不同浏览器/设备的 deltaY 量级差异很大，归一化
+      if (e.deltaMode === 1) delta *= 16;        // 行模式
+      else if (e.deltaMode === 2) delta *= 100;  // 页模式
+
+      var factor = Math.exp(-delta * 0.0016);
+      var before = sc.zoom;
+      var after = sc.zoomBy(factor);
+
+      // 到边界了就不拦页面滚动，否则用户会「卡住」
+      var atLimit = (after === sc.minZoom && factor < 1) || (after === sc.maxZoom && factor > 1);
+      if (!atLimit) e.preventDefault();
+
+      if (after !== before) {
+        updateZoomUI();
+        if (reduce) sc.drawStatic();
+      }
+    }, { passive: false });
+
+    /* ---------- 缩放 UI ---------- */
+    var zoomVal = root.querySelector('.orbit-zoom__val');
+    var zoomIn = root.querySelector('.orbit-zoom__in');
+    var zoomOut = root.querySelector('.orbit-zoom__out');
+
+    function updateZoomUI() {
+      if (zoomVal) zoomVal.textContent = Math.round(sc.zoom * 100) + '%';
+      if (zoomIn) zoomIn.disabled = sc.zoom >= sc.maxZoom - 0.001;
+      if (zoomOut) zoomOut.disabled = sc.zoom <= sc.minZoom + 0.001;
+    }
+    updateZoomUI();
+
+    function doZoom(f) {
+      sc.zoomBy(f);
+      updateZoomUI();
+      if (reduce) sc.drawStatic();
+    }
+    if (zoomIn) zoomIn.addEventListener('click', function () { doZoom(1.22); });
+    if (zoomOut) zoomOut.addEventListener('click', function () { doZoom(1 / 1.22); });
+
     /* ---------- 拖拽旋转 ---------- */
     var dragging = false, lastX = 0, lastY = 0, moved = 0;
     canvas.addEventListener('pointerdown', function (e) {
@@ -180,9 +231,9 @@
     var resetBtn = root.querySelector('.orbit-reset');
     if (resetBtn) {
       resetBtn.addEventListener('click', function () {
-        sc.userRotY = 0;
-        sc.userRotX = 0;
-        sc.autoSpin = true;
+        // 2026-10-20：重置同时回正缩放
+        sc.resetView();
+        updateZoomUI();
         if (reduce) sc.drawStatic();
       });
     }
