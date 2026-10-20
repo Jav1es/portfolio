@@ -512,7 +512,8 @@
          截图是黑底高对比的，和素描线稿放一起风格断裂。
          加标记后由 CSS 套同一套「网格 + 降饱和 + 白蒙版」语言。 */
       ? '<div class="w-thumb w-thumb--shot"><img class="w-shot" src="' + esc(it.shot.replace(/^\.\//, '')) + '" alt="' +
-        esc(it.t + ' 的运行截图：' + (it.metric || it.pitch.slice(0, 40))) + '" loading="lazy"></div>'
+        esc(it.t + ' 的运行截图：' + (it.metric || it.pitch.slice(0, 40))) +
+        '" decoding="async" onerror="this.closest(\'.w-thumb--shot\').classList.add(\'is-broken\');this.remove();"></div>'
       : '<div class="w-thumb">' +
           '<span class="w-cover-tag">' + esc(c.icon) + ' MODULE ' + esc(it.no) + '</span>' +
           coverSVG(it) +

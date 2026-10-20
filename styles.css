@@ -5911,3 +5911,138 @@ body.nav-open {
   .cta-row--end .btn { width: 100%; justify-content: center; }
   .section--cta-end h2 { max-width: none; }
 }
+
+
+/* ==========================================================================
+   hero 两栏布局（2026-10-20 第31轮）
+   --------------------------------------------------------------------------
+   用户要求：「图1这个编排层应该放回右边，等到移动端时再回下面」。
+
+   结构修复：hero-copy 的 </div> 之前被我误删（div 开59闭58差1），
+   导致 agent-graph 被裹在左栏里，所以显示在左边。
+   补回闭合标签后，agent-graph 成为 hero-grid 的直接子元素。
+
+   现在：桌面两栏（左文案 / 右编排层），平板及以下单列回落。
+   ========================================================================== */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  gap: clamp(28px, 3.4vw, 52px);
+  align-items: center;
+}
+
+.hero-copy { min-width: 0; }
+
+/* 编排层在右栏，垂直居中；宽度由网格决定 */
+.hero-grid > .agent-graph {
+  min-width: 0;
+  width: 100%;
+}
+
+/* 平板及以下：回落到单列，编排层在下面 */
+@media (max-width: 1023.98px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+  }
+}
+
+/* ==========================================================================
+   kicker 胶囊字号统一（第31轮）
+   --------------------------------------------------------------------------
+   用户要求：「他们的大小要一致」。
+
+   实测原来三种字号：个人优势 14px / 能力主线 16px / 进一步了解 12px。
+   统一到 13.5px，全站一致。
+   ========================================================================== */
+
+.kicker--solid,
+.kicker.kicker--solid {
+  font-size: 13.5px !important;
+  padding: 6px 13px !important;
+  line-height: 1 !important;
+}
+
+/* ==========================================================================
+   CTA 说明文字单行（第31轮）
+   --------------------------------------------------------------------------
+   用户要求：「图4这里应该用一行」。
+   原来 max-width: 391px 导致「邮件最快，微信也可以。简历里有完整的时间线与
+   项目清单。」折成两行（实测高 51px = 2 行）。放宽到 62ch。
+   ========================================================================== */
+
+.cta-end__lead {
+  max-width: 62ch !important;
+  margin-left: auto;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+/* 窄屏仍然允许换行（一行放不下时不硬撑） */
+@media (max-width: 899.98px) {
+  .cta-end__lead { white-space: normal; max-width: 46ch !important; }
+}
+
+@media (max-width: 599.98px) {
+  .cta-end__lead { max-width: none !important; }
+  .kicker--solid { font-size: 12.5px !important; }
+}
+
+
+/* 截图卡加载失败兜底（2026-10-20 第31轮）
+   04 / 18 两张截图卡如果图片真的 404，不要留一块空白，
+   显示提示 + 模块编号，至少信息不丢。 */
+.w-thumb--shot.is-broken {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(180deg, rgba(37, 99, 235, .04), transparent 60%),
+    #f8fafc;
+}
+.w-thumb--shot.is-broken::after {
+  content: '截图暂不可用';
+  font-size: 12.5px;
+  color: var(--txt3);
+  letter-spacing: .02em;
+}
+
+
+/* ==========================================================================
+   CTA 标题单行（2026-10-20 第31轮修正）
+   --------------------------------------------------------------------------
+   用户说「图4这里应该用一行」。
+
+   我一开始改错了对象（改成了下面那句说明文字）。
+   实际看截图，折成两行的是**大标题**：
+     「想聊项目，或者只是想看看这
+       些是怎么做的」
+
+   原因：.section--cta-end h2 设了 max-width: 22ch。
+   中文语境下 1ch ≈ 0.5em，22ch 只有约 11 个汉字宽，
+   20 字的标题必然折行。
+
+   修法：max-width 放宽到 34em（够放 20-22 个汉字），
+   窄屏仍允许自然换行。
+   ========================================================================== */
+
+.section--cta-end h2 {
+  max-width: 34em;
+  margin-left: auto;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+/* 平板以下允许换行（一行放不下时别硬撑） */
+@media (max-width: 1023.98px) {
+  .section--cta-end h2 {
+    white-space: normal;
+    max-width: 20em;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .section--cta-end h2 { max-width: none; }
+}

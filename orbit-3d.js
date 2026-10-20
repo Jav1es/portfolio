@@ -106,20 +106,6 @@
       type: 'octa', x: 0, y: 0, z: 0, s: 0.32,
       color: BLUE, weight: 0.45, pickable: false
     });
-    /* 2026-10-20：放射线缩短。
-       评估「中央放射线略密」——原来三条都从中心画到外环，
-       中心附近三线交汇成一坨。改成只画到内环（0.86），
-       外面的部分由轨道自己表达。 */
-    for (var R = 0; R < 3; R++) {
-      shapes.push({
-        type: 'line',
-        from: [0, 0, 0],
-        to: [RADIUS[0] * 0.92, RING_Y[R] * 0.5, 0],
-        color: ARC_COLOR[R],
-        weight: 0.34,
-        pickable: false
-      });
-    }
 
     /* ③ 23 个作品：组内轮转分到三条环 */
     var byLayer = [[], [], []];
