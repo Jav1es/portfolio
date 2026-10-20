@@ -329,33 +329,62 @@
        直接算「目标像素 / 当前像素」得到绝对系数。 */
     // 2026-10-19：0.92 太满，评估说「缺少留白」。素描要呼吸感
     // 2026-10-20：支持 per-scene 的 fitGoal（轨道环需要更多留白）
-    var goal = target == null ? (this.fitGoal == null ? 0.86 : this.fitGoal) : target;
+    /* 2026-10-20：0.86 → 0.80。
+       实测 roadmap 这类宽扁模型底边只剩 3px 余量，视觉上像被裁。
+       降到 0.80 让四周留白更均匀（代价是模型略小一点）。 */
+    var goal = target == null ? (this.fitGoal == null ? 0.80 : this.fitGoal) : target;
     if (!this.geo || !this.geo.v.length) return;
     if (!this.w || !this.h) return;
 
-    var ang = this.rotY0;
-    var self = this;
+    /* 2026-10-20 重写包围盒测量：按整个旋转周期算最坏情况。
+       旧版只量 this.rotY0 一个角度 —— 但模型是持续旋转的，
+       转到其他角度时包围盒更大，就顶出了按单角度留好的白。
+       实测 twodocs 上边余量 0px、roadmap 下边 3px，就是这原因。
+
+       新版：采样 12 个角度，取每个方向的最大偏移，
+       保证旋转一整圈都不会贴边。 */
     var save = this._scaleK;
     this._scaleK = 1;
 
-    var minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
-    this.geo.v.forEach(function (v) {
-      var p = self.project(v, ang);
-      var dx = p.x - self.w / 2, dy = p.y - self.h / 2;
-      if (dx < minX) minX = dx; if (dx > maxX) maxX = dx;
-      if (dy < minY) minY = dy; if (dy > maxY) maxY = dy;
-    });
+    var self = this;
+    var halfW = this.w / 2, halfH = this.h / 2;
+    var maxAbsX = 0, maxAbsY = 0;
+    var SAMPLES = 12;
+
+    for (var si = 0; si < SAMPLES; si++) {
+      var ang = this.rotY0 + (si / SAMPLES) * Math.PI * 2;
+      for (var vi = 0; vi < this.geo.v.length; vi++) {
+        var p = self.project(self.geo.v[vi], ang);
+        var dx = Math.abs(p.x - halfW);
+        var dy = Math.abs(p.y - halfH);
+        if (dx > maxAbsX) maxAbsX = dx;
+        if (dy > maxAbsY) maxAbsY = dy;
+      }
+    }
 
     this._scaleK = save;
 
-    var spanX = maxX - minX, spanY = maxY - minY;
+    // 全周期包围盒（以画布中心为原点，取对称的最大值）
+    var spanX = maxAbsX * 2, spanY = maxAbsY * 2;
     if (spanX <= 0 || spanY <= 0) return;
 
-    // 目标像素尺寸 / 当前像素尺寸
-    this._scaleK = Math.min(
+    var k = Math.min(
       (this.w * goal) / spanX,
       (this.h * goal) / spanY
     );
+
+    /* 兜底：按 goal 算完后再检查余量，任何一边 < 10px 就再缩。
+       因为上面已经取了全周期最大偏移，这里只需一次线性修正。 */
+    var MIN_MARGIN = 10;
+    var hw = (spanX * k) / 2;
+    var hh = (spanY * k) / 2;
+    var marginX = this.w / 2 - hw;
+    var marginY = this.h / 2 - hh;
+    if (marginX < MIN_MARGIN && hw > 0) k *= (this.w / 2 - MIN_MARGIN) / hw;
+    if (marginY < MIN_MARGIN && hh > 0) k *= (this.h / 2 - MIN_MARGIN) / hh;
+    if (!(k > 0)) k = 0.001;
+
+    this._scaleK = k;
   };
 
   SketchScene.prototype.project = function (p, ang) {
