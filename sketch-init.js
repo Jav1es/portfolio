@@ -45,8 +45,12 @@
     }
   }
 
-  function initOne(canvas) {
+  /* autoStart（2026-10-20）：默认 true（进视口就该动）。
+     prebuild 时传 false —— 只建场景、画一帧静态，不启动 rAF，
+     否则预建 21 个就等于 21 个同时跑动画，并发上限形同虚设。 */
+  function initOne(canvas, autoStart) {
     if (canvas.__sketch || !global.SKETCH3D) return null;
+    if (autoStart === undefined) autoStart = true;
 
     var kind = canvas.getAttribute('data-sketch-model') || canvas.getAttribute('data-3d') || 'cluster';
     var geo = makeGeo(kind);
@@ -85,7 +89,12 @@
         if (!sc.raf) sc.drawStatic();
       });
     }
-    sc.start();
+    // 2026-10-20：按 autoStart 决定是启动动画还是只画一帧静态
+    if (autoStart) {
+      sc.start();
+    } else {
+      sc.drawStatic();
+    }
     return sc;
   }
 
@@ -119,7 +128,8 @@
            i 可能因跳过已初始化的元素而连续自增，导致 break 条件错乱。 */
         while (i < deferred.length && built < 3 && Date.now() - t0 < 8) {
           var el = deferred[i++];
-          if (el && !el.__sketch) { initOne(el); built++; }
+          // 预建不启动动画，等 IntersectionObserver 判定进视口再 start
+          if (el && !el.__sketch) { initOne(el, false); built++; }
         }
         if (i < deferred.length) {
           if (global.requestIdleCallback) {
@@ -198,8 +208,10 @@
 
     deferred.forEach(function (el) { io.observe(el); });
 
-    // 2026-10-20：先挂上 observer（保证视口内的立刻能用），
-    // 再在空闲时把剩下的预建好
+    /* 2026-10-20：先挂上 observer（保证视口内的立刻能用），
+       再在空闲时把剩下的预建好。
+       注意：预建是 autoStart=false，所以必须有 observer 兜底启动，
+       否则预建完的场景永远不会动。 */
     prebuild();
   }
 
