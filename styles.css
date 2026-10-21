@@ -5963,6 +5963,32 @@ body.nav-open {
   font-size: 13.5px !important;
   padding: 6px 13px !important;
   line-height: 1 !important;
+  /* 2026-10-22：修「蓝底灰字」。
+     实测线上 background 是 rgb(37,99,235) 但 color 是 rgb(61,61,61) ——
+     蓝底配深灰字，看起来就像样式没生效。
+
+     根因是 specificity 打架：
+       .kicker--solid { color: #fff }          → (0,1,0)
+       .section-head p { color: var(--txt2) }  → (0,1,1)  ← 赢
+     kicker 正好是 .section-head 里的 <p>，于是白字被深灰覆盖；
+     background 没被覆盖（.section-head p 不设背景），所以只剩底色是蓝的。
+
+     修法：两个类叠加 + !important，确保白字蓝底不被任何祖先 p 规则压掉。 */
+  color: #fff !important;
+  background: var(--blue) !important;
+  border-color: transparent !important;
+}
+
+/* 2026-10-22：禁用 kicker--solid 的扫光动画。
+   .kicker::after 有一条白色渐变每 4.5 秒从左扫到右（sweep），
+   那是给旧的白色玻璃条设计的。放到蓝底胶囊上就是一道白光划过，
+   视觉上像闪烁，也会让「纯蓝底白字」看起来不纯。
+   这里把 ::after 整个关掉。 */
+.kicker--solid::after,
+.kicker.kicker--solid::after {
+  content: none !important;
+  display: none !important;
+  animation: none !important;
 }
 
 /* ==========================================================================
