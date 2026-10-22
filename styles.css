@@ -69,6 +69,10 @@
   --veil-hero-1: rgba(255, 255, 255, .48);
   --veil-hero-2: rgba(255, 255, 255, .64);
 
+  /* ---- 局部文字垫底（2026-10-22）：整屏白底已删，只在文字块下面铺一层。
+     0.72 是实测折中：够压住网格线，又能让网格在文字块四周继续可见。 ---- */
+  --veil-local: rgba(255, 255, 255, .72);
+
   /* ---- 导航底与徽标底：亮色下接近纯白 ---- */
   --nav-bg: rgba(255, 255, 255, .96);
   --badge-bg: rgba(255, 255, 255, .94);
@@ -227,17 +231,47 @@ html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
   html { scroll-behavior: auto; }
 }
 
-/* 内容区统一垫一层半透明白底：既保留背景的 3D 层次，又不牺牲正文可读性。
-   注意：这里刻意不用 backdrop-filter —— 它每帧都要重新采样背后内容，
-   滚动时是主要的掉帧来源。半透明白底已足够，且能提升为独立合成层。 */
+/* 内容区背景策略（2026-10-22 改）
+   ------------------------------------------------------------------------
+   原做法：整个 .section 垫一层 62-78% 半透明白底，正文可读性有保障，
+           但把背景的透视网格整体压掉，技术感被磨平了。
+   新做法：整屏白底删掉，让透视网格完整透出；
+           只给「直接压在网格上的文字块」加一层很轻的局部垫底。
+           卡片/表格等自身有不透明底色的元素不需要额外处理。
+   性能：仍然不用 backdrop-filter（它每帧重新采样背后内容，是滚动掉帧主因）。
+   局部垫底用的是 --veil-local，暗色模式自动切换，见该变量定义处。 */
 .section {
   position: relative;
-  background: linear-gradient(180deg, var(--veil-1), var(--veil-2));
+  /* 不再整屏铺白底 */
+  background: none;
 }
 
-/* 英雄区不加白底，让 3D 网格全貌透出 */
+/* 英雄区：让 3D 网格全貌透出（原来这里写着「不加白底」但实际铺了 48-64%，已按注释本意修正） */
 .hero {
-  background: linear-gradient(180deg, var(--veil-hero-1), var(--veil-hero-2));
+  background: none;
+}
+
+/* --- 局部可读性垫底：只覆盖文字块本身，不覆盖整屏 ---
+   覆盖三类「直接压在网格上」的文字容器：
+     · .section-head  各区块的标题组（kicker + h2 + 说明）
+     · .hero-copy     首页 hero 左栏
+     · .hero > .wrap  其余页面的 hero（结构是 .hero > .wrap > h1 + .lede）
+   卡片/表格/按钮自带不透明底色，不需要这层。 */
+.section-head,
+.hero-copy,
+.hero > .wrap {
+  position: relative;
+}
+.section-head::before,
+.hero-copy::before,
+.hero > .wrap::before {
+  content: "";
+  position: absolute;
+  inset: -18px -22px;
+  z-index: -1;
+  border-radius: 18px;
+  background: var(--veil-local);
+  pointer-events: none;
 }
 
 body {
@@ -259,14 +293,17 @@ body {
   body { overflow-x: clip; }
 }
 
-/* 2026-10-22：删除 body::before 的「整体柔光层」。
-   原为 fixed 全屏、5%/4% 两个 radial-gradient，注释自称「极淡的整体柔光」。
-   实测（冻结动画后逐层关掉对比像素差）：
-     · 首屏       关掉后与基线差 0 像素 —— 被 .hero 的 48-64% 白底完全盖住
-     · #orbit 屏  关掉后与基线差 0 像素 —— 被 .section 的 62-78% 白底完全盖住
-   即：视觉贡献为零，却常驻一个 fixed 全视口合成层。resume.css 也早已单独
-   用 display:none 把它关掉（注释「去掉主站背景柔光层」）。
-   背景主体由 .bg-stage（透视网格 + 漂移光斑）承担，不受影响。 */
+/* 背景主体改由 .bg-stage 承担（透视网格 + 漂移光斑），此处仅保留一层极淡的整体柔光。
+   注：2026-10-22 一度删除，但用户要删的其实是 .section 的白底（见下方 2026-10-22 改动），
+   本层已恢复原样。 */
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 500px at 12% -5%, rgba(37, 99, 235, .05), transparent 60%),
+    radial-gradient(800px 500px at 92% 8%, rgba(8, 145, 178, .04), transparent 60%);
+}
 
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
@@ -1949,6 +1986,7 @@ body { line-height: 1.68; }
     --veil-2: rgba(13, 13, 15, .72);
     --veil-hero-1: rgba(13, 13, 15, .40);
     --veil-hero-2: rgba(13, 13, 15, .58);
+    --veil-local: rgba(13, 13, 15, .78);
     --nav-bg: rgba(13, 13, 15, .94);
     --badge-bg: rgba(20, 20, 24, .94);
 
@@ -1995,6 +2033,7 @@ body { line-height: 1.68; }
   --veil-2: rgba(13, 13, 15, .72);
   --veil-hero-1: rgba(13, 13, 15, .40);
   --veil-hero-2: rgba(13, 13, 15, .58);
+  --veil-local: rgba(13, 13, 15, .78);
   --nav-bg: rgba(13, 13, 15, .94);
   --badge-bg: rgba(20, 20, 24, .94);
   color-scheme: dark;
