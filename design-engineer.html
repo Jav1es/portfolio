@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Design / Product Engineer · 黄家辉</title>
-<meta name="description" content="黄家辉 · Design / Product Engineer：设计与实现一体，自己定方案、自己写代码、对最终效果负责。零依赖手写 24 个 3D 封面，构建自带 5 阶段 10 项回归自检，完整键盘可达与 reduced-motion 降级。">
+<meta name="description" content="黄家辉 · Design / Product Engineer：设计与实现一体，自己定方案、自己写代码、对最终效果负责。零依赖手写 25 个 3D 封面，构建自带 5 阶段 10 项回归自检，完整键盘可达与 reduced-motion 降级。">
 <meta name="author" content="黄家辉">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png">
@@ -12,7 +12,7 @@
 <link rel="canonical" href="https://jav1es.github.io/portfolio/design-engineer.html">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Design / Product Engineer · 黄家辉">
-<meta property="og:description" content="设计与实现一体：自己定方案、自己写代码、对最终效果负责。零依赖手写 24 个 3D 封面，构建自带回归自检，完整无障碍支持。">
+<meta property="og:description" content="设计与实现一体：自己定方案、自己写代码、对最终效果负责。零依赖手写 25 个 3D 封面，构建自带回归自检，完整无障碍支持。">
 <meta property="og:image" content="https://jav1es.github.io/portfolio/og-image.jpg">
 <meta property="og:site_name" content="黄家辉 · 个人作品集">
 <meta property="og:locale" content="zh_CN">
@@ -20,7 +20,7 @@
 <meta property="og:image:alt" content="黄家辉个人作品集封面：能力主线与核心指标">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Design / Product Engineer · 黄家辉">
-<meta name="twitter:description" content="设计与实现一体：自己定方案、自己写代码、对最终效果负责。零依赖手写 24 个 3D 封面，完整无障碍支持。">
+<meta name="twitter:description" content="设计与实现一体：自己定方案、自己写代码、对最终效果负责。零依赖手写 25 个 3D 封面，完整无障碍支持。">
 <meta name="twitter:image" content="https://jav1es.github.io/portfolio/og-image.jpg">
 <meta name="twitter:image:alt" content="黄家辉个人作品集封面：能力主线与核心指标">
 <meta name="theme-color" content="#fbfbfa">
@@ -115,7 +115,7 @@
 
       <ul class="duty-list">
         <li><b>判断什么值得做：</b>拿到的是问题不是规格说明。先问「用户真正要完成的是什么」，再决定做不做、做多重。作品集站的第一版做过一版「什么都有」的方案，后来整段砍掉重写——因为访客真正要判断的是「这人能不能干我的活」，不是看功能清单。</li>
-        <li><b>设计与实现不分家：</b>不做 Figma 到代码的交接。版式、间距、动效、交互反馈在设计时就已经考虑了实现代价，写代码时也不必猜设计意图。24 个作品封面全部手写 Canvas，没有一个是「先出图再切图」。</li>
+        <li><b>设计与实现不分家：</b>不做 Figma 到代码的交接。版式、间距、动效、交互反馈在设计时就已经考虑了实现代价，写代码时也不必猜设计意图。25 个作品封面全部手写 Canvas，没有一个是「先出图再切图」。</li>
         <li><b>零依赖是产品决策：</b>不用 Three.js、不用 CDN、不用前端框架。代价是所有能力都得自己写（3D 线框渲染器 33.3 KB、对象池、12 角度 autoFit 防裁切、帧预算调度），换来的是首屏不依赖任何第三方、离线可用、十年后还能跑。</li>
         <li><b>性能是可感知的设计：</b>滚动时不卡、模型不贴边、图不闪。这些不是「工程优化」，是设计质量的一部分——用户感知到的卡顿就是设计失败。实测 449 帧 0 掉帧。</li>
         <li><b>无障碍不是附加项：</b>键盘可达、aria 标注、<code>prefers-reduced-motion</code> 降级、对比度达标。默认就该有，不是上线前补的。</li>
@@ -128,7 +128,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="kicker kicker--solid">硬指标</p>
-        <h2>零依赖，24 个手写封面，构建自带 5 阶段 10 项自检</h2>
+        <h2>零依赖，25 个手写封面，构建自带 5 阶段 10 项自检</h2>
         <p>这些数字都能在仓库里验证。<b>口径说明：</b>指本站（个人作品集站）的实测结果，不是商业项目交付。</p>
       </div>
 
@@ -147,7 +147,7 @@
             </tr>
             <tr>
               <td>手写 3D 封面</td>
-              <td><b>24 个</b></td>
+              <td><b>25 个</b></td>
               <td>全部 Canvas 手绘线框，无一张位图素材</td>
             </tr>
             <tr>
@@ -173,7 +173,7 @@
       <ul class="duty-list">
         <li><b>12 角度 autoFit 防裁切。</b>模型旋转时包围盒会变大，只按正面测尺寸会让侧转到 45° 时贴边甚至出框。改成采样 12 个旋转角度取最坏情况，实测最差留白 15px。这个问题是用户反馈「模型贴边」之后才发现的——第一版只测了正面。</li>
         <li><b>对象池复用。</b>每帧重建顶点数组会导致 GC 抖动，表现为滚动时画面一顿一顿。改成复用点/边/桶三层对象池，代价是每帧必须无条件清空桶列表——漏清一次就会出现「描边一层层叠加变粗」的频闪，这个 bug 当时排查了很久。</li>
-        <li><b>帧预算调度。</b>24 个画布同时跑动画会拖垮滚动。改成视口内最多 4 个并发，其余画一帧静态图就停，进视口再唤醒。实测 4 倍 CPU 降速下，从 27.9ms 降到 11.1ms。</li>
+        <li><b>帧预算调度。</b>25 个画布同时跑动画会拖垮滚动。改成视口内最多 4 个并发，其余画一帧静态图就停，进视口再唤醒。实测 4 倍 CPU 降速下，从 27.9ms 降到 11.1ms。</li>
       </ul>
 
       <p class="bench-note"><b>边界声明：</b>本站是个人作品集，不是商业项目；上述指标是站点自身的工程指标，可复现但不代表商业交付经验。</p>
@@ -242,7 +242,7 @@
         <span class="footer-v2__label">导航</span>
         <ul class="footer-v2__list footer-v2__list--nav">
           <li><a href="./index.html#works-featured">核心项目</a></li>
-          <li><a href="./works.html">全部 24 个模块</a></li>
+          <li><a href="./works.html">全部 25 个模块</a></li>
           <li><a href="./index.html#oss">开源作品</a></li>
           <li><a href="./about.html">关于我</a></li>
           <li><a href="./fde.html">FDE 工程师</a></li>

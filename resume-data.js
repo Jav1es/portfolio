@@ -288,17 +288,49 @@ window.__RESUME__ = {
     {
       // Design 向：作品集站本身（简历 design 版首选）
       no: '25',
-      name: '作品集站本身：零依赖 + 24 个手写 3D 封面',
+      name: '作品集站本身：零依赖 + 25 个手写 3D 封面',
       role: '独立完成全部设计与实现（个人项目，已上线）',
       bullets: [
         '作为 Design Engineer 求职者，作品集站本身就是第一个被审视的作品：如果它用 Three.js 堆特效、用框架套壳，恰恰证明不了「能自己写」。所以第一版就定死约束——零第三方运行时依赖，连 package.json 都不要。',
-        '24 个作品封面全部程序化生成：手写 Canvas 线框渲染器（33.3 KB），含 12 角度 autoFit 防裁切、点/边/桶三层对象池避免 GC 抖动、帧预算调度（视口内最多 4 个并发）。没有一张位图素材。',
+        '25 个作品封面全部程序化生成：手写 Canvas 线框渲染器（33.3 KB），含 12 角度 autoFit 防裁切、点/边/桶三层对象池避免 GC 抖动、帧预算调度（视口内最多 4 个并发）。没有一张位图素材。',
         '构建自带 5 阶段 10 项回归自检（编号连续 / 卡片布局 1280 与 390 两档 / 几何自检），任一不过就 fail；无障碍覆盖键盘可达、aria 标注、prefers-reduced-motion 全量降级。实测 449 帧 0 掉帧。'
       ],
       tags: ['Canvas 2D', '零依赖', '原生 JS', '无障碍'],
       links: [
         { label: '在线访问', url: 'https://jav1es.github.io/portfolio/' },
         { label: '源码', url: 'https://github.com/Jav1es/portfolio' }
+      ]
+    },
+    {
+      // 2026-10-22 审计修复：FDE 方向的核心证据（简历 fde 版首选）
+      no: '23',
+      name: '外贸询盘数字员工：从诊断到验收的完整交付',
+      role: '独立完成 FDE 五段流程（个人自演示 Demo，客户画像虚构，非真实客户交付）',
+      bullets: [
+        '完整走了一遍 FDE 流程：进客户现场诊断 → 圈定自动化边界 → 在 Dify 搭 31 节点工作流 → 设计 52 条验收样本 → 六轮回归把通过率从 88% 提到 100%。其中关键的不是最终通过率，而是每轮失败都定位到机制层根因。',
+        '核心设计是把路由与阈值放进代码节点重算，安全红线用机制保证而不是靠提示词自觉；报价走规则兜底 fail-closed，宁可转人工也不出错价。',
+        '验收结果：52 条样本全量通过；意图识别 96.2%（Wilson 95% 下界 87.0%）；报价金额 6/6 全部在容差内；人工介入降幅 50.0%。**个人自演示 Demo，客户画像为虚构典型客户。**'
+      ],
+      tags: ['Dify', 'RAG', '验收回归', 'FDE', '数字员工'],
+      links: [
+        { label: '交付物仓库（D1–D13）', url: 'https://github.com/Jav1es/digital-employee-delivery' },
+        { label: '验收回归报告', url: 'https://github.com/Jav1es/digital-employee-delivery/blob/main/deliverables/D12_测试询盘样本集与验收回归报告.md' }
+      ]
+    },
+    {
+      // 2026-10-22 审计修复：AI Agent 方向的可观测性证据（简历 agent 版引用）
+      no: '14',
+      name: 'AI 评测与可观测性：CI 自动回归与全链路追踪',
+      role: '独立设计与实现（自建 Demo）',
+      bullets: [
+        '智能体系统迭代缺少自动回归防线，评测依赖人工跑；生产环境一次会话跨多阶段，故障与慢节点无法按请求链路定位。',
+        '把评测集纳入 GitHub Actions，每次 push 自动跑 30 题评测并断言阈值（检索准确率 ≥60% / 引用准确率 ≥60% / 拒答率 ≤40%），报告作为 artifact 保存。',
+        '基于 OpenTelemetry 实现全链路观测：根 span 贯穿整条链路，Router/Planner/Retrieve/Tool/Reviewer/Respond 各节点打点，Jaeger 聚合展示阶段耗时，单会话 8 个 span。'
+      ],
+      tags: ['OpenTelemetry', 'Jaeger', 'GitHub Actions', '可观测性'],
+      links: [
+        { label: '可观测性方案文档', url: 'https://github.com/Jav1es/enterprise-agents/blob/main/docs/observability.md' },
+        { label: 'CI 评测回归配置', url: 'https://github.com/Jav1es/enterprise-agents/blob/main/.github/workflows/ci.yml' }
       ]
     }
   ]
