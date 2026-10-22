@@ -209,7 +209,7 @@
     color: #000 !important;
     font-size: 12pt;
   }
-  body::before { display: none !important; }   /* 去掉主站背景柔光层 */
+  /* 2026-10-22：主站已删除 body::before 柔光层，这里原本的 display:none 兜底一并移除 */
 
   .a4 {
     width: auto; min-height: 0; margin: 0; padding: 0;

@@ -259,15 +259,14 @@ body {
   body { overflow-x: clip; }
 }
 
-/* 背景主体改由 .bg-stage 承担（透视网格 + 漂移光斑），此处仅保留一层极淡的整体柔光 */
-body::before {
-  content: "";
-  position: fixed; inset: 0; z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(900px 500px at 12% -5%, rgba(37, 99, 235, .05), transparent 60%),
-    radial-gradient(800px 500px at 92% 8%, rgba(8, 145, 178, .04), transparent 60%);
-}
+/* 2026-10-22：删除 body::before 的「整体柔光层」。
+   原为 fixed 全屏、5%/4% 两个 radial-gradient，注释自称「极淡的整体柔光」。
+   实测（冻结动画后逐层关掉对比像素差）：
+     · 首屏       关掉后与基线差 0 像素 —— 被 .hero 的 48-64% 白底完全盖住
+     · #orbit 屏  关掉后与基线差 0 像素 —— 被 .section 的 62-78% 白底完全盖住
+   即：视觉贡献为零，却常驻一个 fixed 全视口合成层。resume.css 也早已单独
+   用 display:none 把它关掉（注释「去掉主站背景柔光层」）。
+   背景主体由 .bg-stage（透视网格 + 漂移光斑）承担，不受影响。 */
 
 a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
