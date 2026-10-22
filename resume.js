@@ -25,27 +25,62 @@
   }
 
   // ---- 两个版本各自的差异化文案与项目取舍 --------------------------------
+  // 2026-10-22：从 2 版扩到 4 版，对应四个求职方向。
+  // 每版差异化的东西只有五样：title / summary / projectNos / skillOrder / metrics。
+  // 其余（经历、教育、开源、证书）四版共用 —— 那是同一份事实，不该有四个真源。
   var VERSIONS = {
-    agent: {
-      title: '企业级 AI Agent 开发工程师',
-      summary: D.summary,
-      // 项目顺序：智能体 → RAG → MCP → FDE 模板；FDE 那条放最后且精简
-      projectNos: ['04', '13', '16', '11'],
+    harness: {
+      title: 'Agent Harness 工程师 / AI Agent 开发',
+      summary: '6 年+ 企业科技服务（2021.04 至今），AI 工程实践 27 个月。做 AI Agent 的可控层：模型只产出「提案」，能不能执行由确定性校验、权限白名单、自愈回喂与熔断共同决定。自建 Harness-Agent-Core 五层可控层，50 次复杂多步骤测试任务中断率 32% 降至 2% 以下，597 个测试 + 82 个变异体全部被杀死。技术上能自己动手，遇到底层问题不需要层层转手。',
+      projectNos: ['24', '19', '18', '15'],
       projectCount: 4,
-      // 技能域顺序：技术能力优先
-      skillOrder: ['AI Agent 开发', 'RAG 与检索', '评测与可观测性', '工程化与部署', 'FDE 交付与项目管理', '前端与工具链']
+      // Harness 版：运行时与编排优先，交付方法退到最后
+      skillOrder: ['AI Agent 开发', '工程化与部署', '评测与可观测性', 'RAG 与检索', 'FDE 交付与项目管理', '前端与工具链'],
+      metrics: [
+        { v: '32% → <2%', k: '多步骤任务中断率' },
+        { v: '597 / 82', k: '测试数 / 变异体全杀' },
+        { v: '−80%', k: '错误修正耗时' }
+      ]
     },
     fde: {
       title: 'FDE 前线部署工程师 / 解决方案交付',
       summary: '6 年+ 乙方交付一线经验（2021.04 至今），累计主导政府/企业项目 300+、服务企业 100+（项目申报口径），单年最高通过国家级高新技术企业认定 24 家，曾 1 周内完成从签单到申报的交付。近 27 个月把这套方法迁移到 AI Agent 工程。习惯的工作方式是：进客户现场用 Discovery Brief 把模糊诉求翻译成可验证范围，现场把方案跑通，用 Eval Plan 定义验收口径，培训到一线会用为止。技术上能自己动手，遇到底层问题不需要层层转手。广州 · 接受长期出差/驻场。',
-      // FDE 版：交付类项目优先，技术项目作为支撑能力
-      projectNos: ['11', '04', '13', '16'],
+      projectNos: ['11', '23', '04', '13'],
       projectCount: 4,
-      skillOrder: ['FDE 交付与项目管理', 'AI Agent 开发', 'RAG 与检索', '评测与可观测性', '工程化与部署', '前端与工具链']
+      skillOrder: ['FDE 交付与项目管理', 'AI Agent 开发', 'RAG 与检索', '评测与可观测性', '工程化与部署', '前端与工具链'],
+      metrics: [
+        { v: '300+', k: '主导项目（申报口径）' },
+        { v: '100+', k: '服务企业（申报口径）' },
+        { v: '24 家', k: '单年高企认定通过' }
+      ]
+    },
+    agent: {
+      title: 'AI Agent 开发工程师',
+      summary: '6 年+ 企业科技服务（2021.04 至今），AI 工程实践 27 个月。把 AI Agent 从 Demo 做到能评测、可观测、可演示——RAG 检索 93.3% @3（30 题分层评测），OTel/Jaeger 全链路可观测（一次会话 7 个 span），11 个公开开源仓库、11 个含 CI 门禁。',
+      projectNos: ['04', '13', '16', '14'],
+      projectCount: 4,
+      skillOrder: ['AI Agent 开发', 'RAG 与检索', '评测与可观测性', '工程化与部署', 'FDE 交付与项目管理', '前端与工具链'],
+      metrics: [
+        { v: '93.3%', k: 'RAG 准确率 @3' },
+        { v: '7 span', k: '全链路可观测' },
+        { v: '35', k: 'pytest 用例全过' }
+      ]
+    },
+    design: {
+      title: 'Design / Product Engineer',
+      summary: '6 年+ 企业科技服务（2021.04 至今），AI 工程实践 27 个月。设计与实现一体：不给交接单、不等排期，自己判断什么值得做、自己设计、自己写代码上线、对最终效果负责。作品集站本身即产物——零第三方运行时依赖（不用 Three.js / CDN / 框架），24 个 3D 封面全部手写 Canvas，构建自带 24 项回归自检，实测 449 帧零掉帧。',
+      projectNos: ['25', '22', '20', '18'],
+      projectCount: 4,
+      skillOrder: ['前端与工具链', 'AI Agent 开发', '工程化与部署', '评测与可观测性', 'RAG 与检索', 'FDE 交付与项目管理'],
+      metrics: [
+        { v: '0', k: '第三方运行时依赖' },
+        { v: '24 个', k: '手写 3D 封面' },
+        { v: '0 / 449', k: '滚动掉帧' }
+      ]
     }
   };
 
-  var current = 'agent';
+  var current = 'harness';
 
   function projectByNo(no) {
     for (var i = 0; i < D.projects.length; i++) {
@@ -66,7 +101,7 @@
 
   // ------------------------------------------------------------------ 渲染
   function render(verKey) {
-    var V = VERSIONS[verKey] || VERSIONS.agent;
+    var V = VERSIONS[verKey] || VERSIONS.harness;
     var C = D.contact;
 
     // 1) 头部
@@ -88,8 +123,12 @@
     html += '<p class="rv-summary">' + esc(V.summary) + '</p>';
 
     // 3) 核心指标
+    // 2026-10-22：改成按版本取，不再固定用 D.metrics 的 6 个。
+    // 简历第一屏只有 3 秒，6 个数字平铺等于没重点；
+    // 每个方向关心的问题也不同（Harness 关心稳定性，Design 关心实现质量）。
+    var metrics = V.metrics || D.metrics.slice(0, 3);
     html += '<div class="rv-metrics">';
-    D.metrics.forEach(function (m) {
+    metrics.forEach(function (m) {
       html += '<div><b>' + esc(m.v) + '</b><span>' + esc(m.k) + '</span></div>';
     });
     html += '</div>';
@@ -173,14 +212,16 @@
   // resume.html?ver=agent / ?ver=fde 生成。切换版本时必须同步换 href，
   // 否则会出现「界面显示 FDE 版、点下载却拿到 AI Agent 版」的错配。
   var PDF_BY_VER = {
-    agent: { href: './resume-ai-agent.pdf', label: '下载 PDF 简历（AI Agent 版）' },
-    fde: { href: './resume-fde.pdf', label: '下载 PDF 简历（FDE 版）' }
+    harness: { href: './resume-harness.pdf', label: '下载 PDF 简历（Agent Harness 版）' },
+    fde:     { href: './resume-fde.pdf',     label: '下载 PDF 简历（FDE 版）' },
+    agent:   { href: './resume-ai-agent.pdf', label: '下载 PDF 简历（AI Agent 版）' },
+    design:  { href: './resume-design.pdf',  label: '下载 PDF 简历（Design / Product 版）' }
   };
 
   function syncDownload(v) {
     var a = document.getElementById('btn-download');
     if (!a) return;
-    var p = PDF_BY_VER[v] || PDF_BY_VER.agent;
+    var p = PDF_BY_VER[v] || PDF_BY_VER.harness;
     a.setAttribute('href', p.href);
     a.setAttribute('download', '');
     a.textContent = p.label;
@@ -220,9 +261,10 @@
   }
 
   // 键盘：Ctrl/Cmd + P 走原生打印即可，无需额外处理。
-  // 支持 ?ver=agent / ?ver=fde —— 生成 PDF 的无头打印就是靠它选定版本。
-  var initial = 'agent';
-  var m = /[?&]ver=(agent|fde)(?:&|$)/.exec(window.location.search);
+  // 支持 ?ver=harness / fde / agent / design —— 生成 PDF 的无头打印靠它选定版本。
+  // 2026-10-22：从两版扩到四版，默认版也改成 harness（与 HTML 的 is-active 一致）。
+  var initial = 'harness';
+  var m = /[?&]ver=(harness|fde|agent|design)(?:&|$)/.exec(window.location.search);
   if (m) initial = m[1];
   setVersion(initial);
 })();

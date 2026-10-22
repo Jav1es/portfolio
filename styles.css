@@ -380,7 +380,7 @@ h1 em { font-style: normal; background: var(--grad); -webkit-background-clip: te
 
 .lede { font-size: 17px; color: var(--txt2); max-width: 760px; margin-bottom: 16px; }
 
-/* 导航里的「附属能力」链接：VibeCoding 降为支撑定位
+/* 导航里的「附属能力」链接（历史遗留样式，2026-10-22 方向已改四方向）
    虚线边框 + 字号缩小 + 颜色弱化，与两条主责主线区分开 */
 .site-nav .nav-links a.nav-secondary {
   font-size: 13.5px;

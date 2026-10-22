@@ -98,7 +98,8 @@ const EXTRA = [
     cat: 'oss',
     star: true,
     status: '个人开源',
-    jd: 'VibeCoding / VibeEngineering 工程师',
+    jd: 'Design·Product',
+    harnessFit: 0,
     pitch: '把高企认定的评分规则做成一个能离线跑的自评工具：六步实时算分、雷达图诊断、整改建议直出，数据只留在浏览器里，不上传不联网。',
     highlights: [
       { num: '6 步', label: '实时算分' },
@@ -120,7 +121,8 @@ const EXTRA = [
     cat: 'oss',
     star: false,
     status: '个人开源',
-    jd: 'VibeCoding / VibeEngineering 工程师',
+    jd: 'Agent Harness',
+    harnessFit: 2,
     pitch: 'dsh-bridge 的同构延伸：把本机 WorkBuddy 封装成 MCP 桥接层，让腾讯 Marvis 能把它当子 Agent 调用，两个桌面 Agent 之间形成可编排的协作链路。',
     highlights: [
       { num: 'MCP', label: '标准协议桥接' },
@@ -182,7 +184,7 @@ const all = merged.sort((a, b) => a.no.localeCompare(b.no));
 //    core 核心案例   —— 直接决定能不能约到面试的硬证据
 //    eng  AI 工程化  —— 证明不是只会调 API，有体系化的工程方法与数据口径
 //    oss  开源工具   —— 证明能造工具、能被别人用（9 个公开仓库，全 MIT）
-//    lab  实验与 VibeCoding —— 广度与动手速度
+//    lab  实验与工具链 —— 广度与动手速度
 //
 //    选谁进 core 的判断依据（题面要求写明理由）：
 //    只收「最强 + 证据最硬」——即同时满足 ①有可点开的真实产物/仓库链接，
@@ -225,7 +227,7 @@ const GROUP_OF_NO = {
   '19': 'oss',    // DSH 运维工具箱（开源）
   '15': 'oss',    // DeepSeek Harness 本机插件三件套（开源）
 
-  // lab 实验与 VibeCoding（余下 6 个）：内部提效、复盘沉淀与快速实验
+  // lab 实验与工具链（余下 6 个）：内部提效、复盘沉淀与快速实验
   '06': 'lab',    // 办公流程自动化（Open Claw + Python 脚本）
   '08': 'lab',    // 培训 / SOP / 推广运营包
   '09': 'lab',    // 技术底座与运维证据
@@ -337,7 +339,7 @@ const GROUP_META = {
     desc: '不只会用工具，还能造工具——9 个独立公开仓库全部 MIT，从 MCP Server 到宿主插件、离线 PWA 与运维工具链。'
   },
   lab: {
-    id: 'lab', no: '④', icon: '✨', name: '实验与 VibeCoding',
+    id: 'lab', no: '④', icon: '✨', name: '实验与工具链',
     desc: '用自然语言驱动编码做快速实验与内部提效，验证过的东西再沉淀成上面那些可交付的模块。'
   }
 };

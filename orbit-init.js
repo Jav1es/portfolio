@@ -19,7 +19,7 @@
   }
 
   var GROUP_LABEL = {
-    core: '核心案例', eng: 'AI 工程化', oss: '开源工具', lab: '实验与 VibeCoding'
+    core: '核心案例', eng: 'AI 工程化', oss: '开源工具', lab: '实验与工具链'
   };
   var GROUP_ORDER = ['core', 'eng', 'oss', 'lab'];
 

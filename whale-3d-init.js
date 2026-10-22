@@ -22,7 +22,7 @@
     core: '核心案例',
     eng: 'AI 工程化',
     oss: '开源工具',
-    lab: '实验与 VibeCoding'
+    lab: '实验与工具链'
   };
 
   function pickWorks() {

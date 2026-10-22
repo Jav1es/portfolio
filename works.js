@@ -14,7 +14,22 @@
   //    实测 22 号作品加入后，三个岗位的 owns 合计 21 个，22 号无人认领，
   //    按岗位筛选时会直接消失）。改由 jd 派生后，新作品只要填对 jd 就自动归位。
   // ==========================================================================
+  // 2026-10-22：岗位从 3 个旧方向改成 4 个新求职方向。
+  //   vibe 键废弃 → 拆成 harness + design（vibe-engineer.html 已移除）
+  //   owns 是权威来源，必须显式配置；jd 只是展示文案。
+  //   24 号就是教训：jd 曾写「AI 智能体开发工程师」被兜底归到 agent，
+  //   导致 Harness 岗位页看不到自己最强的作品。
   var ROLES = {
+    harness: {
+      key: 'harness',
+      page: 'harness.html',
+      name: 'Agent Harness 工程师',
+      short: 'Harness',
+      icon: '⚙️',
+      desc: '造 Agent 的底座：任务编排、上下文与状态管理、工具调用治理、权限边界、异常恢复与运行监控。',
+      // 24 号旗舰在前，其余按 harnessFit 排序
+      owns: ['24', '19', '18', '15', '21', '12', '09', '17', '22']
+    },
     fde: {
       key: 'fde',
       page: 'fde.html',
@@ -22,26 +37,25 @@
       short: 'FDE',
       icon: '🚧',
       desc: '贴近业务现场做需求发现、方案落地与交付验收，对项目结果全流程负责。',
-      // 规划 / 工作流 / 数据
-      owns: ['01', '02', '03', '05', '06', '08', '10', '11']
+      owns: ['01', '02', '03', '05', '06', '08', '10', '11', '23']
     },
     agent: {
       key: 'agent',
       page: 'ai-agent.html',
-      name: 'AI 智能体开发工程师',
+      name: 'AI Agent 开发工程师',
       short: 'AI Agent',
       icon: '🤖',
       desc: '独立设计并交付企业级智能体：六层架构、RAG、工具调用、评测与可观测性。',
-      owns: ['04', '07', '09', '13', '14']
+      owns: ['04', '16', '14', '13', '07', '09']
     },
-    vibe: {
-      key: 'vibe',
-      page: 'vibe-engineer.html',
-      name: 'VibeCoding / VibeEngineering 工程师',
-      short: 'Vibe',
-      icon: '✨',
-      desc: '用自然语言驱动编码，做创意编码、交互体验与视觉实验，并把实验结果整理为可交付代码。',
-      owns: ['12', '15', '16', '17', '18', '19', '20', '21']
+    design: {
+      key: 'design',
+      page: 'design-engineer.html',
+      name: 'Design / Product Engineer',
+      short: 'Design',
+      icon: '🎨',
+      desc: '设计与实现一体：自己定方案、自己写代码、对最终效果负责，不给交接单。',
+      owns: ['25', '22', '20', '18']
     }
   };
 
@@ -49,10 +63,20 @@
   // 必须定义在 resolveOwns 之前：resolveOwns 会调 rebuildModuleRole()，
   // 而 var 声明的 MODULE_ROLE 若不先执行，函数内赋值会落到全局而非闭包。
   var MODULE_ROLE = {};
+  // 2026-10-22：新增多值映射。
+  // 一个作品可以同时支撑多个方向（09 既是故障恢复也是 Agent 运维，
+  // 18 既是上下文编译也是工具链）。原来的单值映射会让后遍历的岗位
+  // 覆盖先遍历的，导致 harness.owns 写了 9 个但页面只渲染 6 个。
+  var MODULE_ROLES = {};
   function rebuildModuleRole() {
     MODULE_ROLE = {};
+    MODULE_ROLES = {};
     Object.keys(ROLES).forEach(function (k) {
-      ROLES[k].owns.forEach(function (no) { MODULE_ROLE[no] = k; });
+      ROLES[k].owns.forEach(function (no) {
+        if (!MODULE_ROLE[no]) MODULE_ROLE[no] = k;   // 主方向 = 先声明者
+        if (!MODULE_ROLES[no]) MODULE_ROLES[no] = [];
+        if (MODULE_ROLES[no].indexOf(k) < 0) MODULE_ROLES[no].push(k);
+      });
     });
   }
   rebuildModuleRole();
@@ -64,10 +88,15 @@
   //    甚至一个作品同时挂多个岗位）。2026-10-19 试过按 jd 严格匹配，结果
   //    12/15/16/17/18 的 jd 都是「AI 智能体开发工程师」，被从 vibe 抢到 agent，
   //    三个岗位的既有归属全乱。所以 jd 只用来给**新作品**兜底。
+  // 2026-10-22：兜底规则同步改成四个新方向。
+  // 顺序有意义 —— 越具体越靠前。Harness 必须排在 AI Agent 之前：
+  // 否则「Agent Harness」里的「Agent」会先命中 AI Agent，
+  // 又回到 24 号被抢走的老问题。
   var JD_HINTS = [
-    { role: 'vibe',  re: /VibeCoding|VibeEngineering/i },
-    { role: 'agent', re: /智能体开发工程师/ },
-    { role: 'fde',   re: /FDE|前线部署|项目经理/ }
+    { role: 'design',  re: /Design|Product Engineer|设计/i },
+    { role: 'harness', re: /Harness|编排|运行时/i },
+    { role: 'fde',     re: /FDE|前线部署|项目经理|交付/i },
+    { role: 'agent',   re: /AI Agent|智能体/i }
   ];
   function resolveOwns(items) {
     var claimed = {};
@@ -82,7 +111,7 @@
       for (var j = 0; j < JD_HINTS.length; j++) {
         if (JD_HINTS[j].re.test(it.jd || '')) { rk = JD_HINTS[j].role; break; }
       }
-      if (!rk) rk = 'vibe';                   // 兜底：归到最宽的那个岗位
+      if (!rk) rk = 'fde';                    // 兜底：归到最宽的业务向（vibe 已废弃）
       ROLES[rk].owns.push(it.no);
       claimed[it.no] = rk;
       added.push(it.no + '→' + rk);
@@ -451,7 +480,7 @@
     core: { id: 'core', no: '①', icon: '🎯', name: '核心案例', desc: '' },
     eng:  { id: 'eng',  no: '②', icon: '🔧', name: 'AI 工程化', desc: '' },
     oss:  { id: 'oss',  no: '③', icon: '🧩', name: '开源工具', desc: '' },
-    lab:  { id: 'lab',  no: '④', icon: '✨', name: '实验与 VibeCoding', desc: '' }
+    lab:  { id: 'lab',  no: '④', icon: '✨', name: '实验与工具链', desc: '' }
   };
   var GROUP_ORDER_FALLBACK = ['core', 'eng', 'oss', 'lab'];
 
@@ -523,9 +552,12 @@
     //         21 张卡片各写一遍会变成 21 个将来必定不一致的真源） ----
     var roleText = it.role ? String(it.role) : '';
     var roleShort = roleText.length > 120 ? roleText.slice(0, 120) + '…' : roleText;
-    var meta = (it.jd || roleShort)
+    // 2026-10-22：岗位页里只显示当前岗位名，不显示「A / B」多归属。
+    // 招聘方关心的是「这个作品证明了这个岗位的能力」，多归属是目录页的信息。
+    var jdLabel = (opts && opts.roleLabel) ? opts.roleLabel : it.jd;
+    var meta = (jdLabel || roleShort)
       ? '<p class="w-meta">' +
-          (it.jd ? '<span class="w-meta-jd">' + esc(it.jd) + '</span>' : '') +
+          (jdLabel ? '<span class="w-meta-jd">' + esc(jdLabel) + '</span>' : '') +
           (roleShort ? '<span class="w-meta-role" title="' + esc(roleText) + '">' + esc(roleShort) + '</span>' : '') +
         '</p>'
       : '';
@@ -721,9 +753,17 @@
   // 渲染：岗位页的模块清单
   // ==========================================================================
   function listByRole(items, roleKey, opts) {
-    var mine = items.filter(function (it) { return MODULE_ROLE[it.no] === roleKey; });
+    // 2026-10-22：改用多值判定，让一个作品能出现在多个岗位页
+    var mine = items.filter(function (it) {
+      var roles = MODULE_ROLES[it.no];
+      return roles ? roles.indexOf(roleKey) >= 0 : MODULE_ROLE[it.no] === roleKey;
+    });
     if (!mine.length) return '<p class="works-empty">暂无归属模块。</p>';
-    return mine.map(function (it) { return cardHTML(it, opts); }).join('');
+    // 岗位页里把 jd 标签收敛成当前岗位名，避免出现「AI Agent / Agent Harness」
+    var o = {};
+    if (opts) { for (var k in opts) if (Object.prototype.hasOwnProperty.call(opts, k)) o[k] = opts[k]; }
+    if (!o.roleLabel && ROLES[roleKey]) o.roleLabel = ROLES[roleKey].name;
+    return mine.map(function (it) { return cardHTML(it, o); }).join('');
   }
 
   // ==========================================================================

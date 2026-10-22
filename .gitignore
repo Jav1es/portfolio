@@ -33,6 +33,10 @@ _old-*.js
 # 评审会话留下的截图，不随站点发布
 browser-screenshots/
 
+# 2026-10-22：被移除页面的回收站（vibe-engineer.html 等）。
+# 保留在本地可回退，但绝不发布到 GitHub Pages。
+.trash-*/
+
 
 # 独立的 skill 仓库（已推送到 Jav1es/dsh-skills）
 .dsh-skills/

@@ -188,6 +188,118 @@ window.__RESUME__ = {
         { label: '模板全文', url: './fde.html#mod-11' },
         { label: '案例详情', url: './fde.html#mod-11' }
       ]
+    },
+    {
+      // 2026-10-22：Harness 方向的旗舰项目（简历 harness 版首选）
+      no: '24',
+      name: 'Harness-Agent-Core：Agent 的可控执行层',
+      role: '独立设计与开发（自建参考实现，非客户生产交付）',
+      bullets: [
+        '针对「直接调大模型做多步骤任务，失败率约三成」的问题（幻觉被当事实、工具越权、格式漂移、死循环烧 Token、出错后无法定位），做了一层代码级 Harness：模型只产出「提案」，能不能执行由白名单、确定性校验、自愈回喂与熔断共同决定。',
+        '五层结构：L1 工具编排与上下文隔离（MCP 白名单 + 权限边界）→ L2 确定性硬约束守卫（Schema / 业务规则 / Linter，全部纯函数）→ L3 自愈反馈循环（error_stack 结构化回喂 + do_not_change 边界）→ L4 熔断与人工介入网关（max_retries = 3，超限 Webhook 审批）→ L5 全链路可观测与 CI 门禁。',
+        '在 50 次复杂多步骤测试中，任务中断率由 32% 降至 2% 以下，错误修正平均耗时缩短 80%；597 个自动化测试覆盖 Python 3.11 / 3.12，82 个变异体全部被杀死。作品集实验口径，非客户项目、非第三方基准。'
+      ],
+      tags: ['Harness Engineering', 'LangGraph', 'MCP', 'CI/CD Gate'],
+      links: [
+        { label: 'GitHub', url: 'https://github.com/Jav1es/Harness-Agent-Core' },
+        { label: '案例详情', url: './harness-agent-core.html' }
+      ]
+    },
+    {
+      // Harness 向：运维工具箱（升级自检 / 插件兼容预检）
+      no: '19',
+      name: 'DSH 运维工具箱：升级自检与兼容预检',
+      role: '独立设计与开发（开源）',
+      bullets: [
+        '针对宿主升级后插件静默失效、排查要翻终端日志的问题，做了一套运维工具箱：升级前预检插件兼容性、升级后自检关键能力是否还在、并把生态调研做成可重跑的脚本。',
+        '把「哪些插件会随版本升级失效」从靠记忆变成可验证的检查项，减少升级后的返工与回退。',
+        '开源在 GitHub（MIT），可作为同类宿主工具链的参考实现。'
+      ],
+      tags: ['PowerShell', '插件兼容预检', '升级自检', '开源'],
+      links: [
+        { label: 'GitHub', url: 'https://github.com/Jav1es/dsh-toolkit' },
+        { label: '案例详情', url: './works.html#mod-19' }
+      ]
+    },
+    {
+      // Harness 向：上下文编译层
+      no: '18',
+      name: 'dsh-prompt-compiler：可编程的 prompt 编译层',
+      role: '独立设计与开发（开源）',
+      bullets: [
+        '针对「粗糙草稿直接喂给模型，输出质量全靠运气」的问题，做了一层可编程的 prompt 编译：analyze（识别缺口）→ elicit（补问关键约束）→ compile（生成结构化 prompt）→ render（渲染成可执行形式）。',
+        '把「怎么问」这件事从个人经验沉淀成可复用的流程，减少来回返工。',
+        '作为 DSH 插件开源，提供 MCP 工具与 Skill 两种接入方式。'
+      ],
+      tags: ['prompt 编译', '上下文工程', 'DSH 插件', '开源'],
+      links: [
+        { label: 'GitHub', url: 'https://github.com/Jav1es/dsh-prompt-compiler' },
+        { label: '案例详情', url: './works.html#mod-18' }
+      ]
+    },
+    {
+      // Harness 向：插件生命周期
+      no: '15',
+      name: 'DeepSeek Harness 本机插件三件套',
+      role: '独立设计与开发（开源）',
+      bullets: [
+        '针对宿主能力不够用、但又不方便改宿主本身的问题，做了三个可独立装载的本机插件：微信推送、图片与 PDF 预览、Todo 与 Thinking 面板。',
+        '每个插件独立生命周期：可单独启用/禁用、失败不影响其他插件、升级时不连带崩。',
+        '开源在 GitHub（MIT），三个插件覆盖通知、预览、任务管理三类常见扩展点。'
+      ],
+      tags: ['插件架构', '生命周期管理', 'DSH 插件', '开源'],
+      links: [
+        { label: 'GitHub', url: 'https://github.com/Jav1es/dsh-local-plugins' },
+        { label: '案例详情', url: './works.html#mod-15' }
+      ]
+    },
+    {
+      // Design 向：断言引擎
+      no: '22',
+      name: '原型工厂：可自检的静态原型与断言引擎',
+      role: '独立设计与开发（开源）',
+      bullets: [
+        '针对「原型做得快但没法验证对不对」的问题，做了一套可自检的静态原型工具：生成页面的同时产出断言，改完能自动验证结构、链接、无障碍标记是否还成立。',
+        '把「看起来对」变成「跑起来验证过」，减少交付前的返工。',
+        '开源在 GitHub（MIT）。'
+      ],
+      tags: ['静态原型', '断言引擎', '无障碍', '开源'],
+      links: [
+        { label: 'GitHub', url: 'https://github.com/Jav1es' },
+        { label: '案例详情', url: './works.html#mod-22' }
+      ]
+    },
+    {
+      // Design 向：离线 PWA
+      no: '20',
+      name: '高企认定评分自评系统（离线 PWA）',
+      role: '独立设计与开发（个人开源）',
+      bullets: [
+        '把高企认定的评分规则做成一个能离线跑的自评工具：六步实时算分、雷达图诊断、整改建议直出。',
+        '数据只留在浏览器里，不上传不联网——这是产品决策，不是技术限制。',
+        '零依赖实现，PWA 可安装，弱网/断网环境下仍可用。'
+      ],
+      tags: ['原生 JS', '规则引擎', 'PWA', '离线可用'],
+      links: [
+        { label: '在线体验', url: 'https://jav1es.github.io/portfolio/hitech-self-assessment/' },
+        { label: '案例详情', url: './works.html#mod-20' }
+      ]
+    },
+    {
+      // Design 向：作品集站本身（简历 design 版首选）
+      no: '25',
+      name: '作品集站本身：零依赖 + 24 个手写 3D 封面',
+      role: '独立完成全部设计与实现（个人项目，已上线）',
+      bullets: [
+        '作为 Design Engineer 求职者，作品集站本身就是第一个被审视的作品：如果它用 Three.js 堆特效、用框架套壳，恰恰证明不了「能自己写」。所以第一版就定死约束——零第三方运行时依赖，连 package.json 都不要。',
+        '24 个作品封面全部程序化生成：手写 Canvas 线框渲染器（33.3 KB），含 12 角度 autoFit 防裁切、点/边/桶三层对象池避免 GC 抖动、帧预算调度（视口内最多 4 个并发）。没有一张位图素材。',
+        '构建自带 5 阶段 10 项回归自检（编号连续 / 卡片布局 1280 与 390 两档 / 几何自检），任一不过就 fail；无障碍覆盖键盘可达、aria 标注、prefers-reduced-motion 全量降级。实测 449 帧 0 掉帧。'
+      ],
+      tags: ['Canvas 2D', '零依赖', '原生 JS', '无障碍'],
+      links: [
+        { label: '在线访问', url: 'https://jav1es.github.io/portfolio/' },
+        { label: '源码', url: 'https://github.com/Jav1es/portfolio' }
+      ]
     }
   ]
 };
