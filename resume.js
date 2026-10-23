@@ -180,6 +180,33 @@
     });
     html += '</div></section>';
 
+    // 7.5) 关键指标与验证方式（数据来自 D.evidence；无该字段则整节省略）
+    // 目的：正文里的数字散落在各处，招聘方分不清实测/示例口径。这节把来源摊开。
+    if (D.evidence && D.evidence.rows && D.evidence.rows.length) {
+      html += '<section class="rv-sec"><h2>关键指标与验证方式</h2>' +
+        '<p class="rv-cert">' + esc(D.evidence.note) + '。</p>' +
+        '<div class="rv-evidence">';
+      D.evidence.rows.forEach(function (r) {
+        html += '<div class="rv-ev-row"><b>' + esc(r.k) + '</b>' +
+          '<span class="rv-ev-v">' + esc(r.v) + '</span>' +
+          '<span class="rv-ev-how">' + esc(r.how) + '</span></div>';
+      });
+      html += '</div></section>';
+    }
+
+    // 7.6) 合作方式与边界（数据来自 D.engagement；无该字段则整节省略）
+    // 招聘方最常问「怎么合作」和「你不做什么」；写清边界比堆能力更可信。
+    if (D.engagement && D.engagement.items && D.engagement.items.length) {
+      html += '<section class="rv-sec"><h2>合作方式与边界</h2>' +
+        '<p class="rv-cert">' + esc(D.engagement.note) + '。</p>' +
+        '<div class="rv-engage">';
+      D.engagement.items.forEach(function (it) {
+        html += '<div class="rv-eng-row"><b>' + esc(it.k) + '</b>' +
+          '<span>' + esc(it.v) + '</span></div>';
+      });
+      html += '</div></section>';
+    }
+
     // 8) 教育 / 证书
     html += '<section class="rv-sec"><h2>教育背景</h2>';
     D.education.forEach(function (e) {
@@ -195,13 +222,20 @@
       '</p></section>';
 
     // 底注
-    // 「更新于」放在底注之前、作为独立一行：两版简历共用同一份数据源（D），
-    // 所以两版显示同一个日期，不会出现一份新一份旧。
+    // 「更新于」放在底注之前、作为独立一行：四版简历共用同一份数据源（D），
+    // 所以各版显示同一个日期，不会出现一份新一份旧。
+    //
+    // ⚠️ 2026-10-23：把「更新于 + 底注」包进 .rv-endnote 容器。
+    // 原因：fde 版内容最长，实测这两个块合计 37px 却被挤到第 4 页，
+    // 等于为了 37px 元信息多印一整页。包成一块后，它们作为整体跟随
+    // 证书节，不再单独触发分页。
+    html += '<div class="rv-endnote">';
     if (D.updated) {
       html += '<p class="rv-updated">更新于 ' + esc(D.updated) + '</p>';
     }
     html += '<p class="rv-foot">成效类数字均已标注口径（实测 / 测算模型 / 示例口径）；' +
       '客户名称与年度数据一律脱敏。本页可直接下载 PDF，或按 Ctrl / Cmd + P 打印。</p>';
+    html += '</div>';
 
     document.getElementById('resume-root').innerHTML = html;
     document.title = '黄家辉 · 简历 | ' + V.title;

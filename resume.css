@@ -121,6 +121,37 @@
 .rv-skill-row dt { font-size: 12.4px; font-weight: 800; color: #111; }
 .rv-skill-row dd { font-size: 12.4px; color: #333; margin: 0; }
 
+/* 关键指标与验证方式
+   三列：指标名 / 数值 / 验证方式。数值单独一列加粗，
+   让「这个数是多少」和「这个数怎么来的」一眼分开。 */
+.rv-evidence { display: grid; gap: 4px; }
+.rv-ev-row {
+  /* 数值列 130px 才能容下「300+ 项目 / 100+ 企业」与「93.3%（28/30）」
+     不换行；96px 时这两处会在中间折断（2026-10-23 实测）。 */
+  display: grid; grid-template-columns: 118px 132px 1fr; gap: 10px;
+  font-size: 12.2px; line-height: 1.55; align-items: baseline;
+  padding-bottom: 3px; border-bottom: 1px solid #eef1f4;
+}
+.rv-ev-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.rv-ev-row b { font-weight: 800; color: #111; }
+.rv-ev-v {
+  font-weight: 700; color: #2563eb; font-variant-numeric: tabular-nums;
+  /* 数值整体不可断行：宁可挤一点也不让「（28/30）」单独掉到下一行 */
+  white-space: nowrap;
+}
+.rv-ev-how { color: #444; }
+
+/* 合作方式与边界：两列（项 / 内容），比指标表简单 */
+.rv-engage { display: grid; gap: 4px; }
+.rv-eng-row {
+  display: grid; grid-template-columns: 82px 1fr; gap: 10px;
+  font-size: 12.2px; line-height: 1.55; align-items: baseline;
+  padding-bottom: 3px; border-bottom: 1px solid #eef1f4;
+}
+.rv-eng-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.rv-eng-row b { font-weight: 800; color: #111; }
+.rv-eng-row span { color: #333; }
+
 /* 经历时间线 */
 .rv-exp { margin-bottom: 12px; }
 .rv-exp:last-child { margin-bottom: 0; }
@@ -191,6 +222,18 @@
   .resume-bar { padding: 10px 14px; }
 }
 
+/* ⚠️ 上面这条窄屏规则会**污染打印样式**：
+   A4 打印可用宽 = 210 - 28(左右各 14mm) = 182mm ≈ 688px，小于 820px，
+   所以打印时也命中「窄屏」分支，技能矩阵 / 开源列表被压成单列，
+   高度从 295/251px 涨到 401/350px，白白多占约 204px（≈1/5 页）。
+   这不是内容取舍问题，是媒体查询没考虑打印宽度（2026-10-23 实测）。
+   修法：在 print 媒体里显式还原两列 —— 打印版面固定，不该跟随屏幕宽度降级。 */
+@media print {
+  .rv-skills, .rv-oss { grid-template-columns: 1fr 1fr; }
+  .rv-skill-row { grid-template-columns: 118px 1fr; gap: 8px; }
+  .rv-skill-row dt { margin-top: 0; }
+}
+
 /* ==========================================================================
    打印：隐藏工具条与交互，展开链接为文字，保证黑白可读
    ========================================================================== */
@@ -234,6 +277,43 @@
   /* 避免在小标题后断页、条目被拆开 */
   .rv-sec > h2 { page-break-after: avoid; break-after: avoid; }
   .rv-exp, .rv-proj, .rv-edu { page-break-inside: avoid; break-inside: avoid; }
+
+  /* 防止「只差一点点就多出一页」
+     2026-10-23 实测：fde / agent 两版内容 3134 / 2979px，理论 3.08 / 2.93 页，
+     但因为页脚（44px）整体放不下，被推到第 4 页，而第 4 页只有这一行 ——
+     等于为了 44px 多印一整页。这是排版问题，不是内容取舍（内容一字未删）。
+     对策：整体收紧节间距与行内边距，把这几十像素让出来。
+     ⚠️ 不要用 :has() —— 实测在 print 媒体下未生效。 */
+  /* ⚠️ 关键发现（2026-10-23）：.rv-sec 基础规则里有 margin-bottom: 15px，
+     全文 8 个 section ⇒ 光这一项就吃掉 120px，相当于 1/8 页。
+     之前只压了 margin-top，漏了 margin-bottom，所以 fde 怎么都回不到 3 页。
+     打印时把下边距也收掉（节与节之间已由 margin-top 11px 分隔，视觉够用）。 */
+  .rv-sec { margin-top: 11px !important; margin-bottom: 4px !important; }
+  .rv-foot { margin-top: 6px !important; }
+  .rv-updated { margin: 6px 0 0 !important; }
+  .rv-ev-row, .rv-eng-row { padding-bottom: 1px !important; }
+  .rv-evidence, .rv-engage { gap: 2px !important; }
+  /* fde 版内容最长（3111px，理论 3.059 页），实测第 4 页只装了
+     「更新于 + 页脚」共 74px —— 为了 74px 多印一整页，纯浪费。
+     对策：把这两块合并成一行（inline），省下 18px 高度 + 它们各自的 margin，
+     再把 bullet 行高与项目间距各让一点，凑够需要的 60px。文字一字未删。 */
+  .rv-updated { display: inline !important; margin: 0 !important; }
+  .rv-foot { display: inline !important; margin: 0 0 0 10px !important; padding-top: 0 !important; border-top: 0 !important; }
+  .rv-proj { margin-bottom: 10px !important; }
+  .rv-proj li, .rv-exp li { line-height: 1.56 !important; }
+  /* fde 版 summary 最长（251 字，比其他版多 60–100 字），实测比其他版高约 60px，
+     正好把页脚顶到第 4 页。summary 是求职信性质的自述，不该为排版删字，
+     所以这里统一收一点字号/行高（四版一致，不是只针对 fde 打补丁）。 */
+  .rv-summary { font-size: 12.6px !important; line-height: 1.6 !important; }
+  /* 页脚是「已标注口径 / 可下载 PDF」这类元信息，不是正文；
+     实测它单独占 45px 并被挤到第 4 页，只为它多印一整页不值得。
+     对策：不设 break-inside:avoid（那会让它整块被推到下一页），
+     而是允许它紧跟证书节收尾 —— 它本来就只有两行，拆开也无损阅读。 */
+  .rv-endnote { break-inside: auto; page-break-inside: auto; margin-top: 4px !important; }
+  .rv-foot { font-size: 10.5px !important; line-height: 1.45 !important; margin: 2px 0 0 !important; }
+  .rv-updated { font-size: 10.5px !important; margin: 0 !important; }
+  /* 证书节末尾的内边距也收一点，给 endnote 腾位置 */
+  .rv-cert { margin-bottom: 0 !important; }
 
   /* 黑白友好：主色压成深灰 */
   .rv-title, .rv-exp-role, .rv-contact a, .rv-proj-links a { color: #000 !important; }
